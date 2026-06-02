@@ -72,12 +72,33 @@ public class ControllerMultipleRoleDispatch {
 			
 		// See if Role2
 		} else if (role.compareTo("Role2") == 0) {
-			
+
 			// It is Role 2 Role
 			guiRole2.ViewRole2Home.displayRole2Home(
-					guiMultipleRoleDispatch.ViewMultipleRoleDispatch.theStage, 
+					guiMultipleRoleDispatch.ViewMultipleRoleDispatch.theStage,
 					guiMultipleRoleDispatch.ViewMultipleRoleDispatch.theUser);
-			
+
+		// See if Student
+		} else if (role.compareTo("Student") == 0) {
+
+			guiStudentHome.ViewStudentHome.displayStudentHome(
+					guiMultipleRoleDispatch.ViewMultipleRoleDispatch.theStage,
+					guiMultipleRoleDispatch.ViewMultipleRoleDispatch.theUser);
+
+		// See if Instructor
+		} else if (role.compareTo("Instructor") == 0) {
+
+			guiInstructorHome.ViewInstructorHome.displayInstructorHome(
+					guiMultipleRoleDispatch.ViewMultipleRoleDispatch.theStage,
+					guiMultipleRoleDispatch.ViewMultipleRoleDispatch.theUser);
+
+		// See if Staff
+		} else if (role.compareTo("Staff") == 0) {
+
+			guiStaffHome.ViewStaffHome.displayStaffHome(
+					guiMultipleRoleDispatch.ViewMultipleRoleDispatch.theStage,
+					guiMultipleRoleDispatch.ViewMultipleRoleDispatch.theUser);
+
 		} else {
 			// Invalid role
 			System.out.println("*** ERROR *** GUIMultipleRoleDispatch was asked to dispatch to " +
