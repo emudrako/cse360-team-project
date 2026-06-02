@@ -91,12 +91,15 @@ public class ControllerUserLogin {
 		// System.out.println("*** Password is valid for this user");
 		
 		// Establish this user's details
-    	User user = new User(username, password, theDatabase.getCurrentFirstName(), 
-    			theDatabase.getCurrentMiddleName(), theDatabase.getCurrentLastName(), 
-    			theDatabase.getCurrentPreferredFirstName(), theDatabase.getCurrentEmailAddress(), 
-    			theDatabase.getCurrentAdminRole(), 
+    	User user = new User(username, password, theDatabase.getCurrentFirstName(),
+    			theDatabase.getCurrentMiddleName(), theDatabase.getCurrentLastName(),
+    			theDatabase.getCurrentPreferredFirstName(), theDatabase.getCurrentEmailAddress(),
+    			theDatabase.getCurrentAdminRole(),
     			theDatabase.getCurrentNewRole1(), theDatabase.getCurrentNewRole2());
-    	
+    	user.setStudentRole(theDatabase.getCurrentStudentRole());
+    	user.setInstructorRole(theDatabase.getCurrentInstructorRole());
+    	user.setStaffRole(theDatabase.getCurrentStaffRole());
+
     	// See which home page dispatch to use
 		int numberOfRoles = theDatabase.getNumberOfRoles(user);		
 		// System.out.println("*** The number of roles: "+ numberOfRoles);
@@ -119,7 +122,21 @@ public class ControllerUserLogin {
 				if (loginResult) {
 					guiRole2.ViewRole2Home.displayRole2Home(theStage, user);
 				}
-				// Other roles
+			} else if (user.getStudentRole()) {
+				loginResult = theDatabase.loginStudent(user);
+				if (loginResult) {
+					guiStudentHome.ViewStudentHome.displayStudentHome(theStage, user);
+				}
+			} else if (user.getInstructorRole()) {
+				loginResult = theDatabase.loginInstructor(user);
+				if (loginResult) {
+					guiInstructorHome.ViewInstructorHome.displayInstructorHome(theStage, user);
+				}
+			} else if (user.getStaffRole()) {
+				loginResult = theDatabase.loginStaff(user);
+				if (loginResult) {
+					guiStaffHome.ViewStaffHome.displayStaffHome(theStage, user);
+				}
 			} else {
 				System.out.println("***** UserLogin goToUserHome request has an invalid role");
 			}
