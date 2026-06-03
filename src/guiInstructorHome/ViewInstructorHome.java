@@ -1,0 +1,155 @@
+package guiInstructorHome;
+
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.layout.Pane;
+import javafx.scene.shape.Line;
+import javafx.scene.text.Font;
+import javafx.stage.Stage;
+import database.Database;
+import entityClasses.User;
+
+
+/*******
+ * <p> Title: ViewInstructorHome Class. </p>
+ *
+ * <p> Description: The Java/FX-based Instructor Home Page. The page is a placeholder for the
+ * Instructor role. Functional widgets will be added in a future phase.</p>
+ *
+ * <p> Copyright: Elena Mudrakova © 2026 </p>
+ *
+ * @author Elena Mudrakova
+ *
+ * @version 1.00		2026-06-01 Initial version
+ *
+ */
+
+public class ViewInstructorHome {
+
+	/*-*******************************************************************************************
+
+	Attributes
+
+	 */
+
+	private static double width = applicationMain.FoundationsMain.WINDOW_WIDTH;
+	private static double height = applicationMain.FoundationsMain.WINDOW_HEIGHT;
+
+	// GUI Area 1
+	protected static Label label_PageTitle = new Label();
+	protected static Label label_UserDetails = new Label();
+	protected static Button button_UpdateThisUser = new Button("Account Update");
+
+	private static Line line_Separator1 = new Line(20, 95, width-20, 95);
+
+	// GUI Area 2 - placeholder, no widgets yet
+
+	private static Line line_Separator4 = new Line(20, 525, width-20, 525);
+
+	// GUI Area 3
+	protected static Button button_Logout = new Button("Logout");
+	protected static Button button_Quit = new Button("Quit");
+
+	private static ViewInstructorHome theView;
+	private static Database theDatabase = applicationMain.FoundationsMain.database;
+
+	protected static Stage theStage;
+	protected static Pane theRootPane;
+	protected static User theUser;
+
+	private static Scene theViewInstructorHomeScene;
+	protected static final int theRole = 5;		// Admin: 1; Role1: 2; Role2: 3; Student: 4; Instructor: 5
+
+	/*-*******************************************************************************************
+
+	Constructors
+
+	 */
+
+	/**********
+	 * <p> Method: displayInstructorHome(Stage ps, User user) </p>
+	 *
+	 * <p> Description: Single entry point to display the Instructor Home page. </p>
+	 *
+	 * @param ps specifies the JavaFX Stage to be used for this GUI
+	 *
+	 * @param user specifies the User for this GUI
+	 *
+	 */
+	public static void displayInstructorHome(Stage ps, User user) {
+		theStage = ps;
+		theUser = user;
+
+		if (theView == null) theView = new ViewInstructorHome();
+
+		theDatabase.getUserAccountDetails(user.getUserName());
+		applicationMain.FoundationsMain.activeHomePage = theRole;
+
+		label_UserDetails.setText("User: " + theUser.getUserName());
+
+		theStage.setTitle("CSE 360 Foundations: Instructor Home Page");
+		theStage.setScene(theViewInstructorHomeScene);
+		theStage.show();
+	}
+
+	/**********
+	 * <p> Method: ViewInstructorHome() </p>
+	 *
+	 * <p> Description: Initializes all GUI elements. Singleton — runs once. </p>
+	 *
+	 */
+	private ViewInstructorHome() {
+		theRootPane = new Pane();
+		theViewInstructorHomeScene = new Scene(theRootPane, width, height);
+
+		// GUI Area 1
+		label_PageTitle.setText("Instructor Home Page");
+		setupLabelUI(label_PageTitle, "Arial", 28, width, Pos.CENTER, 0, 5);
+
+		label_UserDetails.setText("User: " + theUser.getUserName());
+		setupLabelUI(label_UserDetails, "Arial", 20, width, Pos.BASELINE_LEFT, 20, 55);
+
+		setupButtonUI(button_UpdateThisUser, "Dialog", 18, 170, Pos.CENTER, 610, 45);
+		button_UpdateThisUser.setOnAction((_) -> { ControllerInstructorHome.performUpdate(); });
+
+		// GUI Area 2 - placeholder
+
+		// GUI Area 3
+		setupButtonUI(button_Logout, "Dialog", 18, 250, Pos.CENTER, 20, 540);
+		button_Logout.setOnAction((_) -> { ControllerInstructorHome.performLogout(); });
+
+		setupButtonUI(button_Quit, "Dialog", 18, 250, Pos.CENTER, 300, 540);
+		button_Quit.setOnAction((_) -> { ControllerInstructorHome.performQuit(); });
+
+		theRootPane.getChildren().addAll(
+			label_PageTitle, label_UserDetails, button_UpdateThisUser, line_Separator1,
+			line_Separator4, button_Logout, button_Quit);
+	}
+
+
+	/*-********************************************************************************************
+
+	Helper methods to reduce code length
+
+	 */
+
+	private static void setupLabelUI(Label l, String ff, double f, double w, Pos p, double x,
+			double y) {
+		l.setFont(Font.font(ff, f));
+		l.setMinWidth(w);
+		l.setAlignment(p);
+		l.setLayoutX(x);
+		l.setLayoutY(y);
+	}
+
+	private static void setupButtonUI(Button b, String ff, double f, double w, Pos p, double x,
+			double y) {
+		b.setFont(Font.font(ff, f));
+		b.setMinWidth(w);
+		b.setAlignment(p);
+		b.setLayoutX(x);
+		b.setLayoutY(y);
+	}
+}

@@ -134,6 +134,12 @@ public class ControllerAddRemoveRoles {
 			ViewAddRemoveRoles.addList.add("Role1");
 		if (!theDatabase.getCurrentNewRole2())
 			ViewAddRemoveRoles.addList.add("Role2");
+		if (!theDatabase.getCurrentStudentRole())
+			ViewAddRemoveRoles.addList.add("Student");
+		if (!theDatabase.getCurrentInstructorRole())
+			ViewAddRemoveRoles.addList.add("Instructor");
+		if (!theDatabase.getCurrentStaffRole())
+			ViewAddRemoveRoles.addList.add("Staff");
 
 		// Create the list of roles that could be removed for the currently selected user (e.g., Do
 		// not show a role to remove that the user does not have!)
@@ -145,6 +151,12 @@ public class ControllerAddRemoveRoles {
 			ViewAddRemoveRoles.removeList.add("Role1");
 		if (theDatabase.getCurrentNewRole2())
 			ViewAddRemoveRoles.removeList.add("Role2");
+		if (theDatabase.getCurrentStudentRole())
+			ViewAddRemoveRoles.removeList.add("Student");
+		if (theDatabase.getCurrentInstructorRole())
+			ViewAddRemoveRoles.removeList.add("Instructor");
+		if (theDatabase.getCurrentStaffRole())
+			ViewAddRemoveRoles.removeList.add("Staff");
 		
 		// Create the list or roles that the user currently has with proper use of a comma between
 		// items
@@ -170,9 +182,36 @@ public class ControllerAddRemoveRoles {
 		// Roles 2 - It could be at the head of the list or later in the list
 		if (theDatabase.getCurrentNewRole2()) {
 			if (notTheFirst)
-				theCurrentRoles += ", Role2"; 
+				theCurrentRoles += ", Role2";
 			else {
 				theCurrentRoles += "Role2";
+				notTheFirst = true;
+			}
+		}
+
+		if (theDatabase.getCurrentStudentRole()) {
+			if (notTheFirst)
+				theCurrentRoles += ", Student";
+			else {
+				theCurrentRoles += "Student";
+				notTheFirst = true;
+			}
+		}
+
+		if (theDatabase.getCurrentInstructorRole()) {
+			if (notTheFirst)
+				theCurrentRoles += ", Instructor";
+			else {
+				theCurrentRoles += "Instructor";
+				notTheFirst = true;
+			}
+		}
+
+		if (theDatabase.getCurrentStaffRole()) {
+			if (notTheFirst)
+				theCurrentRoles += ", Staff";
+			else {
+				theCurrentRoles += "Staff";
 				notTheFirst = true;
 			}
 		}

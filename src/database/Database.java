@@ -60,6 +60,9 @@ public class Database {
 	private boolean currentAdminRole;
 	private boolean currentNewRole1;
 	private boolean currentNewRole2;
+	private boolean currentStudentRole;
+	private boolean currentInstructorRole;
+	private boolean currentStaffRole;
 
 	/*******
 	 * <p> Method: Database </p>
@@ -88,7 +91,7 @@ public class Database {
 			connection = DriverManager.getConnection(DB_URL, USER, PASS);
 			statement = connection.createStatement(); 
 			// You can use this command to clear the database and restart from fresh.
-			//statement.execute("DROP ALL OBJECTS");
+//			statement.execute("DROP ALL OBJECTS");
 
 			createTables();  // Create the necessary tables if they don't exist
 		} catch (ClassNotFoundException e) {
@@ -116,7 +119,10 @@ public class Database {
 				+ "emailAddress VARCHAR(255), "
 				+ "adminRole BOOL DEFAULT FALSE, "
 				+ "newRole1 BOOL DEFAULT FALSE, "
-				+ "newRole2 BOOL DEFAULT FALSE)";
+				+ "newRole2 BOOL DEFAULT FALSE, "
+				+ "studentRole BOOL DEFAULT FALSE, "
+				+ "instructorRole BOOL DEFAULT FALSE, "
+				+ "staffRole BOOL DEFAULT FALSE)";
 		statement.execute(userTable);
 		
 		// Create the invitation codes table
@@ -183,8 +189,9 @@ public class Database {
  */
 	public void register(User user) throws SQLException {
 		String insertUser = "INSERT INTO userDB (userName, password, firstName, middleName, "
-				+ "lastName, preferredFirstName, emailAddress, adminRole, newRole1, newRole2) "
-				+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+				+ "lastName, preferredFirstName, emailAddress, adminRole, newRole1, newRole2, "
+				+ "studentRole, instructorRole, staffRole) "
+				+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		try (PreparedStatement pstmt = connection.prepareStatement(insertUser)) {
 			currentUsername = user.getUserName();
 			pstmt.setString(1, currentUsername);
@@ -212,10 +219,19 @@ public class Database {
 			
 			currentNewRole1 = user.getNewRole1();
 			pstmt.setBoolean(9, currentNewRole1);
-			
+
 			currentNewRole2 = user.getNewRole2();
 			pstmt.setBoolean(10, currentNewRole2);
-			
+
+			currentStudentRole = user.getStudentRole();
+			pstmt.setBoolean(11, currentStudentRole);
+
+			currentInstructorRole = user.getInstructorRole();
+			pstmt.setBoolean(12, currentInstructorRole);
+
+			currentStaffRole = user.getStaffRole();
+			pstmt.setBoolean(13, currentStaffRole);
+
 			pstmt.executeUpdate();
 		}
 		
@@ -309,6 +325,45 @@ public class Database {
 	 * @return true if the specified user has been logged in as an Student else false.
 	 * 
 	 */
+	public boolean loginStudent(User user) {
+		String query = "SELECT * FROM userDB WHERE userName = ? AND password = ? AND studentRole = TRUE";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setString(1, user.getUserName());
+			pstmt.setString(2, user.getPassword());
+			ResultSet rs = pstmt.executeQuery();
+			return rs.next();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	public boolean loginInstructor(User user) {
+		String query = "SELECT * FROM userDB WHERE userName = ? AND password = ? AND instructorRole = TRUE";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setString(1, user.getUserName());
+			pstmt.setString(2, user.getPassword());
+			ResultSet rs = pstmt.executeQuery();
+			return rs.next();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	public boolean loginStaff(User user) {
+		String query = "SELECT * FROM userDB WHERE userName = ? AND password = ? AND staffRole = TRUE";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setString(1, user.getUserName());
+			pstmt.setString(2, user.getPassword());
+			ResultSet rs = pstmt.executeQuery();
+			return rs.next();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
 	// Validates a reviewer user's login credentials.
 	public boolean loginRole2(User user) {
 		String query = "SELECT * FROM userDB WHERE userName = ? AND password = ? AND "
@@ -370,6 +425,9 @@ public class Database {
 		if (user.getAdminRole()) numberOfRoles++;
 		if (user.getNewRole1()) numberOfRoles++;
 		if (user.getNewRole2()) numberOfRoles++;
+		if (user.getStudentRole()) numberOfRoles++;
+		if (user.getInstructorRole()) numberOfRoles++;
+		if (user.getStaffRole()) numberOfRoles++;
 		return numberOfRoles;
 	}	
 
@@ -833,6 +891,9 @@ public class Database {
 	    	currentAdminRole = rs.getBoolean(9);
 	    	currentNewRole1 = rs.getBoolean(10);
 	    	currentNewRole2 = rs.getBoolean(11);
+	    	currentStudentRole = rs.getBoolean(12);
+	    	currentInstructorRole = rs.getBoolean(13);
+	    	currentStaffRole = rs.getBoolean(14);
 			return true;
 	    } catch (SQLException e) {
 			return false;
@@ -897,6 +958,42 @@ public class Database {
 					currentNewRole2 = true;
 				else
 					currentNewRole2 = false;
+				return true;
+			} catch (SQLException e) {
+				return false;
+			}
+		}
+		if (role.compareTo("Student") == 0) {
+			String query = "UPDATE userDB SET studentRole = ? WHERE username = ?";
+			try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+				pstmt.setString(1, value);
+				pstmt.setString(2, username);
+				pstmt.executeUpdate();
+				currentStudentRole = value.compareTo("true") == 0;
+				return true;
+			} catch (SQLException e) {
+				return false;
+			}
+		}
+		if (role.compareTo("Instructor") == 0) {
+			String query = "UPDATE userDB SET instructorRole = ? WHERE username = ?";
+			try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+				pstmt.setString(1, value);
+				pstmt.setString(2, username);
+				pstmt.executeUpdate();
+				currentInstructorRole = value.compareTo("true") == 0;
+				return true;
+			} catch (SQLException e) {
+				return false;
+			}
+		}
+		if (role.compareTo("Staff") == 0) {
+			String query = "UPDATE userDB SET staffRole = ? WHERE username = ?";
+			try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+				pstmt.setString(1, value);
+				pstmt.setString(2, username);
+				pstmt.executeUpdate();
+				currentStaffRole = value.compareTo("true") == 0;
 				return true;
 			} catch (SQLException e) {
 				return false;
@@ -1016,7 +1113,11 @@ public class Database {
 	 */
 	public boolean getCurrentNewRole2() { return currentNewRole2;};
 
-	
+	public boolean getCurrentStudentRole() { return currentStudentRole; }
+	public boolean getCurrentInstructorRole() { return currentInstructorRole; }
+	public boolean getCurrentStaffRole() { return currentStaffRole; }
+
+
 	/*******
 	 * <p> Debugging method</p>
 	 * 

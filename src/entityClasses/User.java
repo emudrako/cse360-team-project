@@ -28,6 +28,9 @@ public class User {
     private boolean adminRole;
     private boolean role1;
     private boolean role2;
+    private boolean studentRole;	
+    private boolean instructorRole;
+    private boolean staffRole;
     
     
     /*****
@@ -43,22 +46,22 @@ public class User {
     /*****
      * <p> Method: User(String userName, String password, boolean r1, boolean r2,
      * 		boolean r3, boolean r4, boolean r5) </p>
-     * 
+     *
      * <p> Description: This constructor is used to establish user entity objects. </p>
-     * 
+     *
      * @param userName specifies the account userName for this user
-     * 
+     *
      * @param password specifies the account password for this user
-     * 
+     *
      * @param r1 specifies the the Admin attribute (TRUE or FALSE) for this user
-     * 
+     *
      * @param r2 specifies the the Student attribute (TRUE or FALSE) for this user
-     * 
+     *
      * @param r3 specifies the the Reviewer attribute (TRUE or FALSE) for this user
-     * 
+     *
      */
     // Constructor to initialize a new User object with userName, password, and role.
-    public User(String userName, String password, String fn, String mn, String ln, String pfn, 
+    public User(String userName, String password, String fn, String mn, String ln, String pfn,
     		String ea, boolean r1, boolean r2, boolean r3) {
         this.userName = userName;
         this.password = password;
@@ -113,6 +116,10 @@ public class User {
     public void setRole2User(boolean role) {
     	this.role2=role;
     }
+
+    public void setStudentRole(boolean role) { this.studentRole = role; }
+    public void setInstructorRole(boolean role) { this.instructorRole = role; }
+    public void setStaffRole(boolean role) { this.staffRole = role; }
 
     
     /*****
@@ -242,6 +249,10 @@ public class User {
     // Gets the current value of the role2 attribute.
     public boolean getNewRole2() { return role2; }
 
+    public boolean getStudentRole() { return studentRole; }
+    public boolean getInstructorRole() { return instructorRole; }
+    public boolean getStaffRole() { return staffRole; }
+
         
     /*****
      * <p> Method: int getNumRoles() </p>
@@ -257,6 +268,9 @@ public class User {
     	if (adminRole) numRoles++;
     	if (role1) numRoles++;
     	if (role2) numRoles++;
+    	if (studentRole) numRoles++;
+    	if (instructorRole) numRoles++;
+    	if (staffRole) numRoles++;
     	return numRoles;
     }
 }
