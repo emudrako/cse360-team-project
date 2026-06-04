@@ -1,7 +1,7 @@
 package guiAdminHome;
 
 import database.Database;
-
+import java.time.LocalDateTime; // Import LocalDateTime for invitation code expiration functionality
 /*******
  * <p> Title: GUIAdminHomePage Class. </p>
  * 
@@ -70,10 +70,13 @@ public class ControllerAdminHome {
 			return;
 		}
 		
+		// Automatically set the invitation expiry to 1 hour from current date and time.
+		LocalDateTime deadline = LocalDateTime.now().plusHours(1); 
+		
 		// Inform the user that the invitation has been sent and display the invitation code
 		String theSelectedRole = (String) ViewAdminHome.combobox_SelectRole.getValue();
 		String invitationCode = theDatabase.generateInvitationCode(emailAddress,
-				theSelectedRole);
+				theSelectedRole, deadline);
 		String msg = "Code: " + invitationCode + " for role " + theSelectedRole + 
 				" was sent to: " + emailAddress;
 		System.out.println(msg);
