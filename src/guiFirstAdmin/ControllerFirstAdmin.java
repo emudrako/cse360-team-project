@@ -24,8 +24,11 @@ import recognizers.UserNameRecognizer;
  * <p> Copyright: Lynn Robert Carter © 2025 </p>
  * 
  * @author Lynn Robert Carter
+ * @author Sara Suarez
  * 
  * @version 1.00		2025-08-17 Initial version
+ * @version 1.01		2026-06-04 Added real-time password strength validation (Story 2)
+ * 									and added maximum input length checks (Story 3)
  *  
  */
 
@@ -72,13 +75,26 @@ public class ControllerFirstAdmin {
 	/**********
 	 * <p> Method: setAdminPassword1() </p>
 	 * 
-	 * <p> Description: This method is called when the user adds text to the password 1 field in
-	 * the View.  A private local copy of what was last entered is kept here.</p>
-	 * 
+	 * <p> Description: This method is called when the user adds text to the first
+ * password field in the View. It first checks that the password does not exceed
+ * the maximum allowed length (Story 3). If within the limit, it then evaluates
+ * the password strength in real time using the PasswordEvaluator and displays
+ * feedback to the user as they type (Story 2).</p>
 	 */
 	protected static void setAdminPassword1() {
 		adminPassword1 = ViewFirstAdmin.text_AdminPassword1.getText();
-		ViewFirstAdmin.label_PasswordsDoNotMatch.setText("");
+		// Check max length first before any other processing (Story 3)
+		if (adminPassword1.length() > recognizers.PasswordEvaluator.MAX_PASSWORD_LENGTH) {
+			ViewFirstAdmin.label_PasswordsDoNotMatch.setText(
+			"Password is too long. Maximum is 24 characters.");
+			return;
+		}
+		// Evaluate password strength in real time as user types (Story 2)
+	    String result = recognizers.PasswordEvaluator.evaluatePassword(adminPassword1);
+	    if (!result.isEmpty())
+	        ViewFirstAdmin.label_PasswordsDoNotMatch.setText(result);
+	    else
+	        ViewFirstAdmin.label_PasswordsDoNotMatch.setText("Password looks good!");
 	}
 	
 	
