@@ -642,7 +642,27 @@ public class Database {
 	*  @param code is the 6 character String invitation code
 	*/
 	public void removeInvitationAfterExpiration(String code) {
-		// TODO Story 5 :  remove the expired invitation
+		String query = "SELECT COUNT(*) AS count FROM InvitationCodes WHERE code = ?";
+	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+	        pstmt.setString(1, code);
+	        ResultSet rs = pstmt.executeQuery();
+	        if (rs.next()) {
+	        	int counter = rs.getInt(1);
+	            // Only do the remove if the expired code is still in the invitation table
+	        	if (counter > 0) {
+        			query = "DELETE FROM InvitationCodes WHERE code = ?";
+	        		try (PreparedStatement pstmt2 = connection.prepareStatement(query)) {
+	        			pstmt2.setString(1, code);
+	        			pstmt2.executeUpdate();
+	        		}catch (SQLException e) {
+	        	        e.printStackTrace();
+	        	    }
+	        	}
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+		return;
 	}
 	
 	

@@ -133,8 +133,9 @@ public class ViewNewAccount {
 		
 		// Fetch the Invitation code deadline information
 		if(theDatabase.isInvitationExpired(theInvitationCode)){ // If the invitation code is expired call invitationCodesTable
-			theDatabase.removeInvitationAfterExpiration(theInvitationCode); 
-			alertInvitationCodeIsInvalid.setContentText("This invitation code has expired."); // dialog box notifying of expired code
+			theDatabase.removeInvitationAfterExpiration(theInvitationCode);
+			alertInvitationCodeIsInvalid.setHeaderText("The invitation code has expired.");
+			alertInvitationCodeIsInvalid.setContentText("Contact the admin to request a new invitation code."); // dialog box notifying of expired code
 			alertInvitationCodeIsInvalid.showAndWait();
 				
 		}
