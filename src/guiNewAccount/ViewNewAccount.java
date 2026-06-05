@@ -127,16 +127,17 @@ public class ViewNewAccount {
 		theRole = theDatabase.getRoleGivenAnInvitationCode(theInvitationCode);
 		
 		if (theRole.length() == 0) {// If there is an issue with the invitation code, display a
-			alertInvitationCodeIsInvalid.showAndWait();	// dialog box saying that are when it it
+			alertInvitationCodeIsInvalid.showAndWait();	// dialog box saying that are when it is
 			return;					// acknowledged, return so the proper code can be entered
 		}
 		
-		// TODO Check the deadline for the invitation code
-		if(theDatabase.isInvitationExpired(theInvitationCode)){
-				//remove the invitation from the invitation code table
-				//send error message indicating expired
+		// Fetch the Invitation code deadline information
+		if(theDatabase.isInvitationExpired(theInvitationCode)){ // If the invitation code is expired call invitationCodesTable
+			theDatabase.removeInvitationAfterExpiration(theInvitationCode); 
+			alertInvitationCodeIsInvalid.setContentText("This invitation code has expired."); // dialog box notifying of expired code
+			alertInvitationCodeIsInvalid.showAndWait();
+				
 		}
-	
 		
 		// Get the email address associated with the invitation code
 		emailAddress = theDatabase.getEmailAddressUsingCode(theInvitationCode);
