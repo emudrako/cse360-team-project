@@ -1,10 +1,8 @@
 package database;
 
 import java.sql.*;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.time.LocalDateTime; // Import LocalDateTime for invitation code expiration functionality
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -91,7 +89,7 @@ public class Database {
 			connection = DriverManager.getConnection(DB_URL, USER, PASS);
 			statement = connection.createStatement(); 
 			// You can use this command to clear the database and restart from fresh.
-//			statement.execute("DROP ALL OBJECTS");
+//	statement.execute("DROP ALL OBJECTS");
 
 			createTables();  // Create the necessary tables if they don't exist
 		} catch (ClassNotFoundException e) {
@@ -129,7 +127,8 @@ public class Database {
 	    String invitationCodesTable = "CREATE TABLE IF NOT EXISTS InvitationCodes ("
 	            + "code VARCHAR(10) PRIMARY KEY, "
 	    		+ "emailAddress VARCHAR(255), "
-	            + "role VARCHAR(10))";
+	            + "role VARCHAR(10), "
+	            + "deadline TIMESTAMP)"; // Deadline column added for invitation expiration;
 	    statement.execute(invitationCodesTable);
 	}
 
@@ -433,29 +432,32 @@ public class Database {
 
 	
 	/*******
-	 * <p> Method: String generateInvitationCode(String emailAddress, String role) </p>
+	 * <p> Method: String generateInvitationCode(String emailAddress, String role, LocalDateTime deadline) </p>
 	 * 
-	 * <p> Description: Given an email address and a roles, this method establishes and invitation
+	 * <p> Description: Given an email address and a roles and a deadline, this method establishes and invitation
 	 * code and adds a record to the InvitationCodes table.  When the invitation code is used, the
 	 * stored email address is used to establish the new user and the record is removed from the
-	 * table.</p>
+	 * table. When the invitation code expires, the record is removed from the table.</p>
 	 * 
 	 * @param emailAddress specifies the email address for this new user.
 	 * 
 	 * @param role specified the role that this new user will play.
 	 * 
+	 * @param deadline specifies the expiration of the invitation code
+	 * 
 	 * @return the code of six characters so the new user can use it to securely setup an account.
 	 * 
 	 */
 	// Generates a new invitation code and inserts it into the database.
-	public String generateInvitationCode(String emailAddress, String role) {
+	public String generateInvitationCode(String emailAddress, String role, LocalDateTime deadline) {
 	    String code = UUID.randomUUID().toString().substring(0, 6); // Generate a random 6-character code
-	    String query = "INSERT INTO InvitationCodes (code, emailaddress, role) VALUES (?, ?, ?)";
+	    String query = "INSERT INTO InvitationCodes (code, emailaddress, role, deadline) VALUES (?, ?, ?, ?)";
 
 	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
 	        pstmt.setString(1, code);
 	        pstmt.setString(2, emailAddress);
 	        pstmt.setString(3, role);
+	        pstmt.setTimestamp(4, Timestamp.valueOf(deadline)); // Convert LocalDateTime to SQL Timestamp object
 	        pstmt.executeUpdate();
 	    } catch (SQLException e) {
 	        e.printStackTrace();
@@ -599,6 +601,70 @@ public class Database {
 	    }
 		return;
 	}
+	
+	
+   /*******
+    * <p> Method: boolean isInvitationExpired(String code) </p>
+	* 
+	* <p> Description: Check for expiration of invitation code.</p>
+	* 
+	*  @param code is the 6 character String invitation code
+	*/
+	public boolean isInvitationExpired(String code){
+		LocalDateTime now = LocalDateTime.now();
+
+		boolean isExpired = false;
+		
+		String query = "SELECT deadline FROM InvitationCodes WHERE code = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setString(1, code);
+	        ResultSet rs = pstmt.executeQuery();
+	        
+	        if (rs.next()) {
+	            LocalDateTime deadline = rs.getTimestamp("deadline").toLocalDateTime();
+	            isExpired = deadline.isBefore(now); // if deadline has passed, set isExpired to true
+	        }
+			
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+
+		return isExpired;
+			
+	}
+	
+	
+   /*******
+	* <p> Method: void removeInvitationAfterExpiration(String code) </p>
+	* 
+	* <p> Description: Remove an invitation record once it is expired.</p>
+	* 
+	*  @param code is the 6 character String invitation code
+	*/
+	public void removeInvitationAfterExpiration(String code) {
+		String query = "SELECT COUNT(*) AS count FROM InvitationCodes WHERE code = ?";
+	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+	        pstmt.setString(1, code);
+	        ResultSet rs = pstmt.executeQuery();
+	        if (rs.next()) {
+	        	int counter = rs.getInt(1);
+	            // Only do the remove if the expired code is still in the invitation table
+	        	if (counter > 0) {
+        			query = "DELETE FROM InvitationCodes WHERE code = ?";
+	        		try (PreparedStatement pstmt2 = connection.prepareStatement(query)) {
+	        			pstmt2.setString(1, code);
+	        			pstmt2.executeUpdate();
+	        		}catch (SQLException e) {
+	        	        e.printStackTrace();
+	        	    }
+	        	}
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+		return;
+	}
+	
 	
 	
 	/*******

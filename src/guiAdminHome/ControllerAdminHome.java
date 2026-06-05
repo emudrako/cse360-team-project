@@ -1,7 +1,11 @@
 package guiAdminHome;
 
 import database.Database;
+import javafx.scene.layout.Region;
 
+import java.time.LocalDateTime; // Import LocalDateTime for invitation code expiration functionality
+import java.time.format.FormatStyle; // Import for invitation code format in alert
+import java.time.format.DateTimeFormatter; // Import for invitation code format in alert
 /*******
  * <p> Title: GUIAdminHomePage Class. </p>
  * 
@@ -70,14 +74,25 @@ public class ControllerAdminHome {
 			return;
 		}
 		
-		// Inform the user that the invitation has been sent and display the invitation code
+		// Automatically set the invitation expiry to 1 hour from current date and time.
+		LocalDateTime deadline = LocalDateTime.now().plusHours(1); 
+		
+		//Format the deadline for readability
+		String formattedDeadline = deadline.format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT));
+		
+		// Inform the user that the invitation has been sent and display the invitation code, email address and expiration
 		String theSelectedRole = (String) ViewAdminHome.combobox_SelectRole.getValue();
 		String invitationCode = theDatabase.generateInvitationCode(emailAddress,
-				theSelectedRole);
+				theSelectedRole, deadline);
+		
 		String msg = "Code: " + invitationCode + " for role " + theSelectedRole + 
-				" was sent to: " + emailAddress;
+				" was sent to: " + emailAddress + "\nInvitation code expires: " + formattedDeadline;
+		
 		System.out.println(msg);
 		ViewAdminHome.alertEmailSent.setContentText(msg);
+		// Resize the alert message to display full details
+		ViewAdminHome.alertEmailSent.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+		ViewAdminHome.alertEmailSent.getDialogPane().setMinWidth(400);
 		ViewAdminHome.alertEmailSent.showAndWait();
 		
 		// Update the Admin Home pages status
