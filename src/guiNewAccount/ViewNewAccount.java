@@ -99,7 +99,8 @@ public class ViewNewAccount {
 	 * size, and any methods to be performed).
 	 * 
 	 * After the instantiation, the code then populates the elements that change based on the user
-	 * and the system's current state.  It then sets the Scene onto the stage, and makes it visible
+	 * and the system's current state. The invitation code is validated and checked for expiration
+	 * before the page is displayed. It then sets the Scene onto the stage, and makes it visible
 	 * to the user.
 	 * 
 	 * @param ps specifies the JavaFX Stage to be used for this GUI and it's methods
@@ -129,6 +130,13 @@ public class ViewNewAccount {
 			alertInvitationCodeIsInvalid.showAndWait();	// dialog box saying that are when it it
 			return;					// acknowledged, return so the proper code can be entered
 		}
+		
+		// TODO Check the deadline for the invitation code
+		if(theDatabase.isInvitationExpired(theInvitationCode)){
+				//remove the invitation from the invitation code table
+				//send error message indicating expired
+		}
+	
 		
 		// Get the email address associated with the invitation code
 		emailAddress = theDatabase.getEmailAddressUsingCode(theInvitationCode);

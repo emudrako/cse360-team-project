@@ -89,7 +89,7 @@ public class Database {
 			connection = DriverManager.getConnection(DB_URL, USER, PASS);
 			statement = connection.createStatement(); 
 			// You can use this command to clear the database and restart from fresh.
-//			statement.execute("DROP ALL OBJECTS");
+//	statement.execute("DROP ALL OBJECTS");
 
 			createTables();  // Create the necessary tables if they don't exist
 		} catch (ClassNotFoundException e) {
@@ -602,7 +602,38 @@ public class Database {
 		return;
 	}
 	
+	
+   /*******
+    * <p> Method: boolean isInvitationExpired(String code) </p>
+	* 
+	* <p> Description: Check for expiration of invitation code.</p>
+	* 
+	*  @param code is the 6 character String invitation code
+	*/
+	public boolean isInvitationExpired(String code){
+		LocalDateTime now = LocalDateTime.now();
 
+		boolean isExpired = false;
+		
+		String query = "SELECT deadline FROM InvitationCodes WHERE code = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setString(1, code);
+	        ResultSet rs = pstmt.executeQuery();
+	        
+	        if (rs.next()) {
+	            LocalDateTime deadline = rs.getTimestamp("deadline").toLocalDateTime();
+	            isExpired = deadline.isBefore(now); // if deadline has passed, set isExpired to true
+	        }
+			
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+
+		return isExpired;
+			
+	}
+	
+	
    /*******
 	* <p> Method: void removeInvitationAfterExpiration(String code) </p>
 	* 
@@ -611,7 +642,7 @@ public class Database {
 	*  @param code is the 6 character String invitation code
 	*/
 	public void removeInvitationAfterExpiration(String code) {
-		// TODO Story 5 : Add expiration check logic and delete the expired invitation
+		// TODO Story 5 :  remove the expired invitation
 	}
 	
 	
