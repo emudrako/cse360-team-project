@@ -76,10 +76,10 @@ public class ControllerFirstAdmin {
 	 * <p> Method: setAdminPassword1() </p>
 	 * 
 	 * <p> Description: This method is called when the user adds text to the first
- * password field in the View. It first checks that the password does not exceed
- * the maximum allowed length (Story 3). If within the limit, it then evaluates
- * the password strength in real time using the PasswordEvaluator and displays
- * feedback to the user as they type (Story 2).</p>
+	 * password field in the View. It first checks that the password does not exceed
+	 * the maximum allowed length (Story 3). If within the limit, it then evaluates
+	 * the password strength in real time using the PasswordEvaluator and displays
+	 * feedback to the user as they type (Story 2).</p>
 	 */
 	protected static void setAdminPassword1() {
 		adminPassword1 = ViewFirstAdmin.text_AdminPassword1.getText();
