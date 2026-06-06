@@ -62,6 +62,8 @@ public class ViewNewAccount {
 	protected static Alert alertUsernamePasswordError = new Alert(AlertType.INFORMATION);
 
     protected static Button button_Quit = new Button("Quit");
+    // Label to display real-time validation feedback to the user
+    protected static Label label_ValidationMessage = new Label();
 
 	// These attributes are used to configure the page and populate it with this user's information
 	private static ViewNewAccount theView;		// Is instantiation of the class needed?
@@ -146,7 +148,7 @@ public class ViewNewAccount {
     	// Place all of the established GUI elements into the pane
     	theRootPane.getChildren().clear();
     	theRootPane.getChildren().addAll(label_NewUserCreation, label_NewUserLine, text_Username,
-    			text_Password1, text_Password2, button_UserSetup, button_Quit);    	
+    		    text_Password1, text_Password2, button_UserSetup, button_Quit, label_ValidationMessage);    	
 
 		// Set the title for the window, display the page, and wait for the Admin to do something
 		theStage.setTitle("CSE 360 Foundation Code: New User Account Setup");	
@@ -182,10 +184,12 @@ public class ViewNewAccount {
 		// Establish the text input operand asking for a username
 		setupTextUI(text_Username, "Arial", 18, 300, Pos.BASELINE_LEFT, 50, 160, true);
 		text_Username.setPromptText("Enter the Username");
+		text_Username.textProperty().addListener((_, _, _) -> {ControllerNewAccount.setUsername(); });
 		
 		// Establish the text input operand field for the password
 		setupTextUI(text_Password1, "Arial", 18, 300, Pos.BASELINE_LEFT, 50, 210, true);
 		text_Password1.setPromptText("Enter the Password");
+		text_Password1.textProperty().addListener((_, _, _) -> {ControllerNewAccount.setPassword1(); });
 		
 		// Establish the text input operand field to confirm the password
 		setupTextUI(text_Password2, "Arial", 18, 300, Pos.BASELINE_LEFT, 50, 260, true);
@@ -208,6 +212,8 @@ public class ViewNewAccount {
         // Enable the user to quit the application
         setupButtonUI(button_Quit, "Dialog", 18, 250, Pos.CENTER, 300, 540);
         button_Quit.setOnAction((_) -> {ControllerNewAccount.performQuit(); });
+        // Set up the validation feedback label below the input fields
+        setupLabelUI(label_ValidationMessage, "Arial", 14, width, Pos.CENTER, 0, 300);
 	}
 	
 	

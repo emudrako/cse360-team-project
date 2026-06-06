@@ -63,12 +63,25 @@ public class ControllerFirstAdmin {
 	/**********
 	 * <p> Method: setAdminUsername() </p>
 	 * 
-	 * <p> Description: This method is called when the user adds text to the username field in the
-	 * View.  A private local copy of what was last entered is kept here.</p>
+	 * <p> Description: Called when the user types in the username field.
+	 * Checks maximum length first (Story 3), then validates using the
+ * 	UserNameRecognizer FSM and displays real-time feedback.</p>
 	 * 
 	 */
 	protected static void setAdminUsername() {
 		adminUsername = ViewFirstAdmin.text_AdminUsername.getText();
+		// Check max length first before any other processing (Story 3)
+	    if (adminUsername.length() > 16) {
+	        ViewFirstAdmin.label_PasswordsDoNotMatch.setText(
+	            "Username is too long. Maximum is 16 characters.");
+	        return;
+	    }
+	    // Validate with FSM in real time
+	    String errMsg = UserNameRecognizer.checkForValidUserName(adminUsername);
+	    if (!errMsg.isEmpty())
+	        ViewFirstAdmin.label_PasswordsDoNotMatch.setText(errMsg);
+	    else
+	        ViewFirstAdmin.label_PasswordsDoNotMatch.setText("");
 	}
 	
 	
