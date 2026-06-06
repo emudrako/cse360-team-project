@@ -1,7 +1,14 @@
 package guiUserLogin;
 
+import java.util.Optional;
+
 import database.Database;
 import entityClasses.User;
+import guiSetOneTimePassword.ViewSetOneTimePassword;
+import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
+import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.Alert.AlertType;
 import javafx.stage.Stage;
 
 /*******
@@ -43,6 +50,12 @@ public class ControllerUserLogin {
 	/**
 	 * Default constructor is not used.
 	 */
+	
+	// Dialog box for updating user password when a one-time password is used to login
+	private static TextInputDialog dialogUpdatePassword;
+	// Message alerting user their password has been changed and prompts them to login again
+	protected static Alert alertPasswordChanged = new Alert(AlertType.INFORMATION);
+	
 	public ControllerUserLogin() {
 	}
 
@@ -89,6 +102,22 @@ public class ControllerUserLogin {
     		return;
     	}
 		// System.out.println("*** Password is valid for this user");
+    	
+    	// Check if the user is using a one-time password
+    	if (theDatabase.getCurrentOneTimePassword() == true) {
+    		dialogUpdatePassword = new TextInputDialog("");
+    		dialogUpdatePassword.setTitle("One-Time Password Used");
+    		dialogUpdatePassword.setHeaderText("Please enter a new password");
+    		Optional<String> result = dialogUpdatePassword.showAndWait();
+    		
+    		if (result.isPresent()) {
+    			String newPassword = result.get();
+    			performSetPassword(username, newPassword);
+    		}
+    		else {
+    			return;
+    		}
+    	}
 		
 		// Establish this user's details
     	User user = new User(username, password, theDatabase.getCurrentFirstName(),
@@ -174,5 +203,24 @@ public class ControllerUserLogin {
 		System.out.println("Perform Quit");
 		System.exit(0);
 	}	
+	
+	/**********
+	 * <p> Method: public performSetPassword() </p>
+	 * 
+	 * <p> Description: This method is called when the user has used a one-time password to login.
+	 * They will then be prompted to create a new password and login again.
+	 * 
+	 */	
+	protected static void performSetPassword(String username, String password) {
+	// MISSING - Need to check for password validity. Waiting for @Sara Suarez to implement
+	theDatabase.updatePassword(username, password);
+	theDatabase.updateOneTimePassword(username, "false");
+	
+	alertPasswordChanged.setTitle("Password Changed");
+	alertPasswordChanged.setHeaderText("Your password has been changed.");
+	alertPasswordChanged.setContentText("Please login again.");
+	alertPasswordChanged.showAndWait();
+	ViewUserLogin.text_Password.setText("");
+	}
 
 }
