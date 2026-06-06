@@ -115,7 +115,7 @@ public class ControllerSetOneTimePassword {
 		String username = ViewSetOneTimePassword.combobox_SelectUser.getValue();
 		
 		// MISSING - Need to check for password validity. Waiting for @Sara Suarez to implement
-		// password strength validation
+		// password strength validation so those requirements can be referenced
 		
 		if (username == "<Select a User>") {
 			alertNoUserSelected.setTitle("One-Time Password Not Created");
