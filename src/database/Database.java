@@ -61,6 +61,7 @@ public class Database {
 	private boolean currentStudentRole;
 	private boolean currentInstructorRole;
 	private boolean currentStaffRole;
+	private boolean currentOneTimePassword;
 
 	/*******
 	 * <p> Method: Database </p>
@@ -120,8 +121,9 @@ public class Database {
 				+ "newRole2 BOOL DEFAULT FALSE, "
 				+ "studentRole BOOL DEFAULT FALSE, "
 				+ "instructorRole BOOL DEFAULT FALSE, "
-				+ "staffRole BOOL DEFAULT FALSE)";
-		statement.execute(userTable);
+				+ "staffRole BOOL DEFAULT FALSE, "
+				+ "oneTimePassword BOOL DEFAULT FALSE)";
+	statement.execute(userTable);
 		
 		// Create the invitation codes table
 	    String invitationCodesTable = "CREATE TABLE IF NOT EXISTS InvitationCodes ("
@@ -929,6 +931,62 @@ public class Database {
 	    }
 	}
 	
+	/*******
+	 * <p> Method: void updatePassword(String username, String password) </p>
+	 * 
+	 * <p> Description: Update the password of a user given that user's username and the new
+	 *		password.</p>
+	 * 
+	 * @param username is the username of the user
+	 * 
+	 * @param password is the new password for the user
+	 *  
+	 */
+	// update the password
+	public void updatePassword(String username, String password) {
+	    String query = "UPDATE userDB SET password = ? WHERE username = ?";
+	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+	        pstmt.setString(1, password);
+	        pstmt.setString(2, username);
+	        pstmt.executeUpdate();
+	        currentPassword = password;
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+	}
+	
+	
+	/*******
+	 * <p> Method: void updateOneTimePassword(String username) </p>
+	 * 
+	 * <p> Description: Update the password of a user given that user's username and the new
+	 *		password.</p>
+	 * 
+	 * @param username is the username of the user
+	 * 
+	 * @param password is the new password for the user
+	 *  
+	 */
+	// update the password
+	public void updateOneTimePassword(String username, String value) {
+	    boolean status = false;
+	    if(value == "true") {
+	    	status = true;
+	    }
+	    if (value == "false") {
+	    	status = false;
+	    }
+		String query = "UPDATE userDB SET oneTimePassword = ? WHERE username = ?";
+	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+	        pstmt.setString(1, value);
+	        pstmt.setString(2, username);
+	        pstmt.executeUpdate();
+	        currentOneTimePassword = status;
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+	}
+
 	
 	/*******
 	 * <p> Method: boolean getUserAccountDetails(String username) </p>
@@ -960,6 +1018,7 @@ public class Database {
 	    	currentStudentRole = rs.getBoolean(12);
 	    	currentInstructorRole = rs.getBoolean(13);
 	    	currentStaffRole = rs.getBoolean(14);
+	    	currentOneTimePassword = rs.getBoolean(15);
 			return true;
 	    } catch (SQLException e) {
 			return false;
@@ -1182,6 +1241,16 @@ public class Database {
 	public boolean getCurrentStudentRole() { return currentStudentRole; }
 	public boolean getCurrentInstructorRole() { return currentInstructorRole; }
 	public boolean getCurrentStaffRole() { return currentStaffRole; }
+	
+	/*******
+	 * <p> Method: boolean getCurrentOneTimePassword() </p>
+	 * 
+	 * <p> Description: Get the current user's one-time password status.</p>
+	 * 
+	 * @return true if this has a one-time password set, or false if not
+	 *  
+	 */
+	public boolean getCurrentOneTimePassword() { return currentOneTimePassword;}
 
 
 	/*******
