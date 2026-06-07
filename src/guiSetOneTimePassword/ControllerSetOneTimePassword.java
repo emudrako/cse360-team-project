@@ -131,7 +131,7 @@ public class ControllerSetOneTimePassword {
 		theDatabase.updateOneTimePassword(username, "true");
 		
 		alertOneTimePasswordSet.setTitle("One-Time Password Has Been Created");
-		alertOneTimePasswordSet.setHeaderText("One-Time password has been created for user " + username + ".");
+		alertOneTimePasswordSet.setHeaderText("One-Time password has been created for user " + username);
 		alertOneTimePasswordSet.setContentText("Password: " + password);
 		alertOneTimePasswordSet.showAndWait();
 		ViewSetOneTimePassword.text_OneTimePassword.setText("");
