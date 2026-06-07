@@ -21,8 +21,23 @@ import database.Database;
  */
 
 public class ControllerManageInvitations{
+	/**********
+	 * <p> Method: performDelete() </p>
+	 * 
+	 * <p> Description: This method  </p>
+	 * 
+	 */
+	protected static void performDelete(){
+		
+	}
 	
-	performDelete()
+	/**********
+	 * <p> Method: performReturn() </p>
+	 * 
+	 * <p> Description: This method returns the user (who must be an Admin as only admins are the
+	 * only users who have access to this page) to the Admin Home page. </p>
+	 * 
+	 */
 	
 	protected static void performReturn() {
 		guiAdminHome.ViewAdminHome.displayAdminHome(ViewManageInvitations.theStage,
