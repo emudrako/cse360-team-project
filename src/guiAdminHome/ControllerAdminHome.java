@@ -106,15 +106,12 @@ public class ControllerAdminHome {
 	 * 
 	 * Title: manageInvitations () Method. </p>
 	 * 
-	 * <p> Description: Protected method that is currently a stub informing the user that
-	 * this function has not yet been implemented. </p>
+	 * <p> Description: Protected method that navigates to the Manage Invitations page, allowing the admin
+	 * to view/delete outstanding invitations. </p>
 	 */
 	protected static void manageInvitations () {
-		System.out.println("\n*** WARNING ***: Manage Invitations Not Yet Implemented");
-		ViewAdminHome.alertNotImplemented.setTitle("*** WARNING ***");
-		ViewAdminHome.alertNotImplemented.setHeaderText("Manage Invitations Issue");
-		ViewAdminHome.alertNotImplemented.setContentText("Manage Invitations Not Yet Implemented");
-		ViewAdminHome.alertNotImplemented.showAndWait();
+	    guiManageInvitations.ViewManageInvitations.displayManageInvitations(ViewAdminHome.theStage,
+	            ViewAdminHome.theUser);
 	}
 	
 	/**********
