@@ -5,25 +5,20 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 
 /*******
- * <p> Title: ControllerAddRemoveRoles Class. </p>
+ * <p> Title: ControllerSetOneTimePassword Class. </p>
  * 
- * <p> Description: The Java/FX-based Add Remove Roles Page.  This class provides the controller
+ * <p> Description: The Java/FX-based Controller Set One Time Password Page.  This class provides the controller
  * actions basic on the user's use of the JavaFX GUI widgets defined by the View class.
- * 
- * This page has one of the more complex Controller Classes due to the fact that the changing the
- * values of widgets changes the layout of the page.  It is up to the Controller to determine what
- * to do and it involves the proper elements from View Class for this GUI page.
  * 
  * The class has been written assuming that the View or the Model are the only class methods that
  * can invoke these methods.  This is why each has been declared at "protected".  Do not change any
  * of these methods to public.</p>
  * 
- * <p> Copyright: Lynn Robert Carter © 2025 </p>
+ * <p> Copyright: Pete Echavarria © 2026 </p>
  * 
- * @author Lynn Robert Carter
+ * @author Pete Echavarria
  * 
- * @version 1.00		2025-08-17 Initial version
- * @version 1.01		2025-09-16 Update Javadoc documentation *  
+ * @version 1.00		2026-06-02 Initial version
  */
 
 public class ControllerSetOneTimePassword {
@@ -92,8 +87,6 @@ public class ControllerSetOneTimePassword {
 				ViewSetOneTimePassword.button_Return,
 				ViewSetOneTimePassword.button_Logout,
 				ViewSetOneTimePassword.button_Quit);
-	
-		// Add the list of widgets to the stage and show it
 		
 		// Set the title for the window
 		ViewSetOneTimePassword.theStage.setTitle("CSE 360 Foundation Code: Admin Operations Page");
@@ -103,10 +96,10 @@ public class ControllerSetOneTimePassword {
 	
 	
 	/**********
-	 * <p> Method: performAddRole() </p>
+	 * <p> Method: performSetPassword() </p>
 	 * 
-	 * <p> Description: This method adds a new role to the list of role in the ComboBox select
-	 * list. </p>
+	 * <p> Description: This method allows an Admin manually create
+	 * a one-time use password for a given user </p>
 	 * 
 	 */
 	protected static void performSetPassword() {
@@ -131,7 +124,7 @@ public class ControllerSetOneTimePassword {
 		theDatabase.updateOneTimePassword(username, "true");
 		
 		alertOneTimePasswordSet.setTitle("One-Time Password Has Been Created");
-		alertOneTimePasswordSet.setHeaderText("One-Time password has been created for user " + username + ".");
+		alertOneTimePasswordSet.setHeaderText("One-Time password has been created for user " + username);
 		alertOneTimePasswordSet.setContentText("Password: " + password);
 		alertOneTimePasswordSet.showAndWait();
 		ViewSetOneTimePassword.text_OneTimePassword.setText("");

@@ -123,7 +123,7 @@ public class ControllerAdminHome {
 	 * this function has not yet been implemented. </p>
 	 */
 	protected static void setOnetimePassword () {
-		// @Pete Echavarria - implementing setOnetimePassword function
+		// Implementing setOnetimePassword function
 		guiSetOneTimePassword.ViewSetOneTimePassword.displaySetOneTimePassword(ViewAdminHome.theStage, 
 				ViewAdminHome.theUser);
 	}
@@ -188,13 +188,241 @@ public class ControllerAdminHome {
 	 * @param emailAddress	This String holds what is expected to be an email address
 	 */
 	protected static boolean invalidEmailAddress(String emailAddress) {
-		if (emailAddress.length() == 0) {
+		// First checks if emailAddress is empty before checking any other requirements
+		if (emailAddress.isEmpty()) {
+			ViewAdminHome.alertEmailError.setTitle("Invalid Email Address");
+			ViewAdminHome.alertEmailError.setHeaderText("Email address is empty.");
 			ViewAdminHome.alertEmailError.setContentText(
-					"Correct the email address and try again.");
+					"Please enter a valid email address.");
 			ViewAdminHome.alertEmailError.showAndWait();
+			ViewAdminHome.text_InvitationEmailAddress.setText("");
 			return true;
 		}
-		return false;
+		
+		// Make a local copy of the emailAddress for validation
+		String email = emailAddress;
+		// Keeps track of the current FSM state
+		int state = 0;
+		// Sets next state depending on current input
+		int nextState = -1;
+		// Keeps track of the current char index
+		int currentCharIndex = 0;
+		// Keeps track of the current char
+		char currentChar = email.charAt(0);
+		// While true, email validation continues
+		boolean running = true;
+		// Returns true if the email address meets all requirements, false if otherwise
+		boolean invalidEmail = false;
+		
+		if (email.isEmpty()) {
+			ViewAdminHome.alertEmailError.setTitle("Invalid Email Address");
+			ViewAdminHome.alertEmailError.setHeaderText("Email address is empty.");
+			ViewAdminHome.alertEmailError.setContentText(
+					"Please enter a valid email address.");
+			ViewAdminHome.alertEmailError.showAndWait();
+			ViewAdminHome.text_InvitationEmailAddress.setText("");
+			return true;
+		}
+		if (email.length() <5) {
+			ViewAdminHome.alertEmailError.setTitle("Invalid Email Address");
+			ViewAdminHome.alertEmailError.setHeaderText("Invalid email address format.");
+			ViewAdminHome.alertEmailError.setContentText(
+					"Please enter an email address with the proper format.");
+			ViewAdminHome.alertEmailError.showAndWait();
+			ViewAdminHome.text_InvitationEmailAddress.setText("");
+			return true;
+		}
+		
+		if (email.length() > 64) {
+			ViewAdminHome.alertEmailError.setTitle("Invalid Email Address");
+			ViewAdminHome.alertEmailError.setHeaderText("Email address is too long.");
+			ViewAdminHome.alertEmailError.setContentText(
+					"Please enter an email address less than 65 characters long.");
+			ViewAdminHome.alertEmailError.showAndWait();
+			ViewAdminHome.text_InvitationEmailAddress.setText("");
+			return true;
+		}
+		
+		while (running) {
+			currentChar = email.charAt(currentCharIndex);
+			
+			switch (state) {
+			case 0:
+				if(currentChar == '.') {
+					ViewAdminHome.alertEmailError.setTitle("Invalid Email Address");
+					ViewAdminHome.alertEmailError.setHeaderText("Invalid email address format.");
+					ViewAdminHome.alertEmailError.setContentText(
+							"Email address cannot start with a period.");					
+					ViewAdminHome.alertEmailError.showAndWait();
+					ViewAdminHome.text_InvitationEmailAddress.setText("");
+					invalidEmail = true;
+					running = false;
+				}
+				else if (currentChar >= 'A' && currentChar <= 'Z' ||
+						currentChar >= 'a' && currentChar <= 'z' ||
+						currentChar >= '0' && currentChar <= '9' ||
+						currentChar == '-' ||
+						currentChar == '_') {
+					currentCharIndex++;
+					nextState = 1;
+				}
+				else {
+					ViewAdminHome.alertEmailError.setTitle("Invalid Email Address");
+					ViewAdminHome.alertEmailError.setHeaderText("Invalid email address format.");
+					ViewAdminHome.alertEmailError.setContentText(
+							"Please enter an email address with the proper format.");
+					ViewAdminHome.alertEmailError.showAndWait();
+					ViewAdminHome.text_InvitationEmailAddress.setText("");
+					invalidEmail = true;
+					running = false;
+				}
+				break;
+			
+			case 1:
+				/**
+				if (currentCharIndex == email.length()-1 && currentChar != '@') {
+					ViewAdminHome.alertEmailError.setTitle("Invalid Email Address");
+					ViewAdminHome.alertEmailError.setHeaderText("Invalid email address format.");
+					ViewAdminHome.alertEmailError.setContentText(
+							"Please enter an email address with the proper format.");
+					ViewAdminHome.alertEmailError.showAndWait();
+					ViewAdminHome.text_InvitationEmailAddress.setText("");
+					invalidEmail = true;
+					running = false;
+				}
+				*/
+				if (currentChar >= 'A' && currentChar <= 'Z' ||
+				currentChar >= 'a' && currentChar <= 'z' ||
+				currentChar >= '0' && currentChar <= '9' ||
+				currentChar == '-' ||
+				currentChar == '_' ||
+				currentChar == '.') {
+					currentCharIndex++;
+					nextState = 1;
+				}
+				else if (currentChar == '@') {
+					if (currentCharIndex == email.length()-1) {
+							ViewAdminHome.alertEmailError.setTitle("Invalid Email Address");
+							ViewAdminHome.alertEmailError.setHeaderText("Invalid email address format.");
+							ViewAdminHome.alertEmailError.setContentText(
+									"Please enter an email address with the proper format.");
+							ViewAdminHome.alertEmailError.showAndWait();
+							ViewAdminHome.text_InvitationEmailAddress.setText("");
+							invalidEmail = true;
+							running = false;
+					}
+					else {
+						currentCharIndex++;
+						nextState = 2;
+					}
+				}
+				else {
+					ViewAdminHome.alertEmailError.setTitle("Invalid Email Address");
+					ViewAdminHome.alertEmailError.setHeaderText("Email address contains an invalid character or a space.");
+					ViewAdminHome.alertEmailError.setContentText(
+							"Allowed characters: A-Z  a-z  0-9  .  -  _");
+					ViewAdminHome.alertEmailError.showAndWait();
+					ViewAdminHome.text_InvitationEmailAddress.setText("");
+					invalidEmail = true;
+					running = false;
+				}
+				break;
+			
+			case 2:
+				if (currentChar >= 'A' && currentChar <= 'Z' ||
+				currentChar >= 'a' && currentChar <= 'z' ||
+				currentChar >= '0' && currentChar <= '9' ||
+				currentChar == '-' ||
+				currentChar == '_') {
+					if (currentCharIndex == email.length()-1) {
+						ViewAdminHome.alertEmailError.setTitle("Invalid Email Address");
+						ViewAdminHome.alertEmailError.setHeaderText("Invalid email address format.");
+						ViewAdminHome.alertEmailError.setContentText(
+								"Please enter an email address with the proper format.");
+						ViewAdminHome.alertEmailError.showAndWait();
+						ViewAdminHome.text_InvitationEmailAddress.setText("");
+						invalidEmail = true;
+						running = false;
+					}
+					else {
+					currentCharIndex++;
+					nextState = 2;
+					}
+				}
+				else if (currentChar == '.') {
+					if (currentCharIndex == email.length()-1) {
+						ViewAdminHome.alertEmailError.setTitle("Invalid Email Address");
+						ViewAdminHome.alertEmailError.setHeaderText("Invalid email address format.");
+						ViewAdminHome.alertEmailError.setContentText(
+								"Email address cannot end with a period");
+						ViewAdminHome.alertEmailError.showAndWait();
+						ViewAdminHome.text_InvitationEmailAddress.setText("");
+						invalidEmail = true;
+						running = false;
+					}
+					else {
+						currentCharIndex++;
+						nextState = 3;
+					}
+				}
+				else {
+					ViewAdminHome.alertEmailError.setTitle("Invalid Email Address");
+					ViewAdminHome.alertEmailError.setHeaderText("Invalid email address format.");
+					ViewAdminHome.alertEmailError.setContentText(
+							"Please enter an email address with the proper format.");
+					ViewAdminHome.alertEmailError.showAndWait();
+					ViewAdminHome.text_InvitationEmailAddress.setText("");
+					invalidEmail = true;
+					running = false;
+				}
+				break;
+				
+			case 3:
+				if (currentChar >= 'A' && currentChar <= 'Z' ||
+				currentChar >= 'a' && currentChar <= 'z' ||
+				currentChar >= '0' && currentChar <= '9' ||
+				currentChar == '-' ||
+				currentChar == '_')	{
+					currentCharIndex++;
+					nextState = 3;
+				}
+				else if (currentChar == '.') {
+					if (currentCharIndex == email.length()-1) {
+						ViewAdminHome.alertEmailError.setTitle("Invalid Email Address");
+						ViewAdminHome.alertEmailError.setHeaderText("Invalid email address format.");
+						ViewAdminHome.alertEmailError.setContentText(
+								"Email address cannot end with a period");
+						ViewAdminHome.alertEmailError.showAndWait();
+						ViewAdminHome.text_InvitationEmailAddress.setText("");
+						invalidEmail = true;
+						running = false;
+					}
+					else {
+						currentCharIndex++;
+						nextState = 3;
+					}
+				}
+				else {
+					ViewAdminHome.alertEmailError.setTitle("Invalid Email Address");
+					ViewAdminHome.alertEmailError.setHeaderText(
+							"Email address contains an invalid character or a space.");
+					ViewAdminHome.alertEmailError.setContentText(
+							"Allowed characters: A-Z  a-z  0-9  .  -  _");
+					ViewAdminHome.alertEmailError.showAndWait();
+					ViewAdminHome.text_InvitationEmailAddress.setText("");
+					invalidEmail = true;
+					running = false;
+				}
+				break;
+			}
+			
+			if (currentCharIndex == email.length()) {
+				running = false;
+			}
+			state = nextState;
+		}
+		
+		return invalidEmail;
 	}
 	
 	/**********
