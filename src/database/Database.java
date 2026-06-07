@@ -490,6 +490,30 @@ public class Database {
 		return 0;
 	}
 	
+	/*******
+	 * <p> Method: List<String[]> getAllInvitations() </p>
+	 * 
+	 * <p> Description: Return the InvitationCodes table.</p>
+	 *  
+	 * @return the list of all codes, email addresses, roles and deadlines.
+	 * 
+	 */
+	public List<String[]> getAllInvitations() {		
+		List<String[]> userList = new ArrayList<String[]>();
+		String query = "SELECT * FROM InvitationCodes";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			ResultSet rs = pstmt.executeQuery();
+			while (rs.next()) {
+				String[] invitation = {rs.getString("code"), rs.getString("emailAddress"), rs.getString("role"), rs.getString("deadline")};
+				userList.add(invitation);
+			}
+		} 
+		catch (SQLException e) {
+        return null;
+		}
+		//	System.out.println(userList);
+		return userList;
+	}
 	
 	/*******
 	 * <p> Method: boolean emailaddressHasBeenUsed(String emailAddress) </p>
