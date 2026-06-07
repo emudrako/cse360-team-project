@@ -2,6 +2,7 @@ package database;
 
 import java.sql.*;
 import java.time.LocalDateTime; // Import LocalDateTime for invitation code expiration functionality
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
