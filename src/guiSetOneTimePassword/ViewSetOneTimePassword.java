@@ -20,7 +20,7 @@ import entityClasses.User;
 /*******
  * <p> Title: GUISetOneTimePassword Class. </p>
  * 
- * <p> Description: The Java/FX-based page for setting a one time password for a user.</p>
+ * <p> Description: The Java/FX-based page for setting a one-time password for a user.</p>
  * 
  * @author Pete Echavarria -- Modified from the GUIAddRemoveRoles class by Lynn Robert Carter
  * 
@@ -53,16 +53,14 @@ public class ViewSetOneTimePassword {
 	// This is a separator and it is used to partition the GUI for various tasks
 	protected static Line line_Separator1 = new Line(20, 95, width-20, 95);
 	
-	// When no user has been selected, only Area 2a is shown.  If a user in the ComboBox in Area 1a
-	// has been specified, then Area 2b is made visible.
 	
-	// Area 2a: This allows the admin to select a user of the system as the first step in adding or
-	// removing a role.  The act of selecting a user causes the change in the GUI.  The Admin does
-	// not need to push a button to make this happen.
+	// Area 2a: This allows the admin to select a user of the system as the first step in setting
+	// a one-time password. The user is selected from a drop-down menu.
 	protected static Label label_SelectUser = new Label("Select a user to set a one-time password:");
 	protected static ComboBox <String> combobox_SelectUser = new ComboBox <String>();
 	
-	// Area 2b: When a user has been selected these widgets are shown and can be used
+	// Area 2b: This allows the Admin to manually type in a one-time password. They then click a 
+	// button to set the user's password.
 	protected static Label label_OneTimePassword = new Label("One-Time Password");
 	protected static TextField text_OneTimePassword = new TextField();
 	protected static Button button_SetPassword = new Button("Set Password");
@@ -113,9 +111,7 @@ public class ViewSetOneTimePassword {
 	 * initializes all the static aspects of the GUI widgets (e.g., location on the page, font,
 	 * size, and any methods to be performed).
 	 * 
-	 * After the instantiation, the code then populates the elements that change based on the user
-	 * and the system's current state.  It then sets the Scene onto the stage, and makes it visible
-	 * to the user.
+	 * It then sets the Scene onto the stage, and makes it visible to the user.
 	 * 
 	 * @param ps specifies the JavaFX Stage to be used for this GUI and it's methods
 	 * 
@@ -146,7 +142,7 @@ public class ViewSetOneTimePassword {
 
 	
 	/**********
-	 * <p> Method: GUIAddRemoveRolesPage() </p>
+	 * <p> Method: GUISetOneTimePassword() </p>
 	 * 
 	 * <p> Description: This method initializes all the elements of the graphical user interface.
 	 * This method determines the location, size, font, color, and change and event handlers for
@@ -156,9 +152,7 @@ public class ViewSetOneTimePassword {
 	 * fields using the displayAddRempoveRoles method.</p>
 	 * 
 	 */
-	public ViewSetOneTimePassword() {
-		
-		// This page is used by all roles, so we do not specify the role being used		
+	public ViewSetOneTimePassword() {	
 			
 		// Create the Pane for the list of widgets and the Scene for the window
 		theRootPane = new Pane();
@@ -207,10 +201,6 @@ public class ViewSetOneTimePassword {
 		button_Quit.setOnAction((_) -> {ControllerSetOneTimePassword.performQuit(); });
 		
 		// This is the end of the GUI Widgets for the page
-		
-		// Due to the very dynamic nature of this page, setting the widget into the Root Pane has 
-		// has been delegated to the repaintTheWindow and doSelectUser controller methods.
-		// Don't follow this pattern if formatting of the page does not change dynamically.
 	}	
 
 	/*-*******************************************************************************************
