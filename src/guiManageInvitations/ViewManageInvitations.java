@@ -66,6 +66,7 @@ public class ViewManageInvitations {
 
 	private static Scene theManageInvitationsScene;
 	
+	protected static Label label_InvitationHeader = new Label("Code  |  Email Address  |  Role  |  Expiration"); 
 	/*-*******************************************************************************************
 
 	Constructors
@@ -133,10 +134,12 @@ public class ViewManageInvitations {
 	    button_UpdateThisUser.setOnAction((_) -> { guiUserUpdate.ViewUserUpdate.displayUserUpdate(theStage, theUser); });
 	    
 	    // GUI Area 2 
+	    setupLabelUI(label_InvitationHeader, "Arial", 14, 700, Pos.BASELINE_LEFT, 20, 95);
 	    listview_Invitations.setLayoutX(20);
 	    listview_Invitations.setLayoutY(110);
 	    listview_Invitations.setPrefWidth(700);
 	    listview_Invitations.setPrefHeight(300);
+	    
 	    
 	    setupButtonUI(button_Delete, "Dialog", 16, 150, Pos.CENTER, 740, 250);
 	    button_Delete.setOnAction((_) -> { ControllerManageInvitations.performDelete(); });
@@ -152,7 +155,7 @@ public class ViewManageInvitations {
 	    button_Quit.setOnAction((_) -> { ControllerManageInvitations.performQuit(); });
 
 	    theRootPane.getChildren().addAll(
-	    	label_PageTitle, label_UserDetails, button_UpdateThisUser, line_Separator1, listview_Invitations, button_Delete,
+	    	label_PageTitle, label_UserDetails, button_UpdateThisUser, line_Separator1, label_InvitationHeader,listview_Invitations, button_Delete,
 	    	line_Separator4, button_Return, button_Logout, button_Quit);
 	    
 	}

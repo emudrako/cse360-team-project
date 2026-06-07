@@ -20,15 +20,40 @@ import database.Database;
  * @version 1.00		2026-06-07 Initial version
  */
 
+
 public class ControllerManageInvitations{
+	
+	/*-********************************************************************************************
+
+	User Interface Actions for this page
+	
+	This controller is not a class that gets instantiated.  Rather, it is a collection of protected
+	static methods that can be called by the View (which is a singleton instantiated object) and 
+	the Model is often just a stub, or will be a singleton instantiated object.
+	
+	 */
+
+	/**
+	 * Default constructor is not used.
+	 */
+	public ControllerManageInvitations() {}
+	// Reference for the in-memory database so this package has access
+	private static Database theDatabase = applicationMain.FoundationsMain.database;	
 	/**********
 	 * <p> Method: performDelete() </p>
 	 * 
-	 * <p> Description: This method  </p>
+	 * <p> Description: This method will delete the invitation code and attributes at the Admin's request </p>
 	 * 
 	 */
 	protected static void performDelete(){
+		String selectedItem = ViewManageInvitations.listview_Invitations.getSelectionModel().getSelectedItem(); // Get the selected invitation from list
+		if (selectedItem == null) return; // if there was nothing selected do nothing
 		
+		// Extract the invitation code from the selected item and remove it from the database
+		String code = selectedItem.split(" \\| ")[0];
+		theDatabase.removeInvitationAfterUse(code);
+		
+		ViewManageInvitations.displayManageInvitations(ViewManageInvitations.theStage, ViewManageInvitations.theUser);// Refresh the list
 	}
 	
 	/**********
