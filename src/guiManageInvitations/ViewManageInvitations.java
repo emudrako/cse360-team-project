@@ -27,5 +27,10 @@ import javafx.scene.control.ListView;
  */
 
 public class ViewManageInvitations {
+
+	public static void displayManageInvitations(Stage theStage, User theUser) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }

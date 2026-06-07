@@ -22,4 +22,37 @@ import database.Database;
 
 public class ControllerManageInvitations{
 	
+	performDelete()
+	
+	protected static void performReturn() {
+		guiAdminHome.ViewAdminHome.displayAdminHome(ViewManageInvitations.theStage,
+				ViewManageInvitations.theUser);
+	}
+	
+	
+	/**********
+	 * <p> Method: performLogout() </p>
+	 * 
+	 * <p> Description: This method logs out the current user and proceeds to the normal login
+	 * page where existing users can log in or potential new users with a invitation code can
+	 * start the process of setting up an account. </p>
+	 * 
+	 */
+	protected static void performLogout() {
+		guiUserLogin.ViewUserLogin.displayUserLogin(ViewManageInvitations.theStage);
+	}
+	
+	
+	/**********
+	 * <p> Method: performQuit() </p>
+	 * 
+	 * <p> Description: This method terminates the execution of the program.  It leaves the
+	 * database in a state where the normal login page will be displayed when the application is
+	 * restarted.</p>
+	 * 
+	 */
+	protected static void performQuit() {
+		System.exit(0);
+	}
+	
 }
