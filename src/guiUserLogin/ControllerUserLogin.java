@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import database.Database;
 import entityClasses.User;
+import guiFirstAdmin.ViewFirstAdmin;
 import guiSetOneTimePassword.ViewSetOneTimePassword;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
@@ -107,11 +108,38 @@ public class ControllerUserLogin {
     	if (theDatabase.getCurrentOneTimePassword() == true) {
     		dialogUpdatePassword = new TextInputDialog("");
     		dialogUpdatePassword.setTitle("One-Time Password Used");
-    		dialogUpdatePassword.setHeaderText("Please enter a new password");
+    		dialogUpdatePassword.setHeaderText("Please enter a new password that meets the following requirements:\n"
+    				+ "- At least 8 characters\n"
+    				+ "- No greater than 24 characters\n"
+    				+ "- Must contain an upper case letter\n"
+    				+ "- Must contain a lower case letter\n"
+    				+ "- Must contain a numeric digit\n"
+    				+ "- Must contain a special character\n");
     		Optional<String> result = dialogUpdatePassword.showAndWait();
     		
     		if (result.isPresent()) {
     			String newPassword = result.get();
+    			// Check max length first before any other processing (Story 3)
+    			boolean running = true;
+    			while (running) {
+    				String errMessage = recognizers.PasswordEvaluator.evaluatePassword(newPassword);
+    				if (!errMessage.isEmpty()) {
+    					dialogUpdatePassword.setTitle("Invalid Password");
+    					dialogUpdatePassword.setHeaderText(errMessage
+    							+ "\n\nPlease enter a new password that meets the following requirements:\n"
+    							+ "- At least 8 characters\n"
+    							+ "- No greater than 24 characters\n"
+    							+ "- Must contain an upper case letter\n"
+    							+ "- Must contain a lower case letter\n"
+    							+ "- Must contain a numeric digit\n"
+    							+ "- Must contain a special character\n");
+    					Optional<String> newResult = dialogUpdatePassword.showAndWait();
+    					newPassword = newResult.get();
+    				}
+    				else {
+    					running = false;
+    				}
+    			}
     			performSetPassword(username, newPassword);
     		}
     		else {

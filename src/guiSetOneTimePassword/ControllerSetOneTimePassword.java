@@ -1,6 +1,7 @@
 package guiSetOneTimePassword;
 
 import database.Database;
+import guiFirstAdmin.ViewFirstAdmin;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 
@@ -83,6 +84,7 @@ public class ControllerSetOneTimePassword {
 				ViewSetOneTimePassword.label_OneTimePassword,
 				ViewSetOneTimePassword.text_OneTimePassword,
 				ViewSetOneTimePassword.button_SetPassword,
+				ViewSetOneTimePassword.label_checkPassword,
 				ViewSetOneTimePassword.line_Separator4, 
 				ViewSetOneTimePassword.button_Return,
 				ViewSetOneTimePassword.button_Logout,
@@ -119,6 +121,22 @@ public class ControllerSetOneTimePassword {
 			
 			return;
 		}
+		
+		// Check max length first before any other processing
+		if (password.length() > recognizers.PasswordEvaluator.MAX_PASSWORD_LENGTH) {
+			ViewSetOneTimePassword.label_checkPassword.setText(
+			"Password is too long. Maximum is 24 characters.");
+			return;
+		}
+		// Evaluate password strength in real time as user types (Story 2)
+	    String result = recognizers.PasswordEvaluator.evaluatePassword(password);
+	    if (!result.isEmpty()) {
+	    	ViewSetOneTimePassword.label_checkPassword.setText(result);
+	    	return;
+	    }
+	    else {
+	    	ViewSetOneTimePassword.label_checkPassword.setText("Password looks good!");
+	    }
 		
 		theDatabase.updatePassword(username, password);
 		theDatabase.updateOneTimePassword(username, "true");
