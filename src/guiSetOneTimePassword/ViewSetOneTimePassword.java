@@ -1,6 +1,5 @@
 package guiSetOneTimePassword;
 
-import java.util.ArrayList;
 import java.util.List;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -64,6 +63,7 @@ public class ViewSetOneTimePassword {
 	protected static Label label_OneTimePassword = new Label("One-Time Password");
 	protected static TextField text_OneTimePassword = new TextField();
 	protected static Button button_SetPassword = new Button("Set Password");
+	protected static Label label_checkPassword = new Label("Enter a password");
 		
 	// This is a separator and it is used to partition the GUI for various tasks
 	protected static Line line_Separator4 = new Line(20, 525, width-20,525);
@@ -189,6 +189,8 @@ public class ViewSetOneTimePassword {
 		setupButtonUI(button_SetPassword, "Dialog", 16, 150, Pos.CENTER, 550, 205);
 		ViewSetOneTimePassword.button_SetPassword.setOnAction((_) -> 
 			{ControllerSetOneTimePassword.performSetPassword(); });
+		// Label to display the Passwords error message
+		setupLabelUI(label_checkPassword, "Arial", 12, width, Pos.CENTER, -50, 250);
 		
 		// GUI Area 3		
 		setupButtonUI(button_Return, "Dialog", 18, 210, Pos.CENTER, 20, 540);
