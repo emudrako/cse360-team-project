@@ -490,6 +490,30 @@ public class Database {
 		return 0;
 	}
 	
+	/*******
+	 * <p> Method: List<String[]> getAllInvitations() </p>
+	 * 
+	 * <p> Description: Return the InvitationCodes table.</p>
+	 *  
+	 * @return the list of all codes, email addresses, roles and deadlines.
+	 * 
+	 */
+	public List<String[]> getAllInvitations() {		
+		List<String[]> userList = new ArrayList<String[]>();
+		String query = "SELECT * FROM InvitationCodes";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			ResultSet rs = pstmt.executeQuery();
+			while (rs.next()) {
+				String[] invitation = {rs.getString("code"), rs.getString("emailAddress"), rs.getString("role"), rs.getString("deadline")};
+				userList.add(invitation);
+			}
+		} 
+		catch (SQLException e) {
+        return null;
+		}
+		//	System.out.println(userList);
+		return userList;
+	}
 	
 	/*******
 	 * <p> Method: boolean emailaddressHasBeenUsed(String emailAddress) </p>
@@ -1277,7 +1301,63 @@ public class Database {
 		resultSet.close();
 	}
 
-
+	/*******
+	 * <p> Method: boolean deleteUser(String username) </p>
+	 *
+	 * <p> Description: Deletes a user from the database. </p>
+	 *
+	 * @param username the user to delete
+	 * @return true if deletion was successful
+	 */
+	public boolean deleteUser(String username) {
+	    if (username == null || username.trim().isEmpty()) return false;
+	    
+	    String query = "DELETE FROM userDB WHERE userName = ?";
+	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+	        pstmt.setString(1, username.trim());
+	        int rowsDeleted = pstmt.executeUpdate();
+	        return rowsDeleted > 0;
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        return false;
+	    }
+	}
+	/*******
+	 * <p> Method: String getUserDetailsForList(String username) </p>
+	 *
+	 * <p> Description: Returns a formatted string with all user details for the list. </p>
+	 */
+	public String getUserDetailsForList(String username) {
+	    StringBuilder sb = new StringBuilder();
+	    String query = "SELECT * FROM userDB WHERE userName = ?";
+	    
+	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+	        pstmt.setString(1, username);
+	        ResultSet rs = pstmt.executeQuery();
+	        
+	        if (rs.next()) {
+	            sb.append("Username: ").append(rs.getString("userName")).append("\n");
+	            sb.append("Name: ").append(rs.getString("firstName") != null ? rs.getString("firstName") : "")
+	              .append(" ")
+	              .append(rs.getString("middleName") != null ? rs.getString("middleName") + " " : "")
+	              .append(rs.getString("lastName") != null ? rs.getString("lastName") : "").append("\n");
+	            sb.append("Email: ").append(rs.getString("emailAddress") != null ? rs.getString("emailAddress") : "<none>").append("\n");
+	            sb.append("Roles: ");
+	            
+	            boolean hasRole = false;
+	            if (rs.getBoolean("adminRole")) { sb.append("Admin "); hasRole = true; }
+	            if (rs.getBoolean("studentRole")) { sb.append("Student "); hasRole = true; }
+	            if (rs.getBoolean("instructorRole")) { sb.append("Instructor "); hasRole = true; }
+	            if (rs.getBoolean("staffRole")) { sb.append("Staff "); hasRole = true; }
+	            
+	            if (!hasRole) sb.append("None");
+	            sb.append("\n");
+	        }
+	    } catch (SQLException e) {
+	        sb.append("Error retrieving user details\n");
+	    }
+	    return sb.toString();
+	}
 	/*******
 	 * <p> Method: void closeConnection()</p>
 	 * 
