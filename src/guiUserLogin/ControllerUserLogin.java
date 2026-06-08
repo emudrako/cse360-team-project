@@ -141,6 +141,7 @@ public class ControllerUserLogin {
     				}
     			}
     			performSetPassword(username, newPassword);
+    			return;
     		}
     		else {
     			return;
@@ -240,8 +241,6 @@ public class ControllerUserLogin {
 	 * 
 	 */	
 	protected static void performSetPassword(String username, String password) {
-	// MISSING - Need to check for password validity. Waiting for @Sara Suarez to implement
-	// password strength validation so those requirements can be referenced
 	theDatabase.updatePassword(username, password);
 	theDatabase.updateOneTimePassword(username, "false");
 	
