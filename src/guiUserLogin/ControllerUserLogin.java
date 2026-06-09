@@ -119,7 +119,6 @@ public class ControllerUserLogin {
     		
     		if (result.isPresent()) {
     			String newPassword = result.get();
-    			// Check max length first before any other processing (Story 3)
     			boolean running = true;
     			while (running) {
     				String errMessage = recognizers.PasswordEvaluator.evaluatePassword(newPassword);
@@ -134,7 +133,13 @@ public class ControllerUserLogin {
     							+ "- Must contain a numeric digit\n"
     							+ "- Must contain a special character\n");
     					Optional<String> newResult = dialogUpdatePassword.showAndWait();
-    					newPassword = newResult.get();
+    					if (newResult.isPresent()) {
+    						newPassword = newResult.get();
+    					}
+    					else {
+    						running = false;
+    						return;
+    					}
     				}
     				else {
     					running = false;
