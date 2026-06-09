@@ -1,5 +1,22 @@
 package recognizers;
 
+/*******
+ * <p> Title: PasswordEvaluator Class. </p>
+ *
+ * <p> Description: This class evaluates whether a password satisfies a set of
+ * strength requirements using a Finite State Machine approach. It checks that
+ * the password does not exceed the maximum allowed length before evaluating
+ * strength criteria including uppercase, lowercase, numeric digit, special
+ * character, and minimum length requirements.</p>
+ *
+ * <p> Copyright: Sara Suarez © 2026 </p>
+ *
+ * @author Sara Suarez
+ *
+ * @version 1.00    2026-06-04 Initial version for CSE 360 TP1 Story 2 and Story 3
+ *
+ */
+
 public class PasswordEvaluator {
 
 	    public static String passwordErrorMessage = "";
