@@ -109,7 +109,7 @@ public class ControllerSetOneTimePassword {
 		String password = ViewSetOneTimePassword.text_OneTimePassword.getText();
 		String username = ViewSetOneTimePassword.combobox_SelectUser.getValue();
 		
-		if (username == "<Select a User>") {
+		if (username.equals("<Select a User>")) {
 			alertNoUserSelected.setTitle("One-Time Password Not Created");
 			alertNoUserSelected.setHeaderText("There is no user selected.");
 			alertNoUserSelected.setContentText("Please select a user and try again.");
