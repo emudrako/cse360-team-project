@@ -273,26 +273,26 @@ public class ControllerAdminHome {
 				break;
 			
 			case 1:
-				/**
-				if (currentCharIndex == email.length()-1 && currentChar != '@') {
-					ViewAdminHome.alertEmailError.setTitle("Invalid Email Address");
-					ViewAdminHome.alertEmailError.setHeaderText("Invalid email address format.");
-					ViewAdminHome.alertEmailError.setContentText(
-							"Please enter an email address with the proper format.");
-					ViewAdminHome.alertEmailError.showAndWait();
-					ViewAdminHome.text_InvitationEmailAddress.setText("");
-					invalidEmail = true;
-					running = false;
-				}
-				*/
 				if (currentChar >= 'A' && currentChar <= 'Z' ||
 				currentChar >= 'a' && currentChar <= 'z' ||
 				currentChar >= '0' && currentChar <= '9' ||
 				currentChar == '-' ||
 				currentChar == '_' ||
 				currentChar == '.') {
-					currentCharIndex++;
-					nextState = 1;
+					if (currentCharIndex == email.length()-1) {
+						ViewAdminHome.alertEmailError.setTitle("Invalid Email Address");
+						ViewAdminHome.alertEmailError.setHeaderText("Invalid email address format.");
+						ViewAdminHome.alertEmailError.setContentText(
+								"Please enter an email address with the proper format.");
+						ViewAdminHome.alertEmailError.showAndWait();
+						ViewAdminHome.text_InvitationEmailAddress.setText("");
+						invalidEmail = true;
+						running = false;
+					}
+					else {
+						currentCharIndex++;
+						nextState = 1;
+					}
 				}
 				else if (currentChar == '@') {
 					if (currentCharIndex == email.length()-1) {
