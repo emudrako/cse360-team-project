@@ -129,6 +129,8 @@ public class ViewSetOneTimePassword {
 		if (theView == null) theView = new ViewSetOneTimePassword();
 		
 		// Default to no user selected
+		List<String> userList = theDatabase.getUserList();	
+		combobox_SelectUser.setItems(FXCollections.observableArrayList(userList));
 		combobox_SelectUser.getSelectionModel().select(0);
 		
 		// Populate the dynamic aspects of the GUI with the data from the user and the current

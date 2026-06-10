@@ -208,15 +208,6 @@ public class ControllerAdminHome {
 		// Returns true if the email address meets all requirements, false if otherwise
 		boolean invalidEmail = false;
 		
-		if (email.isEmpty()) {
-			ViewAdminHome.alertEmailError.setTitle("Invalid Email Address");
-			ViewAdminHome.alertEmailError.setHeaderText("Email address is empty.");
-			ViewAdminHome.alertEmailError.setContentText(
-					"Please enter a valid email address.");
-			ViewAdminHome.alertEmailError.showAndWait();
-			ViewAdminHome.text_InvitationEmailAddress.setText("");
-			return true;
-		}
 		if (email.length() <5) {
 			ViewAdminHome.alertEmailError.setTitle("Invalid Email Address");
 			ViewAdminHome.alertEmailError.setHeaderText("Invalid email address format.");
