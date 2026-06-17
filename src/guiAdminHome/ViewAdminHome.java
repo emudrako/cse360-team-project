@@ -161,6 +161,8 @@ public class ViewAdminHome {
 	public static void displayAdminHome(Stage ps, User user) {
 		
 		// Establish the references to the GUI and the current user
+		label_NumberOfInvitations.setText("Number of outstanding invitations: " + 
+			    theDatabase.getNumberOfInvitations());
 		theStage = ps;
 		theUser = user;
 		
