@@ -1,6 +1,8 @@
 package database;
 
 import java.sql.*;
+import java.sql.Statement;
+import java.sql.ResultSet;
 import java.time.LocalDateTime; // Import LocalDateTime for invitation code expiration functionality
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -8,6 +10,8 @@ import java.util.List;
 import java.util.UUID;
 
 import entityClasses.User;
+import entityClasses.Post;
+import entityClasses.Reply;
 
 /*******
  * <p> Title: Database Class. </p>
@@ -132,7 +136,26 @@ public class Database {
 	            + "role VARCHAR(10), "
 	            + "deadline TIMESTAMP)"; // Deadline column added for invitation expiration;
 	    statement.execute(invitationCodesTable);
+	    
+		// Create the posts table
+	    String postsTable = "CREATE TABLE IF NOT EXISTS PostsDB ("
+	    		+ "postID INT AUTO_INCREMENT PRIMARY KEY, "
+	    		+ "title VARCHAR(100), "
+	    		+ "body VARCHAR(1000), "
+	    		+ "authorUsername VARCHAR(255), "
+	    		+ "thread VARCHAR(255), "
+	    		+ "isDeleted BOOL DEFAULT FALSE)";
+	    statement.execute(postsTable);
+
+	    // Create the replies table
+	    String repliesTable = "CREATE TABLE IF NOT EXISTS RepliesDB ("
+	    		+ "replyID INT AUTO_INCREMENT PRIMARY KEY, "
+	    		+ "postID INT, "
+	    		+ "body VARCHAR(1000), "
+	    		+ "authorUsername VARCHAR(255))";
+	    statement.execute(repliesTable);
 	}
+	
 
 
 /*******
@@ -1358,6 +1381,266 @@ public class Database {
 	    }
 	    return sb.toString();
 	}
+	
+	/*******
+	 * <p> Method: createPost </p>
+	 * 
+	 * <p> Description: Validates the post's title and body, then creates a new row in
+	 * the database using the post parameter, and sets the database-generated postID
+	 * back onto the Post object. </p>
+	 * 
+	 * @throws SQLException when there is an issue creating the SQL command or executing it.
+	 * 
+	 * @throws IllegalArgumentException when the post's title or body fails input validation.
+	 * 
+	 * @param post specifies a Post object to be added to the database.
+	 * 
+	 */
+		public void createPost(Post post) throws SQLException {
+			// Validate the title and body before touching the database
+			String errMsg = recognizers.PostReplyValidator.checkForValidPost(
+					post.getTitle(), post.getBody());
+			if (!errMsg.isEmpty()) {
+				throw new IllegalArgumentException(errMsg);
+			}
+			
+			// Validate the thread exists before touching the database
+			String threadErrMsg = recognizers.PostReplyValidator.checkForValidThread(post.getThread());
+			if (!threadErrMsg.isEmpty()) {
+				throw new IllegalArgumentException(threadErrMsg);
+			}
+
+			String insertPost = "INSERT INTO PostsDB (title, body, authorUsername, thread, isDeleted) "
+					+ "VALUES (?, ?, ?, ?, ?)";
+			try (PreparedStatement pstmt = connection.prepareStatement(insertPost, 
+					Statement.RETURN_GENERATED_KEYS)) {
+				pstmt.setString(1, post.getTitle());
+				pstmt.setString(2, post.getBody());
+				pstmt.setString(3, post.getAuthorUsername());
+				pstmt.setString(4, post.getThread());
+				pstmt.setBoolean(5, post.getIsDeleted());
+				pstmt.executeUpdate();
+
+				try (ResultSet rs = pstmt.getGeneratedKeys()) {
+					if (rs.next()) {
+						post.setPostID(rs.getInt(1));
+					}
+				}
+			} catch (SQLException e) {
+				System.err.println("*** ERROR *** Database error while creating post: " 
+						+ e.getMessage());
+				throw e;
+			}
+		}
+	/*******
+	* <p> Method: readPost </p>
+	* 
+	* <p> Description: Retrieves a single Post object from the database matching the
+	* specified postID, or null if no such post exists. </p>
+	* 
+	* @param postID specifies the ID of the post to retrieve.
+	* 
+	* @return a Post object matching the specified postID, or null if not found.
+	* 
+	*/
+		public Post readPost(int postID) {
+			String query = "SELECT * FROM PostsDB WHERE postID = ?";
+			try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+				pstmt.setInt(1, postID);
+				try (ResultSet rs = pstmt.executeQuery()) {
+					if (rs.next()) {
+						Post post = new Post(
+							rs.getString("title"),
+							rs.getString("body"),
+							rs.getString("authorUsername"),
+							rs.getString("thread"));
+						post.setPostID(rs.getInt("postID"));
+						post.setIsDeleted(rs.getBoolean("isDeleted"));
+						return post;
+					}
+				}
+			} catch (SQLException e) {
+				System.err.println("*** ERROR *** Database error while reading post: " 
+						+ e.getMessage());
+			}
+			return null;
+		}
+	/*******
+	* <p> Method: updatePost </p>
+	* 
+	* <p> Description: Validates the new title and body, then updates the title and body
+    * of an existing post in the database. </p>
+	* 
+	* @throws IllegalArgumentException when the new title or body fails input validation.
+	* 
+	*  @param postID specifies the ID of the post to update.
+	* 
+	* @param newTitle specifies the new title for the post.
+	* 
+	* @param newBody specifies the new body content for the post.
+	* 
+	*/
+		public void updatePost(int postID, String newTitle, String newBody) {
+			// Validate the new title and body before touching the database
+			String errMsg = recognizers.PostReplyValidator.checkForValidPost(newTitle, newBody);
+			if (!errMsg.isEmpty()) {
+				throw new IllegalArgumentException(errMsg);
+			}
+
+			String query = "UPDATE PostsDB SET title = ?, body = ? WHERE postID = ?";
+			try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+				pstmt.setString(1, newTitle);
+				pstmt.setString(2, newBody);
+				pstmt.setInt(3, postID);
+				pstmt.executeUpdate();
+			} catch (SQLException e) {
+				System.err.println("*** ERROR *** Database error while updating post: " 
+						+ e.getMessage());
+			}
+		}
+	/*******
+	* <p> Method: deletePost </p>
+	* 
+	* <p> Description: Soft-deletes a post by setting its isDeleted flag to true, rather
+	* than removing the row, so that any existing replies can still reference the original
+	* post and display a message indicating it has been deleted. </p>
+	* 
+	* @param postID specifies the ID of the post to delete.
+    * 
+	*/
+		public void deletePost(int postID) {
+			String query = "UPDATE PostsDB SET isDeleted = TRUE WHERE postID = ?";
+			try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+				pstmt.setInt(1, postID);
+				pstmt.executeUpdate();
+			} catch (SQLException e) {
+				System.err.println("*** ERROR *** Database error while deleting post: " 
+						+ e.getMessage());
+			}
+		}
+	/*******
+	* <p> Method: createReply </p>
+	* 
+	* <p> Description: Validates the reply's body, then creates a new row in the database
+	* using the reply parameter, and sets the database-generated replyID back onto the
+	* Reply object. </p>
+	* 
+	* @throws SQLException when there is an issue creating the SQL command or executing it.
+	* 
+	* @throws IllegalArgumentException when the reply's body fails input validation.
+	* 
+	* @param reply specifies a Reply object to be added to the database.
+	* 
+	*/
+		public void createReply(Reply reply) throws SQLException {
+		// Validate the body before touching the database
+			String errMsg = recognizers.PostReplyValidator.checkForValidReply(reply.getBody());
+			if (!errMsg.isEmpty()) {
+				throw new IllegalArgumentException(errMsg);
+			}
+
+			String insertReply = "INSERT INTO RepliesDB (postID, body, authorUsername) "
+				+ "VALUES (?, ?, ?)";
+			try (PreparedStatement pstmt = connection.prepareStatement(insertReply, 
+				Statement.RETURN_GENERATED_KEYS)) {
+					pstmt.setInt(1, reply.getPostID());
+					pstmt.setString(2, reply.getBody());
+					pstmt.setString(3, reply.getAuthorUsername());
+					pstmt.executeUpdate();
+
+			try (ResultSet rs = pstmt.getGeneratedKeys()) {
+				if (rs.next()) {
+					reply.setReplyID(rs.getInt(1));
+				}
+			}
+				} catch (SQLException e) {
+					System.err.println("*** ERROR *** Database error while creating reply: " 
+							+ e.getMessage());
+					throw e;
+				}
+			}
+	/*******
+	* <p> Method: readRepliesForPost </p>
+	* 
+	* <p> Description: Retrieves all Reply objects in the database that respond to the
+	* specified postID. </p>
+	* 
+	* @param postID specifies the ID of the post whose replies should be retrieved.
+	* 
+	* @return a List of Reply objects responding to the specified postID.
+	* 
+	*/
+		public List<Reply> readRepliesForPost(int postID) {
+			List<Reply> replies = new ArrayList<Reply>();
+			String query = "SELECT * FROM RepliesDB WHERE postID = ?";
+			try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+				pstmt.setInt(1, postID);
+				try (ResultSet rs = pstmt.executeQuery()) {
+					while (rs.next()) {
+						Reply reply = new Reply(
+							rs.getInt("postID"),
+							rs.getString("body"),
+							rs.getString("authorUsername"));
+							reply.setReplyID(rs.getInt("replyID"));
+							replies.add(reply);
+					}
+				}
+			} catch (SQLException e) {
+				System.err.println("*** ERROR *** Database error while reading replies: " 
+					+ e.getMessage());
+				}
+			return replies;
+		}
+	/*******
+	* <p> Method: updateReply </p>
+	* 
+	* <p> Description: Validates the new body, then updates the body content of an
+	* existing reply in the database. </p>
+	* 
+	* @throws IllegalArgumentException when the new body fails input validation.
+	* 
+	* @param replyID specifies the ID of the reply to update.
+	* 
+	* @param newBody specifies the new body content for the reply.
+	* 
+	*/
+		public void updateReply(int replyID, String newBody) {
+		// Validate the new body before touching the database
+			String errMsg = recognizers.PostReplyValidator.checkForValidReply(newBody);
+				if (!errMsg.isEmpty()) {
+					throw new IllegalArgumentException(errMsg);
+				}
+
+			String query = "UPDATE RepliesDB SET body = ? WHERE replyID = ?";
+				try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+					pstmt.setString(1, newBody);
+					pstmt.setInt(2, replyID);
+					pstmt.executeUpdate();
+				} catch (SQLException e) {
+						System.err.println("*** ERROR *** Database error while updating reply: " 
+				+ e.getMessage());
+						}
+		}
+	/*******
+	* <p> Method: deleteReply </p>
+	* 
+	* <p> Description: Permanently removes a reply from the database. Unlike posts, replies
+	* do not require soft-delete behavior, since no other entity references a reply after
+	* it has been removed. </p>
+	* 
+	* @param replyID specifies the ID of the reply to delete.
+	* 
+	*/
+		public void deleteReply(int replyID) {
+			String query = "DELETE FROM RepliesDB WHERE replyID = ?";
+			try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+				pstmt.setInt(1, replyID);
+				pstmt.executeUpdate();
+				} catch (SQLException e) {
+					System.err.println("*** ERROR *** Database error while deleting reply: " 
+				+ e.getMessage());
+					}
+			}
 	/*******
 	 * <p> Method: void closeConnection()</p>
 	 * 
