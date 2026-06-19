@@ -92,11 +92,32 @@ public class Database {
 		try {
 			Class.forName(JDBC_DRIVER); // Load the JDBC driver
 			connection = DriverManager.getConnection(DB_URL, USER, PASS);
-			statement = connection.createStatement(); 
+			statement = connection.createStatement();
 			// You can use this command to clear the database and restart from fresh.
 //	statement.execute("DROP ALL OBJECTS");
 
 			createTables();  // Create the necessary tables if they don't exist
+		} catch (ClassNotFoundException e) {
+			System.err.println("JDBC Driver not found: " + e.getMessage());
+		}
+	}
+
+/*******
+ * <p> Method: connectToTestDatabase </p>
+ *
+ * <p> Description: Opens a private anonymous in-memory H2 instance used exclusively
+ * by unit/integration tests.  Each call gets a fresh, empty schema that is destroyed
+ * when the connection is closed, so tests never touch the production file database.</p>
+ *
+ * @throws SQLException when the driver cannot open the connection
+ *
+ */
+	public void connectToTestDatabase() throws SQLException {
+		try {
+			Class.forName(JDBC_DRIVER);
+			connection = DriverManager.getConnection("jdbc:h2:mem:", USER, PASS);
+			statement = connection.createStatement();
+			createTables();
 		} catch (ClassNotFoundException e) {
 			System.err.println("JDBC Driver not found: " + e.getMessage());
 		}
@@ -154,6 +175,19 @@ public class Database {
 	    		+ "body VARCHAR(1000), "
 	    		+ "authorUsername VARCHAR(255))";
 	    statement.execute(repliesTable);
+
+	    // Add createdAt to existing tables if upgrading from an older schema
+	    statement.execute("ALTER TABLE PostsDB ADD COLUMN IF NOT EXISTS "
+	    		+ "createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP");
+	    statement.execute("ALTER TABLE RepliesDB ADD COLUMN IF NOT EXISTS "
+	    		+ "createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP");
+
+	    // Tracks which replies each user has already read (for unreadCount)
+	    String replyReadStatusTable = "CREATE TABLE IF NOT EXISTS ReplyReadStatusDB ("
+	    		+ "replyID INT, "
+	    		+ "readerUsername VARCHAR(255), "
+	    		+ "PRIMARY KEY (replyID, readerUsername))";
+	    statement.execute(replyReadStatusTable);
 	}
 	
 
@@ -1410,15 +1444,17 @@ public class Database {
 				throw new IllegalArgumentException(threadErrMsg);
 			}
 
-			String insertPost = "INSERT INTO PostsDB (title, body, authorUsername, thread, isDeleted) "
-					+ "VALUES (?, ?, ?, ?, ?)";
-			try (PreparedStatement pstmt = connection.prepareStatement(insertPost, 
+			LocalDateTime now = LocalDateTime.now();
+			String insertPost = "INSERT INTO PostsDB (title, body, authorUsername, thread, isDeleted, createdAt) "
+					+ "VALUES (?, ?, ?, ?, ?, ?)";
+			try (PreparedStatement pstmt = connection.prepareStatement(insertPost,
 					Statement.RETURN_GENERATED_KEYS)) {
 				pstmt.setString(1, post.getTitle());
 				pstmt.setString(2, post.getBody());
 				pstmt.setString(3, post.getAuthorUsername());
 				pstmt.setString(4, post.getThread());
 				pstmt.setBoolean(5, post.getIsDeleted());
+				pstmt.setTimestamp(6, Timestamp.valueOf(now));
 				pstmt.executeUpdate();
 
 				try (ResultSet rs = pstmt.getGeneratedKeys()) {
@@ -1426,8 +1462,9 @@ public class Database {
 						post.setPostID(rs.getInt(1));
 					}
 				}
+				post.setCreatedAt(now);
 			} catch (SQLException e) {
-				System.err.println("*** ERROR *** Database error while creating post: " 
+				System.err.println("*** ERROR *** Database error while creating post: "
 						+ e.getMessage());
 				throw e;
 			}
@@ -1456,6 +1493,8 @@ public class Database {
 							rs.getString("thread"));
 						post.setPostID(rs.getInt("postID"));
 						post.setIsDeleted(rs.getBoolean("isDeleted"));
+						Timestamp ts = rs.getTimestamp("createdAt");
+						if (ts != null) post.setCreatedAt(ts.toLocalDateTime());
 						return post;
 					}
 				}
@@ -1539,13 +1578,15 @@ public class Database {
 				throw new IllegalArgumentException(errMsg);
 			}
 
-			String insertReply = "INSERT INTO RepliesDB (postID, body, authorUsername) "
-				+ "VALUES (?, ?, ?)";
-			try (PreparedStatement pstmt = connection.prepareStatement(insertReply, 
+			LocalDateTime now = LocalDateTime.now();
+			String insertReply = "INSERT INTO RepliesDB (postID, body, authorUsername, createdAt) "
+				+ "VALUES (?, ?, ?, ?)";
+			try (PreparedStatement pstmt = connection.prepareStatement(insertReply,
 				Statement.RETURN_GENERATED_KEYS)) {
 					pstmt.setInt(1, reply.getPostID());
 					pstmt.setString(2, reply.getBody());
 					pstmt.setString(3, reply.getAuthorUsername());
+					pstmt.setTimestamp(4, Timestamp.valueOf(now));
 					pstmt.executeUpdate();
 
 			try (ResultSet rs = pstmt.getGeneratedKeys()) {
@@ -1553,8 +1594,9 @@ public class Database {
 					reply.setReplyID(rs.getInt(1));
 				}
 			}
+			reply.setCreatedAt(now);
 				} catch (SQLException e) {
-					System.err.println("*** ERROR *** Database error while creating reply: " 
+					System.err.println("*** ERROR *** Database error while creating reply: "
 							+ e.getMessage());
 					throw e;
 				}
@@ -1582,6 +1624,8 @@ public class Database {
 							rs.getString("body"),
 							rs.getString("authorUsername"));
 							reply.setReplyID(rs.getInt("replyID"));
+							Timestamp ts = rs.getTimestamp("createdAt");
+							if (ts != null) reply.setCreatedAt(ts.toLocalDateTime());
 							replies.add(reply);
 					}
 				}
@@ -1642,10 +1686,149 @@ public class Database {
 					}
 			}
 	/*******
+	 * <p> Method: int getReplyCount(int postID) </p>
+	 *
+	 * <p> Description: Returns the total number of replies for the specified post. </p>
+	 *
+	 * @param postID specifies the post whose reply count should be returned
+	 *
+	 * @return the number of replies for the post, or 0 on error
+	 *
+	 */
+	public int getReplyCount(int postID) {
+		String query = "SELECT COUNT(*) AS cnt FROM RepliesDB WHERE postID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setInt(1, postID);
+			try (ResultSet rs = pstmt.executeQuery()) {
+				if (rs.next()) return rs.getInt("cnt");
+			}
+		} catch (SQLException e) {
+			System.err.println("*** ERROR *** Database error in getReplyCount: " + e.getMessage());
+		}
+		return 0;
+	}
+
+	/*******
+	 * <p> Method: void markReplyAsRead(int replyID, String username) </p>
+	 *
+	 * <p> Description: Records that the specified user has read the specified reply.
+	 * Subsequent calls for the same pair are silently ignored. </p>
+	 *
+	 * @param replyID specifies the reply that was read
+	 *
+	 * @param username specifies the user who read the reply
+	 *
+	 */
+	public void markReplyAsRead(int replyID, String username) {
+		String query = "MERGE INTO ReplyReadStatusDB (replyID, readerUsername) KEY(replyID, readerUsername) VALUES (?, ?)";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setInt(1, replyID);
+			pstmt.setString(2, username);
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			System.err.println("*** ERROR *** Database error in markReplyAsRead: " + e.getMessage());
+		}
+	}
+
+	/*******
+	 * <p> Method: boolean isReplyReadByUser(int replyID, String username) </p>
+	 *
+	 * <p> Description: Returns true if the specified user has already read the specified reply. </p>
+	 *
+	 * @param replyID specifies the reply to check
+	 *
+	 * @param username specifies the user to check
+	 *
+	 * @return true if the reply has been read by the user, false otherwise
+	 *
+	 */
+	public boolean isReplyReadByUser(int replyID, String username) {
+		String query = "SELECT COUNT(*) AS cnt FROM ReplyReadStatusDB WHERE replyID = ? AND readerUsername = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setInt(1, replyID);
+			pstmt.setString(2, username);
+			try (ResultSet rs = pstmt.executeQuery()) {
+				if (rs.next()) return rs.getInt("cnt") > 0;
+			}
+		} catch (SQLException e) {
+			System.err.println("*** ERROR *** Database error in isReplyReadByUser: " + e.getMessage());
+		}
+		return false;
+	}
+
+	/*******
+	 * <p> Method: int getUnreadReplyCount(int postID, String username) </p>
+	 *
+	 * <p> Description: Returns the number of replies on the specified post that the specified
+	 * user has not yet read. </p>
+	 *
+	 * @param postID specifies the post whose unread reply count should be returned
+	 *
+	 * @param username specifies the user whose read status is used
+	 *
+	 * @return the number of unread replies for this user on this post
+	 *
+	 */
+	public int getUnreadReplyCount(int postID, String username) {
+		String query = "SELECT COUNT(*) AS cnt FROM RepliesDB r "
+				+ "WHERE r.postID = ? "
+				+ "AND r.replyID NOT IN ("
+				+ "  SELECT replyID FROM ReplyReadStatusDB WHERE readerUsername = ?)";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setInt(1, postID);
+			pstmt.setString(2, username);
+			try (ResultSet rs = pstmt.executeQuery()) {
+				if (rs.next()) return rs.getInt("cnt");
+			}
+		} catch (SQLException e) {
+			System.err.println("*** ERROR *** Database error in getUnreadReplyCount: " + e.getMessage());
+		}
+		return 0;
+	}
+
+	/*******
+	 * <p> Method: List&lt;Reply&gt; getUnreadRepliesForPost(int postID, String username) </p>
+	 *
+	 * <p> Description: Returns all replies on the specified post that the specified user
+	 * has not yet read, ordered by creation time. </p>
+	 *
+	 * @param postID specifies the post whose unread replies should be returned
+	 *
+	 * @param username specifies the user whose read status is used
+	 *
+	 * @return a List of unread Reply objects for this user on this post
+	 *
+	 */
+	public List<Reply> getUnreadRepliesForPost(int postID, String username) {
+		List<Reply> replies = new ArrayList<>();
+		String query = "SELECT * FROM RepliesDB r "
+				+ "WHERE r.postID = ? "
+				+ "AND r.replyID NOT IN ("
+				+ "  SELECT replyID FROM ReplyReadStatusDB WHERE readerUsername = ?) "
+				+ "ORDER BY r.createdAt ASC";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setInt(1, postID);
+			pstmt.setString(2, username);
+			try (ResultSet rs = pstmt.executeQuery()) {
+				while (rs.next()) {
+					Reply reply = new Reply(rs.getInt("postID"), rs.getString("body"), rs.getString("authorUsername"));
+					reply.setReplyID(rs.getInt("replyID"));
+					Timestamp ts = rs.getTimestamp("createdAt");
+					if (ts != null) reply.setCreatedAt(ts.toLocalDateTime());
+					replies.add(reply);
+				}
+			}
+		} catch (SQLException e) {
+			System.err.println("*** ERROR *** Database error in getUnreadRepliesForPost: " + e.getMessage());
+		}
+		return replies;
+	}
+
+	/*******
 	 * <p> Method: void closeConnection()</p>
-	 * 
+	 *
 	 * <p> Description: Closes the database statement and connection.</p>
-	 * 
+	 *
 	 */
 	// Closes the database statement and connection.
 	public void closeConnection() {

@@ -1,5 +1,7 @@
 package entityClasses;
 
+import java.time.LocalDateTime;
+
 /*******
  * <p> Title: Post Class </p>
  * 
@@ -24,6 +26,7 @@ public class Post {
 	private String authorUsername;
 	private String thread;
 	private boolean isDeleted;
+	private LocalDateTime createdAt;
 
 	/*****
 	 * <p> Method: Post() </p>
@@ -94,15 +97,15 @@ public class Post {
 
 	
 	/*****
-	 * <p> Method: void setTitle(String t) </p>
+	 * <p> Method: void setTitle(String title) </p>
 	 * 
 	 * <p> Description: This setter defines the Title attribute. </p>
 	 * 
-	 * @param t specifies the new title for this post
+	 * @param title specifies the new title for this post
 	 * 
 	 */
 	// Sets the Title.
-	public void setTitle(String t) { title = t; }
+	public void setTitle(String title) { title = title; }
 
 	
 	/*****
@@ -118,15 +121,15 @@ public class Post {
 
 	
 	/*****
-	 * <p> Method: void setBody(String b) </p>
+	 * <p> Method: void setBody(String body) </p>
 	 * 
 	 * <p> Description: This setter defines the Body attribute. </p>
 	 * 
-	 * @param b specifies the new body content for this post
+	 * @param body specifies the new body content for this post
 	 * 
 	 */
 	// Sets the Body.
-	public void setBody(String b) { body = b; }
+	public void setBody(String body) { body = body; }
 
 	
 	/*****
@@ -166,15 +169,15 @@ public class Post {
 
 	
 	/*****
-	 * <p> Method: void setThread(String th) </p>
+	 * <p> Method: void setThread(String thread) </p>
 	 * 
 	 * <p> Description: This setter defines the Thread attribute. </p>
 	 * 
-	 * @param th specifies which thread this post belongs to
+	 * @param thread specifies which thread this post belongs to
 	 * 
 	 */
 	// Sets the Thread.
-	public void setThread(String th) { thread = th; }
+	public void setThread(String thread) { thread = thread; }
 
 	
 	/*****
@@ -190,13 +193,35 @@ public class Post {
 
 	
 	/*****
-	 * <p> Method: void setIsDeleted(boolean d) </p>
+	 * <p> Method: void setIsDeleted(boolean deleted) </p>
 	 * 
 	 * <p> Description: This setter defines the IsDeleted attribute. </p>
 	 * 
-	 * @param d specifies TRUE if this post should be marked as soft-deleted, FALSE otherwise
+	 * @param deleted specifies TRUE if this post should be marked as soft-deleted, FALSE otherwise
 	 * 
 	 */
 	// Sets the IsDeleted attribute.
-	public void setIsDeleted(boolean d) { isDeleted = d; }
+	public void setIsDeleted(boolean deleted) { isDeleted = deleted; }
+
+
+	/*****
+	 * <p> Method: LocalDateTime getCreatedAt() </p>
+	 *
+	 * <p> Description: This getter returns the timestamp when this post was created. </p>
+	 *
+	 * @return a LocalDateTime of when this post was created
+	 *
+	 */
+	public LocalDateTime getCreatedAt() { return createdAt; }
+
+
+	/*****
+	 * <p> Method: void setCreatedAt(LocalDateTime time) </p>
+	 *
+	 * <p> Description: This setter defines the CreatedAt timestamp. </p>
+	 *
+	 * @param time specifies the timestamp when this post was created
+	 *
+	 */
+	public void setCreatedAt(LocalDateTime time) { createdAt = time; }
 }
