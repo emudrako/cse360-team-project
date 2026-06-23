@@ -23,7 +23,8 @@ import recognizers.UserNameRecognizer;
  * <p> Copyright: Lynn Robert Carter © 2025 </p>
  * 
  * @author Lynn Robert Carter
- * 
+ * @author Sara Suarez
+ * @version 1.01 2026-06-06 Added max length check and real-time validation
  * @version 1.00		2025-08-17 Initial version
  *  
  */
@@ -46,6 +47,57 @@ public class ControllerNewAccount {
 	public ControllerNewAccount() {
 	}
 	
+	/**********
+	 * <p> Method: setUsername() </p>
+	 *
+	 * <p> Description: Called when the user types in the username field.
+	 * Checks maximum length first (Story 3), then validates using the
+	 * UserNameRecognizer FSM and displays real-time feedback (Story 2).</p>
+	 *
+	 * @author Sara Suarez
+	 * @version 1.01 2026-06-06 Added max length check and real-time validation
+	 */
+	protected static void setUsername() {
+	    String username = ViewNewAccount.text_Username.getText();
+	    // Check max length first (Story 3)
+	    if (username.length() > 16) {
+	        ViewNewAccount.label_ValidationMessage.setText(
+	            "Username is too long. Maximum is 16 characters.");
+	        return;
+	    }
+	    // Validate with FSM in real time
+	    String errMsg = UserNameRecognizer.checkForValidUserName(username);
+	    if (!errMsg.isEmpty())
+	        ViewNewAccount.label_ValidationMessage.setText(errMsg);
+	    else
+	        ViewNewAccount.label_ValidationMessage.setText("");
+	}
+
+	/**********
+	 * <p> Method: setPassword1() </p>
+	 *
+	 * <p> Description: Called when the user types in the password field.
+	 * Checks maximum length first (Story 3), then evaluates password
+	 * strength in real time using the PasswordEvaluator (Story 2).</p>
+	 *
+	 * @author Sara Suarez
+	 * @version 1.01 2026-06-06 Added max length check and real-time validation
+	 */
+	protected static void setPassword1() {
+	    String password = ViewNewAccount.text_Password1.getText();
+	    // Check max length first (Story 3)
+	    if (password.length() > recognizers.PasswordEvaluator.MAX_PASSWORD_LENGTH) {
+	        ViewNewAccount.label_ValidationMessage.setText(
+	            "Password is too long. Maximum is 24 characters.");
+	        return;
+	    }
+	    // Evaluate strength in real time (Story 2)
+	    String result = recognizers.PasswordEvaluator.evaluatePassword(password);
+	    if (!result.isEmpty())
+	        ViewNewAccount.label_ValidationMessage.setText(result);
+	    else
+	        ViewNewAccount.label_ValidationMessage.setText("Password looks good!");
+	}
 	
 	// Reference for the in-memory database so this package has access
 	private static Database theDatabase = applicationMain.FoundationsMain.database;
