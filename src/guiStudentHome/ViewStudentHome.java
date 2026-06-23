@@ -40,13 +40,14 @@ public class ViewStudentHome {
 	// GUI Area 1
 	protected static Label label_PageTitle = new Label();
 	protected static Label label_UserDetails = new Label();
-	protected static Button button_UpdateThisUser = new Button("Account Update");
+	protected static Button button_UpdateThisUser = new Button("Update Account");
 
 	private static Line line_Separator1 = new Line(20, 95, width-20, 95);
 
 	// GUI Area 2 - placeholder, no widgets yet
 
 	private static Line line_Separator4 = new Line(20, 525, width-20, 525);
+	protected static Button button_CreatePost = new Button("Create a Post");
 
 	// GUI Area 3
 	protected static Button button_Logout = new Button("Logout");
@@ -125,10 +126,13 @@ public class ViewStudentHome {
 		
 		setupButtonUI(button_MyPosts, "Dialog", 18, 250, Pos.CENTER, 300, 300);
 		button_MyPosts.setOnAction((_) -> { ControllerStudentHome.performMyPosts(); });
+		
+		setupButtonUI(button_CreatePost, "Dialog", 18, 250, Pos.CENTER, 20, 300);
+		button_CreatePost.setOnAction((_) -> { ControllerStudentHome.performCreatePost(); });
 
 		theRootPane.getChildren().addAll(
 			label_PageTitle, label_UserDetails, button_UpdateThisUser, line_Separator1,
-			line_Separator4, button_Logout, button_Quit, button_MyPosts);
+			line_Separator4, button_Logout, button_Quit, button_MyPosts, button_CreatePost);
 	}
 
 

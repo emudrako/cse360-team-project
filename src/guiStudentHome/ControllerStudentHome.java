@@ -57,6 +57,17 @@ public class ControllerStudentHome {
 	    guiMyPosts.ViewMyPosts.displayMyPosts(ViewStudentHome.theStage,
 	            ViewStudentHome.theUser);
 	}
+	
+	/**********
+	 * <p> Method: performCreatePost() </p>
+	 *
+	 * <p> Description: Navigates to the Create Post page, allowing the student to create a post. </p>
+	 *
+	 */
+	protected static void performCreatePost() {
+	    guiCreatePost.ViewCreatePost.displayCreatePost(ViewStudentHome.theStage, ViewStudentHome.theUser);
+	}
+	
 	/**********
 	 * <p> Method: performLogout() </p>
 	 *
