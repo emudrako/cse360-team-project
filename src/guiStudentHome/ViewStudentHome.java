@@ -44,10 +44,11 @@ public class ViewStudentHome {
 
 	private static Line line_Separator1 = new Line(20, 95, width-20, 95);
 
-	// GUI Area 2 - placeholder, no widgets yet
-
+	// GUI Area 2
+	protected static Button button_RelatedPosts = new Button("View Related Posts from Others");
+	
 	private static Line line_Separator4 = new Line(20, 525, width-20, 525);
-
+	
 	// GUI Area 3
 	protected static Button button_Logout = new Button("Logout");
 	protected static Button button_Quit = new Button("Quit");
@@ -114,8 +115,15 @@ public class ViewStudentHome {
 		setupButtonUI(button_UpdateThisUser, "Dialog", 18, 170, Pos.CENTER, 610, 45);
 		button_UpdateThisUser.setOnAction((_) -> { ControllerStudentHome.performUpdate(); });
 
-		// GUI Area 2 - placeholder
+		// GUI Area 2 — Student User Story 2: View Related Posts from Others.
+				// Provides a way for the student to browse posts from other students before they
+				// create their own, helping avoid duplicate questions.
+		setupButtonUI(button_RelatedPosts, "Dialog", 18, 350, Pos.CENTER, 225, 200);
+		button_RelatedPosts.setOnAction((_) ->
+		{ guiRelatedPosts.ViewRelatedPosts.displayRelatedPosts(theStage, theUser); });
 
+		
+		
 		// GUI Area 3
 		setupButtonUI(button_Logout, "Dialog", 18, 250, Pos.CENTER, 20, 540);
 		button_Logout.setOnAction((_) -> { ControllerStudentHome.performLogout(); });
@@ -124,8 +132,9 @@ public class ViewStudentHome {
 		button_Quit.setOnAction((_) -> { ControllerStudentHome.performQuit(); });
 
 		theRootPane.getChildren().addAll(
-			label_PageTitle, label_UserDetails, button_UpdateThisUser, line_Separator1,
-			line_Separator4, button_Logout, button_Quit);
+				label_PageTitle, label_UserDetails, button_UpdateThisUser, line_Separator1,
+				button_RelatedPosts,
+				line_Separator4, button_Logout, button_Quit);
 	}
 
 
