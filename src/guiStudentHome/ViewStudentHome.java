@@ -118,8 +118,13 @@ public class ViewStudentHome {
 
 		// GUI Area 3
 		setupButtonUI(button_Logout, "Dialog", 18, 250, Pos.CENTER, 20, 540);
+		button_Logout.setOnAction((_) -> { ControllerStudentHome.performLogout(); });
+
 		setupButtonUI(button_Quit, "Dialog", 18, 250, Pos.CENTER, 300, 540);
+		button_Quit.setOnAction((_) -> { ControllerStudentHome.performQuit(); });
+		
 		setupButtonUI(button_MyPosts, "Dialog", 18, 250, Pos.CENTER, 300, 300);
+		button_MyPosts.setOnAction((_) -> { ControllerStudentHome.performMyPosts(); });
 
 		theRootPane.getChildren().addAll(
 			label_PageTitle, label_UserDetails, button_UpdateThisUser, line_Separator1,
