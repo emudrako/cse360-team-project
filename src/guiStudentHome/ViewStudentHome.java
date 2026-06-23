@@ -61,7 +61,7 @@ public class ViewStudentHome {
 
 	private static Scene theViewStudentHomeScene;
 	protected static final int theRole = 4;		// Admin: 1; Role1: 2; Role2: 3; Student: 4
-
+	protected static Button button_MyPosts = new Button("View My Posts");
 	/*-*******************************************************************************************
 
 	Constructors
@@ -118,14 +118,12 @@ public class ViewStudentHome {
 
 		// GUI Area 3
 		setupButtonUI(button_Logout, "Dialog", 18, 250, Pos.CENTER, 20, 540);
-		button_Logout.setOnAction((_) -> { ControllerStudentHome.performLogout(); });
-
 		setupButtonUI(button_Quit, "Dialog", 18, 250, Pos.CENTER, 300, 540);
-		button_Quit.setOnAction((_) -> { ControllerStudentHome.performQuit(); });
+		setupButtonUI(button_MyPosts, "Dialog", 18, 250, Pos.CENTER, 300, 300);
 
 		theRootPane.getChildren().addAll(
 			label_PageTitle, label_UserDetails, button_UpdateThisUser, line_Separator1,
-			line_Separator4, button_Logout, button_Quit);
+			line_Separator4, button_Logout, button_Quit, button_MyPosts);
 	}
 
 
