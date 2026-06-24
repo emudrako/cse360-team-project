@@ -45,8 +45,8 @@ public class ViewDiscussionBoard {
 	
 	// These are the application values required by the user interface
 	
-	private static double width = 1200;
-	private static double height = 900;
+	private static double width = 800;
+	private static double height = 700;
 
 	// A list of post objects that will be populated from the database
 	
@@ -66,6 +66,7 @@ public class ViewDiscussionBoard {
 	// their posts, and contains a list of threads for the student to select from
 	protected static Button button_NewPost = new Button("New Post");
 	protected static Button button_MyPosts = new Button("My Posts");
+	protected static Button button_RelatedPosts = new Button("Related Posts");
 	protected static String selectedThread = "";
 	protected static Label thread_Header = new Label ("Threads");
 	protected static Label thread_General = new Label ("General");
@@ -195,6 +196,10 @@ public class ViewDiscussionBoard {
 		setupLabelUI(thread_Header, "Arial", 14, 50, Pos.BASELINE_LEFT, 20, button_MyPosts.getLayoutY()+80);
 		thread_Header.setStyle("-fx-underline: true;");
 		
+		setupButtonUI(button_RelatedPosts, "Dialog", 16, 120, Pos.CENTER, 20, 450);
+		button_RelatedPosts.setOnAction((_) ->
+		    {guiRelatedPosts.ViewRelatedPosts.displayRelatedPosts(theStage, theUser);});
+		
 		setupLabelUI(thread_General, "Arial", 20, 50, Pos.BASELINE_LEFT, 20, thread_Header.getLayoutY()+22);
 		thread_General.setStyle("-fx-text-fill: blue;");
 		thread_General.setCursor(Cursor.HAND);
@@ -217,11 +222,10 @@ public class ViewDiscussionBoard {
 		displayPostCards(ControllerDiscussionBoard.postList.getAllPosts());});
 		
 		// GUI Area 3
-		setupScrollPane(scrollPane_PostCards, 10, 350, 700, width-1025, height-780);
+		setupScrollPane(scrollPane_PostCards, 10, 350, 500, 200, 120);
 		
 		// GUI Area 4
-		setupScrollPane(scrollPane_PostBody, 0, 575, 700, (scrollPane_PostCards.getLayoutX() +
-				scrollPane_PostCards.getMinWidth() + 20), height-780);
+		setupScrollPane(scrollPane_PostBody, 0, 575, 500, 570, 120);
 		
 		// GUI Area 5	
 		setupButtonUI(button_Return, "Dialog", 18, 210, Pos.CENTER, 20, height-45);

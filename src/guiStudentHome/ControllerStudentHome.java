@@ -61,27 +61,7 @@ public class ControllerStudentHome {
 		guiUserUpdate.ViewUserUpdate.displayUserUpdate(ViewStudentHome.theStage, ViewStudentHome.theUser);
 	}
 	
-	/**********
-	 * <p> Method: performMyPosts() </p>
-	 *
-	 * <p> Description: Navigates to the My Posts page, allowing the student to view
-	 * their posts and replies. </p>
-	 *
-	 */
-	protected static void performMyPosts () {
-	    guiMyPosts.ViewMyPosts.displayMyPosts(ViewStudentHome.theStage,
-	            ViewStudentHome.theUser);
-	}
-	
-	/**********
-	 * <p> Method: performCreatePost() </p>
-	 *
 	 * <p> Description: Navigates to the Create Post page, allowing the student to create a post. </p>
-	 *
-	 */
-	protected static void performCreatePost() {
-	    guiCreatePost.ViewCreatePost.displayCreatePost(ViewStudentHome.theStage, ViewStudentHome.theUser);
-	}
 	
 	/**********
 	 * <p> Method: performLogout() </p>

@@ -70,6 +70,7 @@ public class ControllerDiscussionBoard {
 				ViewDiscussionBoard.button_UpdateThisUser, ViewDiscussionBoard.line_Separator1,
 				ViewDiscussionBoard.button_NewPost,
 				ViewDiscussionBoard.button_MyPosts,
+				ViewDiscussionBoard.button_RelatedPosts,
 				ViewDiscussionBoard.thread_Header,
 				ViewDiscussionBoard.thread_General,
 				ViewDiscussionBoard.thread_Homework,
