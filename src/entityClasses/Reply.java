@@ -1,5 +1,7 @@
 package entityClasses;
 
+import java.time.LocalDateTime;
+
 /*******
  * <p> Title: Reply Class </p>
  * 
@@ -21,6 +23,7 @@ public class Reply {
 	private int postID;
 	private String body;
 	private String authorUsername;
+	private LocalDateTime createdAt;
 	
 	/*****
 	 * <p> Method: Reply() </p>
@@ -113,15 +116,15 @@ public class Reply {
 
 	
 	/*****
-	 * <p> Method: void setBody(String b) </p>
+	 * <p> Method: void setBody(String body) </p>
 	 * 
 	 * <p> Description: This setter defines the Body attribute. </p>
 	 * 
-	 * @param b specifies the new body content for this reply
+	 * @param body specifies the new body content for this reply
 	 * 
 	 */
 	// Sets the Body.
-	public void setBody(String b) { body = b; }
+	public void setBody(String body) { body = body; }
 
 	
 	/*****
@@ -137,14 +140,36 @@ public class Reply {
 
 	
 	/*****
-	 * <p> Method: void setAuthorUsername(String a) </p>
+	 * <p> Method: void setAuthorUsername(String userName) </p>
 	 * 
 	 * <p> Description: This setter defines the AuthorUsername attribute. </p>
 	 * 
-	 * @param a specifies the username of the student who authored this reply
+	 * @param userName specifies the username of the student who authored this reply
 	 * 
 	 */
 	// Sets the AuthorUsername.
-	public void setAuthorUsername(String a) { authorUsername = a; }
+	public void setAuthorUsername(String userName) { authorUsername = userName; }
+
+
+	/*****
+	 * <p> Method: LocalDateTime getCreatedAt() </p>
+	 *
+	 * <p> Description: This getter returns the timestamp when this reply was created. </p>
+	 *
+	 * @return a LocalDateTime of when this reply was created
+	 *
+	 */
+	public LocalDateTime getCreatedAt() { return createdAt; }
+
+
+	/*****
+	 * <p> Method: void setCreatedAt(LocalDateTime time) </p>
+	 *
+	 * <p> Description: This setter defines the CreatedAt timestamp. </p>
+	 *
+	 * @param time specifies the timestamp when this reply was created
+	 *
+	 */
+	public void setCreatedAt(LocalDateTime time) { createdAt = time; }
 
 }

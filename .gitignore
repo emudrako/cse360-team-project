@@ -1,3 +1,8 @@
 bin/
 .DS_Store
 *.class
+
+# IntelliJ IDEA — local only, teammates use Eclipse
+.idea/
+*.iml
+.metadata/
