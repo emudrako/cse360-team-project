@@ -142,7 +142,8 @@ public class ViewCreatePost {
 	    textarea_Body.setPrefHeight(200);
 
 	    setupLabelUI(label_ThreadHeader, "Arial", 14, 100, Pos.BASELINE_LEFT, 20, 380);
-	    combobox_Thread.getItems().add("General");
+	    combobox_Thread.getItems().addAll("General", "Homework", "Quizzes");
+	    combobox_Thread.setPromptText("<Select Thread>");
 	    combobox_Thread.setValue("General");
 	    combobox_Thread.setLayoutX(120);
 	    combobox_Thread.setLayoutY(378);

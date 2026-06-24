@@ -122,7 +122,7 @@ public class ControllerDiscussionBoard {
 		}
 
 		// Set the title for the window
-		ViewDiscussionBoard.theStage.setTitle("Discussion Board Page");
+		ViewDiscussionBoard.theStage.setTitle("Discussion Board");
 		ViewDiscussionBoard.theStage.setScene(ViewDiscussionBoard.theDiscussionBoardScene);
 		ViewDiscussionBoard.theStage.show();
 		ViewDiscussionBoard.theStage.centerOnScreen();

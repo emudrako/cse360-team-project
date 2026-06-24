@@ -81,7 +81,8 @@ public class ControllerCreatePost {
 	 * 
 	 */
 	protected static void performReturn() {
-	    guiStudentHome.ViewStudentHome.displayStudentHome(ViewCreatePost.theStage, ViewCreatePost.theUser);
+		guiDiscussionBoard.ViewDiscussionBoard.displayDiscussionBoard(
+				ViewCreatePost.theStage, ViewCreatePost.theUser);
 	}
 	
 	
