@@ -187,17 +187,37 @@ public class ControllerMyPosts {
 	        "-fx-background-radius: 5;"
 	    );
 	    
+	    // Title at top in bold
 	    javafx.scene.control.Label title = new javafx.scene.control.Label(post.getTitle());
 	    title.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
-	    javafx.scene.control.Label thread = new javafx.scene.control.Label("Thread: " + post.getThread());
+	    
+	    // Thread in upper right
+	    javafx.scene.control.Label thread = new javafx.scene.control.Label(post.getThread());
+	    thread.setStyle("-fx-font-size: 11px; -fx-text-fill: gray; -fx-font-style: italic;");
+	    
+	    javafx.scene.layout.HBox topRow = new javafx.scene.layout.HBox();
+	    javafx.scene.layout.Region spacer = new javafx.scene.layout.Region();
+	    javafx.scene.layout.HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
+	    topRow.getChildren().addAll(title, spacer, thread);
+	    
+	    // Format timestamp
+	    String formattedTime = "";
+	    if (post.getCreatedAt() != null) {
+	        formattedTime = post.getCreatedAt().format(
+	            java.time.format.DateTimeFormatter.ofPattern("MMM d, yyyy h:mm a"));
+	    }
+	    
+	    // Author and timestamp on same line
+	    javafx.scene.control.Label authorAndTime = new javafx.scene.control.Label(
+	        "by " + post.getAuthorUsername() + "  •  " + formattedTime);
+	    authorAndTime.setStyle("-fx-font-size: 11px; -fx-text-fill: gray;");
+	    
+	    // Reply and unread counts
 	    javafx.scene.control.Label counts = new javafx.scene.control.Label(
 	        "Replies: " + replyCount + " | Unread: " + unreadCount);
-
-	 // Display timestamp when post was created
-	    javafx.scene.control.Label timestamp = new javafx.scene.control.Label(
-	        post.getCreatedAt() != null ? post.getCreatedAt().toString() : "");
-
-	    card.getChildren().addAll(title, thread, counts, timestamp);
+	    counts.setStyle("-fx-font-size: 11px;");
+	    
+	    card.getChildren().addAll(topRow, authorAndTime, counts);
 	    card.setCursor(javafx.scene.Cursor.HAND);
 	    card.setOnMouseClicked((_) -> {
 	        ViewMyPosts.currentPost = post;

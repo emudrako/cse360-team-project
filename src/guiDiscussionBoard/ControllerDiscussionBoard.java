@@ -15,6 +15,9 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 
 /*******
  * <p> Title: ControllerDiscussionBoard Class. </p>
@@ -133,31 +136,48 @@ public class ControllerDiscussionBoard {
 	 * 
 	 */
 	protected static VBox createPostCard(Post post) {
-		VBox postCard = new VBox(5);
-		postCard.setPadding(new Insets(10));
-		postCard.setMinWidth(ViewDiscussionBoard.scrollPane_PostCards.getMinWidth()-20);
-		postCard.setStyle(
-				"-fx-border-color: lightgray;" +
-				"-fx-border-radius: 5;" +
-				"-fx-background-color: white;" +
-				"-fx-background-radius: 5;"
-				);
-		
-		Label title = new Label(post.getTitle());
-		title.setStyle("-fx-font-weight: bold;" + "-fx-font-size: 14px;");
-		Label author = new Label("Author: " + post.getAuthorUsername());
-		Label thread = new Label("Thread: " + post.getThread());
-		Label timestamp = new Label(post.getCreatedAt() != null ? 
-			    post.getCreatedAt().toString() : "");
-			postCard.getChildren().add(timestamp);
-		
-		postCard.getChildren().addAll(title, author, thread);
-		postCard.setCursor(Cursor.HAND);
-		postCard.setOnMouseClicked((_) ->
-		{ViewDiscussionBoard.currentPost = post;
-		ViewDiscussionBoard.displayPost(post);});
-		
-		return postCard;
+	    VBox postCard = new VBox(5);
+	    postCard.setPadding(new Insets(10));
+	    postCard.setMinWidth(ViewDiscussionBoard.scrollPane_PostCards.getMinWidth()-20);
+	    postCard.setStyle(
+	        "-fx-border-color: lightgray;" +
+	        "-fx-border-radius: 5;" +
+	        "-fx-background-color: white;" +
+	        "-fx-background-radius: 5;"
+	    );
+	    
+	    // Title at top in bold
+	    Label title = new Label(post.getTitle());
+	    title.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+	    
+	    // Format timestamp nicely
+	    String formattedTime = "";
+	    if (post.getCreatedAt() != null) {
+	        formattedTime = post.getCreatedAt().format(
+	            java.time.format.DateTimeFormatter.ofPattern("MMM d, yyyy h:mm a"));
+	    }
+	    
+	    // Author and timestamp on same line
+	    Label authorAndTime = new Label("by " + post.getAuthorUsername() + "  •  " + formattedTime);
+	    authorAndTime.setStyle("-fx-font-size: 11px; -fx-text-fill: gray;");
+	    
+	    // Thread in upper right using HBox
+	    Label thread = new Label(post.getThread());
+	    thread.setStyle("-fx-font-size: 11px; -fx-text-fill: gray; -fx-font-style: italic;");
+	    
+	    javafx.scene.layout.HBox topRow = new javafx.scene.layout.HBox();
+	    javafx.scene.layout.Region spacer = new javafx.scene.layout.Region();
+	    javafx.scene.layout.HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
+	    topRow.getChildren().addAll(title, spacer, thread);
+	    
+	    postCard.getChildren().addAll(topRow, authorAndTime);
+	    postCard.setCursor(Cursor.HAND);
+	    postCard.setOnMouseClicked((_) -> {
+	        ViewDiscussionBoard.currentPost = post;
+	        ViewDiscussionBoard.displayPost(post);
+	    });
+	    
+	    return postCard;
 	}
 	
 	/**********
