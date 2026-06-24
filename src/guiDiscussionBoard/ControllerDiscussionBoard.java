@@ -44,11 +44,6 @@ public class ControllerDiscussionBoard {
 	the Model is often just a stub, or will be a singleton instantiated object.
 	
 	 */
-	// Alerts the user if any of the text input in the new post form exceeds the allowed length
-	// or if no category has been selected
-	protected static Alert alertPostInputValidation = new Alert(AlertType.INFORMATION);
-	// Alerts the user that their post has been created
-	protected static Alert alertPostCreated = new Alert(AlertType.CONFIRMATION);
 	// A list of post objects that will be populated from the database
 	public static PostList postList = new PostList();
 	// A list of reply objects that will be populated from the database
@@ -129,40 +124,7 @@ public class ControllerDiscussionBoard {
 		ViewDiscussionBoard.displayPostCards(posts);
 	}
 	
-	
-	/**********
-	 * <p> Method: newPost() </p>
-	 * 
-	 * <p> Description: This creates a Post object and then passes that Post object
-	 * to the createPost method in the database. </p>
-	 * 
-	 */
-	protected static void newPost(String title, String body, String authorUsername, String thread) {		
-		String errMsg = recognizers.PostReplyValidator.checkForValidPost(
-				title, body);
-		if (!errMsg.isEmpty()) {
-			alertPostInputValidation.setTitle("Error");
-			alertPostInputValidation.setHeaderText(errMsg);
-			alertPostInputValidation.showAndWait();
-			return;
-		}
-		
-		Post post = new Post(title, body, authorUsername, thread);
-		
-		try {
-			theDatabase.createPost(post);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		postList.addPost(post);
-		alertPostCreated.setContentText("Post successfully created!");
-		alertPostCreated.showAndWait();
-		ViewDiscussionBoard.scrollPane_PostBody.setContent(null);
-		repaintTheWindow();
-	}
-	
+
 	
 	/**********
 	 * <p> Method: createPostCard() </p>
