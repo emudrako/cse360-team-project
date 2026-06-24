@@ -61,7 +61,6 @@ public class ControllerStudentHome {
 		guiUserUpdate.ViewUserUpdate.displayUserUpdate(ViewStudentHome.theStage, ViewStudentHome.theUser);
 	}
 	
-	 * <p> Description: Navigates to the Create Post page, allowing the student to create a post. </p>
 	
 	/**********
 	 * <p> Method: performLogout() </p>
