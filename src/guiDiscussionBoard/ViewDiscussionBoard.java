@@ -186,12 +186,11 @@ public class ViewDiscussionBoard {
 		// GUI Area 2
 		setupButtonUI(button_NewPost, "Dialog", 16, 50, Pos.CENTER, 20, 130);
 		button_NewPost.setOnAction((_) ->
-			{newPostForm(); });
+	    {guiCreatePost.ViewCreatePost.displayCreatePost(theStage, theUser);});
 		
 		setupButtonUI(button_MyPosts, "Dialog", 16, 50, Pos.CENTER, 20, button_NewPost.getLayoutY()+100);
 		button_MyPosts.setOnAction((_) ->
-			{selectedThread = "My Posts";
-			displayPostCards(ControllerDiscussionBoard.postList.getAllPosts());});
+	    {guiMyPosts.ViewMyPosts.displayMyPosts(theStage, theUser);});
 		
 		setupLabelUI(thread_Header, "Arial", 14, 50, Pos.BASELINE_LEFT, 20, button_MyPosts.getLayoutY()+80);
 		thread_Header.setStyle("-fx-underline: true;");

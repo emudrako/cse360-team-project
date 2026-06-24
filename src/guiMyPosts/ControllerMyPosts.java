@@ -78,7 +78,7 @@ public class ControllerMyPosts {
 	 * 
 	 */
 	protected static void performReturn() {
-	    guiStudentHome.ViewStudentHome.displayStudentHome(ViewMyPosts.theStage, ViewMyPosts.theUser);
+	    guiDiscussionBoard.ViewDiscussionBoard.displayDiscussionBoard(ViewMyPosts.theStage, ViewMyPosts.theUser);
 	}
 	
 	
