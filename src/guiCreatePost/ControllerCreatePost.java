@@ -67,8 +67,8 @@ public class ControllerCreatePost {
 	        ViewCreatePost.textarea_Body.clear();
 	        ViewCreatePost.combobox_Thread.setValue("General");
 	        ViewCreatePost.label_ErrorMessage.setText("");
-	        guiStudentHome.ViewStudentHome.displayStudentHome(
-	            ViewCreatePost.theStage, ViewCreatePost.theUser);
+	        guiDiscussionBoard.ViewDiscussionBoard.displayDiscussionBoard(
+	        	    ViewCreatePost.theStage, ViewCreatePost.theUser);
 	    } catch (Exception e) {
 	        ViewCreatePost.label_ErrorMessage.setText("Error creating post: " + e.getMessage());
 	    }
@@ -81,8 +81,7 @@ public class ControllerCreatePost {
 	 * 
 	 */
 	protected static void performReturn() {
-		guiDiscussionBoard.ViewDiscussionBoard.displayDiscussionBoard(
-				ViewCreatePost.theStage, ViewCreatePost.theUser);
+	    guiDiscussionBoard.ViewDiscussionBoard.displayDiscussionBoard(ViewCreatePost.theStage, ViewCreatePost.theUser);
 	}
 	
 	
