@@ -66,9 +66,9 @@ public class PostReplyValidator {
 	}
 	
 	public static String checkForValidThread(String thread) {
-		if (thread == null)
-			return "*** Error *** The specified thread does not exist.";
+	    if (thread == null || (!thread.equals("General") && !thread.equals("Homework") && !thread.equals("Quizzes")))
+	        return "*** Error *** The specified thread does not exist.";
 
-		return "";
+	    return "";
 	}
 }

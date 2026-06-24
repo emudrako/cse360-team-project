@@ -45,8 +45,8 @@ public class ViewDiscussionBoard {
 	
 	// These are the application values required by the user interface
 	
-	private static double width = 1200;
-	private static double height = 900;
+	private static double width = 800;
+	private static double height = 700;
 
 	// A list of post objects that will be populated from the database
 	
@@ -66,6 +66,7 @@ public class ViewDiscussionBoard {
 	// their posts, and contains a list of threads for the student to select from
 	protected static Button button_NewPost = new Button("New Post");
 	protected static Button button_MyPosts = new Button("My Posts");
+	protected static Button button_RelatedPosts = new Button("Related Posts");
 	protected static String selectedThread = "";
 	protected static Label thread_Header = new Label ("Threads");
 	protected static Label thread_General = new Label ("General");
@@ -186,15 +187,18 @@ public class ViewDiscussionBoard {
 		// GUI Area 2
 		setupButtonUI(button_NewPost, "Dialog", 16, 50, Pos.CENTER, 20, 130);
 		button_NewPost.setOnAction((_) ->
-			{newPostForm(); });
+	    {guiCreatePost.ViewCreatePost.displayCreatePost(theStage, theUser);});
 		
 		setupButtonUI(button_MyPosts, "Dialog", 16, 50, Pos.CENTER, 20, button_NewPost.getLayoutY()+100);
 		button_MyPosts.setOnAction((_) ->
-			{selectedThread = "My Posts";
-			displayPostCards(ControllerDiscussionBoard.postList.getAllPosts());});
+	    {guiMyPosts.ViewMyPosts.displayMyPosts(theStage, theUser);});
 		
 		setupLabelUI(thread_Header, "Arial", 14, 50, Pos.BASELINE_LEFT, 20, button_MyPosts.getLayoutY()+80);
 		thread_Header.setStyle("-fx-underline: true;");
+		
+		setupButtonUI(button_RelatedPosts, "Dialog", 16, 120, Pos.CENTER, 20, 450);
+		button_RelatedPosts.setOnAction((_) ->
+		    {guiRelatedPosts.ViewRelatedPosts.displayRelatedPosts(theStage, theUser);});
 		
 		setupLabelUI(thread_General, "Arial", 20, 50, Pos.BASELINE_LEFT, 20, thread_Header.getLayoutY()+22);
 		thread_General.setStyle("-fx-text-fill: blue;");
@@ -218,11 +222,10 @@ public class ViewDiscussionBoard {
 		displayPostCards(ControllerDiscussionBoard.postList.getAllPosts());});
 		
 		// GUI Area 3
-		setupScrollPane(scrollPane_PostCards, 10, 350, 700, width-1025, height-780);
+		setupScrollPane(scrollPane_PostCards, 10, 350, 500, 200, 120);
 		
 		// GUI Area 4
-		setupScrollPane(scrollPane_PostBody, 0, 575, 700, (scrollPane_PostCards.getLayoutX() +
-				scrollPane_PostCards.getMinWidth() + 20), height-780);
+		setupScrollPane(scrollPane_PostBody, 0, 575, 500, 570, 120);
 		
 		// GUI Area 5	
 		setupButtonUI(button_Return, "Dialog", 18, 210, Pos.CENTER, 20, height-45);
@@ -269,13 +272,7 @@ public class ViewDiscussionBoard {
 				}
 			}
 		}
-		else if (selectedThread == "My Posts") {
-			for (Post post : postObjects) {
-				if (post.getAuthorUsername().equals(theUser.getUserName())) {
-					newPostList.add(post);
-				}
-			}
-		}
+
 		else {
 			newPostList = postObjects;
 		}
@@ -290,55 +287,6 @@ public class ViewDiscussionBoard {
 		scrollPane_PostCards.setContent(postCards);
 		selectedThread = "";
 	}
-	
-	/**********
-	 * <p> Method: newPostForm() </p>
-	 * 
-	 * <p> Description: This method populates the new post VBox in GUI Area 4. It
-	 * contains all necessary fields for the user to create a post. </p>
-	 * 
-	 */
-	protected static void newPostForm() {
-		VBox vBox_PostForm = new VBox(10);
-		
-		Label label_Header = new Label("New Post");
-		label_Header.setFont(Font.font("Arial", 14));
-		label_Header.setStyle("-fx-font-weight: bold;");
-		
-		Label label_Title = new Label("Title:");
-		TextField textField_Title = new TextField();
-		
-		Label label_Thread = new Label("Thread:");
-		ComboBox<String> comboBox_Thread = new ComboBox<>();
-		comboBox_Thread.getItems().addAll("General", "Homework", "Quizzes");
-		comboBox_Thread.setPromptText("<Select Thread>");
-		
-		TextArea textArea_Body = new TextArea();
-		textArea_Body.setWrapText(true);
-		textArea_Body.setPrefRowCount(12);
-		
-		Button button_Submit = new Button("Submit");
-		Button button_Cancel = new Button("Cancel");
-		HBox hBox_Buttons = new HBox(10, button_Submit, button_Cancel);
-		
-		vBox_PostForm.getChildren().addAll(
-				label_Header,
-				label_Title,
-				textField_Title,
-				label_Thread,
-				comboBox_Thread,
-				textArea_Body,
-				hBox_Buttons);
-		
-		ViewDiscussionBoard.scrollPane_PostBody.setContent(vBox_PostForm);
-		
-		button_Submit.setOnAction((_) ->
-			{ControllerDiscussionBoard.newPost(textField_Title.getText(), textArea_Body.getText(), theUser.getUserName(),
-					comboBox_Thread.getValue());
-			});
-		button_Cancel.setOnAction((_) ->
-			{scrollPane_PostBody.setContent(null);});
-		}
 	
 	/**********
 	 * <p> Method: newReplyForm() </p>

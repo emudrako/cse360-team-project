@@ -17,10 +17,11 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 
 /*******
- * <p> Title: ControllerSetOneTimePassword Class. </p>
+ * <p> Title: ControllerDiscussionBoard Class. </p>
  * 
- * <p> Description: The Java/FX-based Controller Set One Time Password Page.  This class provides the controller
- * actions basic on the user's use of the JavaFX GUI widgets defined by the View class.
+ * <p> Description: The Java/FX-based Discussion Board page controller. This class provides
+ * the controller actions for the Discussion Board page including loading posts and replies
+ * from the database, creating post cards, handling reply creation, and navigation.</p>
  * 
  * The class has been written assuming that the View or the Model are the only class methods that
  * can invoke these methods.  This is why each has been declared at "protected".  Do not change any
@@ -44,11 +45,6 @@ public class ControllerDiscussionBoard {
 	the Model is often just a stub, or will be a singleton instantiated object.
 	
 	 */
-	// Alerts the user if any of the text input in the new post form exceeds the allowed length
-	// or if no category has been selected
-	protected static Alert alertPostInputValidation = new Alert(AlertType.INFORMATION);
-	// Alerts the user that their post has been created
-	protected static Alert alertPostCreated = new Alert(AlertType.CONFIRMATION);
 	// A list of post objects that will be populated from the database
 	public static PostList postList = new PostList();
 	// A list of reply objects that will be populated from the database
@@ -74,6 +70,7 @@ public class ControllerDiscussionBoard {
 				ViewDiscussionBoard.button_UpdateThisUser, ViewDiscussionBoard.line_Separator1,
 				ViewDiscussionBoard.button_NewPost,
 				ViewDiscussionBoard.button_MyPosts,
+				ViewDiscussionBoard.button_RelatedPosts,
 				ViewDiscussionBoard.thread_Header,
 				ViewDiscussionBoard.thread_General,
 				ViewDiscussionBoard.thread_Homework,
@@ -122,45 +119,11 @@ public class ControllerDiscussionBoard {
 		}
 
 		// Set the title for the window
-		ViewDiscussionBoard.theStage.setTitle("Discussion Board Page");
+		ViewDiscussionBoard.theStage.setTitle("Discussion Board");
 		ViewDiscussionBoard.theStage.setScene(ViewDiscussionBoard.theDiscussionBoardScene);
 		ViewDiscussionBoard.theStage.show();
 		ViewDiscussionBoard.theStage.centerOnScreen();
 		ViewDiscussionBoard.displayPostCards(posts);
-	}
-	
-	
-	/**********
-	 * <p> Method: newPost() </p>
-	 * 
-	 * <p> Description: This creates a Post object and then passes that Post object
-	 * to the createPost method in the database. </p>
-	 * 
-	 */
-	protected static void newPost(String title, String body, String authorUsername, String thread) {		
-		String errMsg = recognizers.PostReplyValidator.checkForValidPost(
-				title, body);
-		if (!errMsg.isEmpty()) {
-			alertPostInputValidation.setTitle("Error");
-			alertPostInputValidation.setHeaderText(errMsg);
-			alertPostInputValidation.showAndWait();
-			return;
-		}
-		
-		Post post = new Post(title, body, authorUsername, thread);
-		
-		try {
-			theDatabase.createPost(post);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		postList.addPost(post);
-		alertPostCreated.setContentText("Post successfully created!");
-		alertPostCreated.showAndWait();
-		ViewDiscussionBoard.scrollPane_PostBody.setContent(null);
-		repaintTheWindow();
 	}
 	
 	
@@ -208,28 +171,29 @@ public class ControllerDiscussionBoard {
 	 * 
 	 */
 	protected static void newReply(int postID, String body, String authorUsername) {
-		String errMsg = recognizers.PostReplyValidator.checkForValidReply(body);
-		if (!errMsg.isEmpty()) {
-			alertPostInputValidation.setTitle("Error");
-			alertPostInputValidation.setHeaderText(errMsg);
-			alertPostInputValidation.showAndWait();
-			return;
-		}
-		
-		Reply reply = new Reply(postID, body, authorUsername);
-		
-		try {
-			theDatabase.createReply(reply);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		replyList.addReply(reply);
-		alertPostCreated.setContentText("Reply successfully created!");
-		alertPostCreated.showAndWait();
-		ViewDiscussionBoard.scrollPane_PostBody.setContent(null);
-		repaintTheWindow();
+	    String errMsg = recognizers.PostReplyValidator.checkForValidReply(body);
+	    if (!errMsg.isEmpty()) {
+	        Alert alertError = new Alert(Alert.AlertType.INFORMATION);
+	        alertError.setTitle("Error");
+	        alertError.setHeaderText(errMsg);
+	        alertError.showAndWait();
+	        return;
+	    }
+	    
+	    Reply reply = new Reply(postID, body, authorUsername);
+	    
+	    try {
+	        theDatabase.createReply(reply);
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+	    
+	    replyList.addReply(reply);
+	    Alert alertSuccess = new Alert(Alert.AlertType.CONFIRMATION);
+	    alertSuccess.setContentText("Reply successfully created!");
+	    alertSuccess.showAndWait();
+	    ViewDiscussionBoard.scrollPane_PostBody.setContent(null);
+	    repaintTheWindow();
 	}
 	
 	/**********

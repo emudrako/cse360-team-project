@@ -40,16 +40,15 @@ public class ViewStudentHome {
 	// GUI Area 1
 	protected static Label label_PageTitle = new Label();
 	protected static Label label_UserDetails = new Label();
-	protected static Button button_UpdateThisUser = new Button("Account Update");
+	protected static Button button_UpdateThisUser = new Button("Update Account");
 
 	private static Line line_Separator1 = new Line(20, 95, width-20, 95);
 
 	// GUI Area 2
-	protected static Button button_RelatedPosts = new Button("View Related Posts from Others");
 	protected static Button button_DiscussionBoard = new Button("Discussion Board");
 	
 	private static Line line_Separator4 = new Line(20, 525, width-20, 525);
-	
+
 	// GUI Area 3
 	protected static Button button_Logout = new Button("Logout");
 	protected static Button button_Quit = new Button("Quit");
@@ -63,7 +62,6 @@ public class ViewStudentHome {
 
 	private static Scene theViewStudentHomeScene;
 	protected static final int theRole = 4;// Admin: 1; Role1: 2; Role2: 3; Student: 4
-	protected static Button button_MyPosts = new Button("View My Posts");
 	/*-*******************************************************************************************
 
 	Constructors
@@ -119,13 +117,10 @@ public class ViewStudentHome {
 		// GUI Area 2 — Student User Story 2: View Related Posts from Others.
 				// Provides a way for the student to browse posts from other students before they
 				// create their own, helping avoid duplicate questions.
-		setupButtonUI(button_RelatedPosts, "Dialog", 18, 350, Pos.CENTER, 225, 200);
-		button_RelatedPosts.setOnAction((_) ->
-		{ guiRelatedPosts.ViewRelatedPosts.displayRelatedPosts(theStage, theUser); });		
+
 		// Button to take student to the Discussion Board page
-		setupButtonUI(button_DiscussionBoard, "Dialog", 18, 200, Pos.CENTER, 315, button_RelatedPosts.getLayoutY()+50);
 		button_DiscussionBoard.setOnAction((_) ->
-		{ guiDiscussionBoard.ViewDiscussionBoard.displayDiscussionBoard(theStage, theUser);});	
+	    { ControllerStudentHome.displayDiscussionBoard(); });
 		
 		// GUI Area 3
 		setupButtonUI(button_Logout, "Dialog", 18, 250, Pos.CENTER, 20, 540);
@@ -134,13 +129,11 @@ public class ViewStudentHome {
 		setupButtonUI(button_Quit, "Dialog", 18, 250, Pos.CENTER, 300, 540);
 		button_Quit.setOnAction((_) -> { ControllerStudentHome.performQuit(); });
 		
-		setupButtonUI(button_MyPosts, "Dialog", 18, 250, Pos.CENTER, 285, button_DiscussionBoard.getLayoutY()+50);
-		button_MyPosts.setOnAction((_) -> { ControllerStudentHome.performMyPosts(); });
 
 		theRootPane.getChildren().addAll(
 			    label_PageTitle, label_UserDetails, button_UpdateThisUser, line_Separator1,
-			    button_RelatedPosts, button_DiscussionBoard, button_MyPosts,
-			    line_Separator4, button_Logout, button_Quit);
+			    button_DiscussionBoard, line_Separator4, button_Logout, button_Quit);
+
 	}
 
 

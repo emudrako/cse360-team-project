@@ -1,4 +1,4 @@
-package guiMyPosts;
+package guiCreatePost;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -9,24 +9,23 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import database.Database;
 import entityClasses.User;
-import javafx.scene.control.ListView;
 
 /*******
- * <p> Title: ViewMyPosts Class. </p>
+ * <p> Title: ViewCreatePost Class. </p>
  *
- * <p> Description: The Java/FX-based page for viewing the My Posts page.
+ * <p> Description: The Java/FX-based page for viewing the Create Post page.
  * Allows the student to ...</p>
  *
  * <p> Copyright: Maranda Martinez © 2026 </p>
  *
  * @author Maranda Martinez
  *
- * @version 1.00		2026-06-22 Initial version
+ * @version 1.00		2026-06-23 Initial version
  *
  */
 
 
-public class ViewMyPosts {
+public class ViewCreatePost {
 
 	/*-*******************************************************************************************
 
@@ -40,42 +39,46 @@ public class ViewMyPosts {
 	// GUI Area 1
 	protected static Label label_PageTitle = new Label();
 	protected static Label label_UserDetails = new Label();
-	protected static Button button_UpdateThisUser = new Button("Update Account");
+	protected static Button button_UpdateThisUser = new Button("Account Update");
 
 
 	private static Line line_Separator1 = new Line(20, 95, width-20, 95);
 
 	// GUI Area 2 - ListView and Controls
 	protected static Label label_PostsHeader = new Label();
-	protected static ListView<String> listview_MyPosts = new ListView<String>();
-	protected static Button button_ToggleUnread = new Button("Show Unread Only");
-	protected static javafx.scene.control.TextField textfield_Search = new javafx.scene.control.TextField();
-	protected static Button button_Search = new Button("Search");
 	private static Line line_Separator4 = new Line(20, 525, width-20, 525);
+	protected static Label label_TitleHeader = new Label("Title:");
+	protected static javafx.scene.control.TextField textfield_Title = new javafx.scene.control.TextField();
+	protected static Label label_BodyHeader = new Label("Body:");
+	protected static javafx.scene.control.TextArea textarea_Body = new javafx.scene.control.TextArea();
+	protected static Label label_ThreadHeader = new Label("Thread:");
+	protected static javafx.scene.control.ComboBox<String> combobox_Thread = new javafx.scene.control.ComboBox<>();
+	protected static Button button_Submit = new Button("Submit");
+	protected static Label label_ErrorMessage = new Label();
 
 	// GUI Area 3 
 	protected static Button button_Return = new Button("Return");
 	protected static Button button_Logout = new Button("Logout");
 	protected static Button button_Quit = new Button("Quit");
 	
-	private static ViewMyPosts theView;
+	private static ViewCreatePost theView;
 	private static Database theDatabase = applicationMain.FoundationsMain.database;
 
 	protected static Stage theStage;
 	protected static Pane theRootPane;
 	protected static User theUser;
 
-	private static Scene theMyPostsScene;
+	private static Scene theCreatePost;
 	/*-*******************************************************************************************
 
 	Constructors
 
 	 */
 	/**********
-	 * <p> Method: displayMyPosts(Stage ps, User user) </p>
+	 * <p> Method: displayCreatePost(Stage ps, User user) </p>
 	 * 
 	 * <p> Description: This method is the single entry point from outside this package to cause
-	 * the My Posts page to be displayed.
+	 * the Create Post page to be displayed.
 	 * 
 	 * It first sets up very shared attributes so we don't have to pass parameters.
 	 * 
@@ -92,31 +95,31 @@ public class ViewMyPosts {
 	 * @param user specifies the .. currently logged in
 	 */
 	
-	public static void displayMyPosts(Stage ps, User user) {
+	public static void displayCreatePost(Stage ps, User user) {
 		theStage = ps;
 		theUser = user;
 		
-		if (theView == null) theView = new ViewMyPosts();
+		if (theView == null) theView = new ViewCreatePost();
 		
 		label_UserDetails.setText("User: " + theUser.getUserName());
 
-		theStage.setTitle("My Posts");
-		theStage.setScene(theMyPostsScene);
+		theStage.setTitle("Create Post");
+		theStage.setScene(theCreatePost);
 		theStage.show();
 	}
 	
 	/**********
-	 * <p> Method: ViewMyPosts() </p>
+	 * <p> Method: ViewCreatePost() </p>
 	 *
 	 * <p> Description: Initializes all GUI elements. It is a Singleton and runs once. </p>
 	 *
 	 */
-	private ViewMyPosts() {
+	private ViewCreatePost() {
 	    theRootPane = new Pane();
-	    theMyPostsScene = new Scene(theRootPane, width, height);
+	    theCreatePost = new Scene(theRootPane, width, height);
 	 
 	    // GUI Area 1
-	    label_PageTitle.setText("My Posts");
+	    label_PageTitle.setText("Create Post");
 	    setupLabelUI(label_PageTitle, "Arial", 28, width, Pos.CENTER, 0, 5);
 	    
 	    label_UserDetails.setText("User: " + theUser.getUserName());
@@ -126,36 +129,47 @@ public class ViewMyPosts {
 	    button_UpdateThisUser.setOnAction((_) -> { guiUserUpdate.ViewUserUpdate.displayUserUpdate(theStage, theUser); });
 	    
 	    // GUI Area 2
-	    label_PostsHeader.setText("My Posts:");
-	    setupLabelUI(label_PostsHeader, "Arial", 14, 700, Pos.BASELINE_LEFT, 20, 95);
-	    listview_MyPosts.setLayoutX(20);
-	    listview_MyPosts.setLayoutY(110);
-	    listview_MyPosts.setPrefWidth(700);
-	    listview_MyPosts.setPrefHeight(300);
+	 // GUI Area 2
+	    setupLabelUI(label_TitleHeader, "Arial", 14, 100, Pos.BASELINE_LEFT, 20, 110);
+	    textfield_Title.setLayoutX(120);
+	    textfield_Title.setLayoutY(110);
+	    textfield_Title.setPrefWidth(500);
 
-	    setupButtonUI(button_ToggleUnread, "Dialog", 16, 150, Pos.CENTER, 740, 150);
-	    button_ToggleUnread.setOnAction((_) -> { ControllerMyPosts.performToggleUnread(); });
+	    setupLabelUI(label_BodyHeader, "Arial", 14, 100, Pos.BASELINE_LEFT, 20, 160);
+	    textarea_Body.setLayoutX(120);
+	    textarea_Body.setLayoutY(160);
+	    textarea_Body.setPrefWidth(500);
+	    textarea_Body.setPrefHeight(200);
 
-	    setupButtonUI(button_Search, "Dialog", 16, 150, Pos.CENTER, 740, 250);
-	    button_Search.setOnAction((_) -> { ControllerMyPosts.performSearch(); });
+	    setupLabelUI(label_ThreadHeader, "Arial", 14, 100, Pos.BASELINE_LEFT, 20, 380);
+	    combobox_Thread.getItems().addAll("General", "Homework", "Quizzes");
+	    combobox_Thread.setPromptText("<Select Thread>");
+	    combobox_Thread.setValue("General");
+	    combobox_Thread.setLayoutX(120);
+	    combobox_Thread.setLayoutY(378);
 
-	    textfield_Search.setLayoutX(740);
-	    textfield_Search.setLayoutY(200);
-	    textfield_Search.setPrefWidth(150);
+	    setupButtonUI(button_Submit, "Dialog", 16, 150, Pos.CENTER, 300, 430);
+	    button_Submit.setOnAction((_) -> { ControllerCreatePost.performCreatePost(); });
+
+	    setupLabelUI(label_ErrorMessage, "Arial", 14, 500, Pos.BASELINE_LEFT, 120, 480);
+	    label_ErrorMessage.setStyle("-fx-text-fill: red;");
 	    
 	    // GUI Area 3
 	    setupButtonUI(button_Return, "Dialog", 18, 250, Pos.CENTER, 20, 540);
-	    button_Return.setOnAction((_) -> { ControllerMyPosts.performReturn(); });
+	    button_Return.setOnAction((_) -> { ControllerCreatePost.performReturn(); });
 
 	    setupButtonUI(button_Logout, "Dialog", 18, 250, Pos.CENTER, 270, 540);
-	    button_Logout.setOnAction((_) -> { ControllerMyPosts.performLogout(); });
+	    button_Logout.setOnAction((_) -> { ControllerCreatePost.performLogout(); });
 
 	    setupButtonUI(button_Quit, "Dialog", 18, 250, Pos.CENTER, 520, 540);
-	    button_Quit.setOnAction((_) -> { ControllerMyPosts.performQuit(); });
+	    button_Quit.setOnAction((_) -> { ControllerCreatePost.performQuit(); });
 
 	    theRootPane.getChildren().addAll(
 	    	label_PageTitle, label_UserDetails, button_UpdateThisUser, line_Separator1,
-	    	label_PostsHeader, listview_MyPosts, button_ToggleUnread, textfield_Search, button_Search,
+	    	label_TitleHeader, textfield_Title,
+	    	label_BodyHeader, textarea_Body,
+	    	label_ThreadHeader, combobox_Thread,
+	    	button_Submit, label_ErrorMessage,
 	    	line_Separator4, button_Return, button_Logout, button_Quit);
 	}
 	
