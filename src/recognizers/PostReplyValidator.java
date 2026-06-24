@@ -66,8 +66,7 @@ public class PostReplyValidator {
 	}
 	
 	public static String checkForValidThread(String thread) {
-		// Currently, "General" is the only recognized thread (Story 5)
-		if (thread == null || !thread.equals("General"))
+		if (thread == null)
 			return "*** Error *** The specified thread does not exist.";
 
 		return "";
