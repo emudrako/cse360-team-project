@@ -268,13 +268,7 @@ public class ViewDiscussionBoard {
 				}
 			}
 		}
-		else if (selectedThread == "My Posts") {
-			for (Post post : postObjects) {
-				if (post.getAuthorUsername().equals(theUser.getUserName())) {
-					newPostList.add(post);
-				}
-			}
-		}
+
 		else {
 			newPostList = postObjects;
 		}
@@ -289,55 +283,6 @@ public class ViewDiscussionBoard {
 		scrollPane_PostCards.setContent(postCards);
 		selectedThread = "";
 	}
-	
-	/**********
-	 * <p> Method: newPostForm() </p>
-	 * 
-	 * <p> Description: This method populates the new post VBox in GUI Area 4. It
-	 * contains all necessary fields for the user to create a post. </p>
-	 * 
-	 */
-	protected static void newPostForm() {
-		VBox vBox_PostForm = new VBox(10);
-		
-		Label label_Header = new Label("New Post");
-		label_Header.setFont(Font.font("Arial", 14));
-		label_Header.setStyle("-fx-font-weight: bold;");
-		
-		Label label_Title = new Label("Title:");
-		TextField textField_Title = new TextField();
-		
-		Label label_Thread = new Label("Thread:");
-		ComboBox<String> comboBox_Thread = new ComboBox<>();
-		comboBox_Thread.getItems().addAll("General", "Homework", "Quizzes");
-		comboBox_Thread.setPromptText("<Select Thread>");
-		
-		TextArea textArea_Body = new TextArea();
-		textArea_Body.setWrapText(true);
-		textArea_Body.setPrefRowCount(12);
-		
-		Button button_Submit = new Button("Submit");
-		Button button_Cancel = new Button("Cancel");
-		HBox hBox_Buttons = new HBox(10, button_Submit, button_Cancel);
-		
-		vBox_PostForm.getChildren().addAll(
-				label_Header,
-				label_Title,
-				textField_Title,
-				label_Thread,
-				comboBox_Thread,
-				textArea_Body,
-				hBox_Buttons);
-		
-		ViewDiscussionBoard.scrollPane_PostBody.setContent(vBox_PostForm);
-		
-		button_Submit.setOnAction((_) ->
-			{ControllerDiscussionBoard.newPost(textField_Title.getText(), textArea_Body.getText(), theUser.getUserName(),
-					comboBox_Thread.getValue());
-			});
-		button_Cancel.setOnAction((_) ->
-			{scrollPane_PostBody.setContent(null);});
-		}
 	
 	/**********
 	 * <p> Method: newReplyForm() </p>
