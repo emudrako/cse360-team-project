@@ -76,7 +76,7 @@ public class FoundationsMain extends Application {
 	// system for other methods that need it can access it.
 	public static Database database = new Database();
     private Alert databaseInUse = new Alert(AlertType.INFORMATION);
-
+    public static entityClasses.PostList postList = new entityClasses.PostList();
 	public static int activeHomePage = 0;		// Which role's home page is currently active?
 												// Role 0 is the admin role number
 	@Override
