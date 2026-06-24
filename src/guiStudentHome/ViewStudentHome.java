@@ -135,7 +135,6 @@ public class ViewStudentHome {
 		button_Quit.setOnAction((_) -> { ControllerStudentHome.performQuit(); });
 		
 		setupButtonUI(button_MyPosts, "Dialog", 18, 250, Pos.CENTER, 285, button_DiscussionBoard.getLayoutY()+50);
-
 		button_MyPosts.setOnAction((_) -> { ControllerStudentHome.performMyPosts(); });
 
 		theRootPane.getChildren().addAll(

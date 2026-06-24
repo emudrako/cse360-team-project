@@ -62,15 +62,15 @@ public class ViewDiscussionBoard {
 	protected static Line line_Separator1 = new Line(20, 95, width-20, 95);
 	
 	
-	// Area 2: This contains the button to create a new post and shows the student a list of threads
-	// to select from
+	// Area 2: This contains the button to create a new post, a button for the student to view only
+	// their posts, and contains a list of threads for the student to select from
 	protected static Button button_NewPost = new Button("New Post");
+	protected static Button button_MyPosts = new Button("My Posts");
 	protected static String selectedThread = "";
 	protected static Label thread_Header = new Label ("Threads");
 	protected static Label thread_General = new Label ("General");
 	protected static Label thread_Homework = new Label ("Homework");
 	protected static Label thread_Quizzes = new Label ("Quizzes");
-	protected static Label thread_MyPosts = new Label ("My Posts");
 	
 	// Area 3: This shows the student a list of the subject lines of each post in
 	// the selected thread
@@ -82,6 +82,9 @@ public class ViewDiscussionBoard {
 	protected static VBox newPost = new VBox();
 	protected static VBox userPosts = new VBox(10);
 	protected static ScrollPane scrollPane_PostBody = new ScrollPane();
+	// Keeps track of whether the user is creating a reply. This will change how
+	// Posts and Replies are displayed in the scroolPane_PostBody
+	protected static boolean onReplyForm = false;
 		
 	// This is a separator and it is used to partition the GUI for various tasks
 	protected static Line line_Separator4 = new Line(20, height-60, width-20, height-60);
@@ -185,7 +188,12 @@ public class ViewDiscussionBoard {
 		button_NewPost.setOnAction((_) ->
 			{newPostForm(); });
 		
-		setupLabelUI(thread_Header, "Arial", 14, 50, Pos.BASELINE_LEFT, 20, button_NewPost.getLayoutY()+80);
+		setupButtonUI(button_MyPosts, "Dialog", 16, 50, Pos.CENTER, 20, button_NewPost.getLayoutY()+100);
+		button_MyPosts.setOnAction((_) ->
+			{selectedThread = "My Posts";
+			displayPostCards(ControllerDiscussionBoard.postList.getAllPosts());});
+		
+		setupLabelUI(thread_Header, "Arial", 14, 50, Pos.BASELINE_LEFT, 20, button_MyPosts.getLayoutY()+80);
 		thread_Header.setStyle("-fx-underline: true;");
 		
 		setupLabelUI(thread_General, "Arial", 20, 50, Pos.BASELINE_LEFT, 20, thread_Header.getLayoutY()+22);
@@ -209,18 +217,11 @@ public class ViewDiscussionBoard {
 		{selectedThread = "Quizzes";
 		displayPostCards(ControllerDiscussionBoard.postList.getAllPosts());});
 		
-		setupLabelUI(thread_MyPosts, "Arial", 20, 50, Pos.BASELINE_LEFT, 20, thread_Quizzes.getLayoutY()+80);
-		thread_MyPosts.setStyle("-fx-text-fill: purple;");
-		thread_MyPosts.setCursor(Cursor.HAND);
-		thread_MyPosts.setOnMouseClicked((_) ->
-		{selectedThread = "My Posts";
-		displayPostCards(ControllerDiscussionBoard.postList.getAllPosts());});
-		
 		// GUI Area 3
-		setupScrollPane(scrollPane_PostCards, 350, 700, width-1025, height-780);
+		setupScrollPane(scrollPane_PostCards, 10, 350, 700, width-1025, height-780);
 		
 		// GUI Area 4
-		setupScrollPane(scrollPane_PostBody, 575, 700, (scrollPane_PostCards.getLayoutX() +
+		setupScrollPane(scrollPane_PostBody, 0, 575, 700, (scrollPane_PostCards.getLayoutX() +
 				scrollPane_PostCards.getMinWidth() + 20), height-780);
 		
 		// GUI Area 5	
@@ -347,7 +348,8 @@ public class ViewDiscussionBoard {
 	 * 
 	 */
 	protected static VBox newReplyForm() {
-		VBox vBox_ReplyForm = new VBox(10);
+		VBox vBox_ReplyForm = new VBox(5);
+		vBox_ReplyForm.setPadding(new Insets(15));
 		
 		Label label_Title = new Label("New Reply");
 		label_Title.setFont(Font.font("Arial", 12));
@@ -402,8 +404,8 @@ public class ViewDiscussionBoard {
 		
 		Button button_Reply = new Button("Reply");
 		button_Reply.setOnAction((_) ->
-			{VBox replyForm = ViewDiscussionBoard.newReplyForm();
-			fullPost.getChildren().add(replyForm);
+			{onReplyForm = true;
+			displayPost(post);
 			});
 		
 		fullPost.getChildren().addAll(
@@ -413,6 +415,12 @@ public class ViewDiscussionBoard {
 				body,
 				button_Reply
 				);
+		
+		if (onReplyForm == true) {
+			VBox replyForm = newReplyForm();
+			fullPost.getChildren().add(replyForm);
+			onReplyForm = false;
+		}
 		
 		List<Reply> replies = ControllerDiscussionBoard.replyList.getAllReplies();
 		for (Reply reply : replies) {
@@ -435,7 +443,7 @@ public class ViewDiscussionBoard {
 		VBox viewReply = new VBox(5);
 		viewReply.setPadding(new Insets(15));
 		
-		Label author = new Label("Author: " + reply.getAuthorUsername());
+		Label author = new Label(reply.getAuthorUsername() + " says:");
 		author.setStyle("-fx-font-weight: bold;" + "-fx-font-size: 12px;");
 		
 		TextArea body = new TextArea(reply.getBody());
@@ -541,13 +549,15 @@ public class ViewDiscussionBoard {
 	 * Private local method to initialize the standard fields for a Scroll Pane
 	 * 
 	 * @param s		The Scroll Pane object to be initialized
+	 * @param p		The padding of the Scroll Pane object
 	 * @param w		The width of the Scroll Pane object
 	 * @param h		The height of the Scroll Pane object	
 	 * @param x		The x position of the Scroll Pane object
 	 * @param y		The y position of the Scroll Pane object
 	 * 
 	 */
-	protected static void setupScrollPane(ScrollPane s, double w, double h, double x, double y) {
+	protected static void setupScrollPane(ScrollPane s, double p, double w, double h, double x, double y) {
+		s.setPadding(new Insets(p));
 		s.setMinWidth(w);
 		s.setMinHeight(h);
 		s.setMaxHeight(h);

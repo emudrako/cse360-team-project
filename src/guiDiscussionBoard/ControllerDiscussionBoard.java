@@ -73,11 +73,11 @@ public class ControllerDiscussionBoard {
 				ViewDiscussionBoard.label_PageTitle, ViewDiscussionBoard.label_UserDetails,
 				ViewDiscussionBoard.button_UpdateThisUser, ViewDiscussionBoard.line_Separator1,
 				ViewDiscussionBoard.button_NewPost,
+				ViewDiscussionBoard.button_MyPosts,
 				ViewDiscussionBoard.thread_Header,
 				ViewDiscussionBoard.thread_General,
 				ViewDiscussionBoard.thread_Homework,
 				ViewDiscussionBoard.thread_Quizzes,
-				ViewDiscussionBoard.thread_MyPosts,
 				ViewDiscussionBoard.scrollPane_PostCards,
 				ViewDiscussionBoard.scrollPane_PostBody,
 				ViewDiscussionBoard.line_Separator4, 
@@ -178,6 +178,7 @@ public class ControllerDiscussionBoard {
 	protected static VBox createPostCard(Post post) {
 		VBox postCard = new VBox(5);
 		postCard.setPadding(new Insets(10));
+		postCard.setMinWidth(ViewDiscussionBoard.scrollPane_PostCards.getMinWidth()-20);
 		postCard.setStyle(
 				"-fx-border-color: lightgray;" +
 				"-fx-border-radius: 5;" +
