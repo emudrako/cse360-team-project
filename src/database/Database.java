@@ -1496,6 +1496,9 @@ public class Database {
 						rs.getString("thread")
 						);
 					post.setPostID(postID);
+					post.setIsDeleted(rs.getBoolean("isDeleted"));
+					Timestamp ts = rs.getTimestamp("createdAt");
+					if (ts != null) post.setCreatedAt(ts.toLocalDateTime());
 					postObjects.add(post);
 				}
 			}

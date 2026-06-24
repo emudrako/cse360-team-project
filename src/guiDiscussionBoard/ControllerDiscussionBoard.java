@@ -82,22 +82,16 @@ public class ControllerDiscussionBoard {
 				ViewDiscussionBoard.button_Logout,
 				ViewDiscussionBoard.button_Quit);
 		
-		// If postList is empty, creates a PostList by calling the getPostObjects method 
-		// from the database
+		// Always reload posts from the database to ensure newly created posts appear immediately
 		List<Post> posts = new ArrayList<>();
-		if (!postList.getAllPosts().isEmpty()) {
-			posts = postList.getAllPosts();
-		}
-		else {
-			try {
-				posts = theDatabase.getPostObjects();
-				for (Post post : posts) {
-					postList.addPost(post);
-				}
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		try {
+		    postList = new PostList();
+		    posts = theDatabase.getPostObjects();
+		    for (Post post : posts) {
+		        postList.addPost(post);
+		    }
+		} catch (SQLException e) {
+		    e.printStackTrace();
 		}
 	
 		// If replyList is empty, creates a ReplyList by calling the getReplyObjects method 
@@ -153,6 +147,9 @@ public class ControllerDiscussionBoard {
 		title.setStyle("-fx-font-weight: bold;" + "-fx-font-size: 14px;");
 		Label author = new Label("Author: " + post.getAuthorUsername());
 		Label thread = new Label("Thread: " + post.getThread());
+		Label timestamp = new Label(post.getCreatedAt() != null ? 
+			    post.getCreatedAt().toString() : "");
+			postCard.getChildren().add(timestamp);
 		
 		postCard.getChildren().addAll(title, author, thread);
 		postCard.setCursor(Cursor.HAND);

@@ -9,7 +9,6 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import database.Database;
 import entityClasses.User;
-import javafx.scene.control.ListView;
 
 /*******
  * <p> Title: ViewMyPosts Class. </p>
@@ -45,13 +44,15 @@ public class ViewMyPosts {
 
 	private static Line line_Separator1 = new Line(20, 95, width-20, 95);
 
-	// GUI Area 2 - ListView and Controls
-	protected static Label label_PostsHeader = new Label();
-	protected static ListView<String> listview_MyPosts = new ListView<String>();
+	// GUI Area 2 - Post Cards and Post Body
+	protected static Label label_PostsHeader = new Label("My Posts");
+	protected static javafx.scene.layout.VBox postCardList = new javafx.scene.layout.VBox(10);
+	protected static javafx.scene.control.ScrollPane scrollPane_PostCards = new javafx.scene.control.ScrollPane(postCardList);
+	protected static javafx.scene.control.ScrollPane scrollPane_PostBody = new javafx.scene.control.ScrollPane();
+	protected static entityClasses.Post currentPost = new entityClasses.Post();
 	protected static Button button_ToggleUnread = new Button("Show Unread Only");
 	protected static javafx.scene.control.TextField textfield_Search = new javafx.scene.control.TextField();
 	protected static Button button_Search = new Button("Search");
-	private static Line line_Separator4 = new Line(20, 525, width-20, 525);
 
 	// GUI Area 3 
 	protected static Button button_Return = new Button("Return");
@@ -99,6 +100,7 @@ public class ViewMyPosts {
 		if (theView == null) theView = new ViewMyPosts();
 		
 		label_UserDetails.setText("User: " + theUser.getUserName());
+		ControllerMyPosts.loadMyPosts();
 
 		theStage.setTitle("My Posts");
 		theStage.setScene(theMyPostsScene);
@@ -126,22 +128,28 @@ public class ViewMyPosts {
 	    button_UpdateThisUser.setOnAction((_) -> { guiUserUpdate.ViewUserUpdate.displayUserUpdate(theStage, theUser); });
 	    
 	    // GUI Area 2
-	    label_PostsHeader.setText("My Posts:");
-	    setupLabelUI(label_PostsHeader, "Arial", 14, 700, Pos.BASELINE_LEFT, 20, 95);
-	    listview_MyPosts.setLayoutX(20);
-	    listview_MyPosts.setLayoutY(110);
-	    listview_MyPosts.setPrefWidth(700);
-	    listview_MyPosts.setPrefHeight(300);
+	 // GUI Area 2
+	    setupLabelUI(label_PostsHeader, "Arial", 14, 200, Pos.BASELINE_LEFT, 20, 100);
 
-	    setupButtonUI(button_ToggleUnread, "Dialog", 16, 150, Pos.CENTER, 740, 150);
+	    scrollPane_PostCards.setLayoutX(20);
+	    scrollPane_PostCards.setLayoutY(120);
+	    scrollPane_PostCards.setPrefWidth(350);
+	    scrollPane_PostCards.setPrefHeight(380);
+
+	    scrollPane_PostBody.setLayoutX(390);
+	    scrollPane_PostBody.setLayoutY(120);
+	    scrollPane_PostBody.setPrefWidth(550);
+	    scrollPane_PostBody.setPrefHeight(380);
+
+	    setupButtonUI(button_ToggleUnread, "Dialog", 14, 150, Pos.CENTER, 20, 510);
 	    button_ToggleUnread.setOnAction((_) -> { ControllerMyPosts.performToggleUnread(); });
 
-	    setupButtonUI(button_Search, "Dialog", 16, 150, Pos.CENTER, 740, 250);
-	    button_Search.setOnAction((_) -> { ControllerMyPosts.performSearch(); });
+	    textfield_Search.setLayoutX(20);
+	    textfield_Search.setLayoutY(545);
+	    textfield_Search.setPrefWidth(200);
 
-	    textfield_Search.setLayoutX(740);
-	    textfield_Search.setLayoutY(200);
-	    textfield_Search.setPrefWidth(150);
+	    setupButtonUI(button_Search, "Dialog", 14, 100, Pos.CENTER, 230, 540);
+	    button_Search.setOnAction((_) -> { ControllerMyPosts.performSearch(); });
 	    
 	    // GUI Area 3
 	    setupButtonUI(button_Return, "Dialog", 18, 250, Pos.CENTER, 20, 540);
@@ -155,8 +163,9 @@ public class ViewMyPosts {
 
 	    theRootPane.getChildren().addAll(
 	    	label_PageTitle, label_UserDetails, button_UpdateThisUser, line_Separator1,
-	    	label_PostsHeader, listview_MyPosts, button_ToggleUnread, textfield_Search, button_Search,
-	    	line_Separator4, button_Return, button_Logout, button_Quit);
+	    	label_PostsHeader, scrollPane_PostCards, scrollPane_PostBody,
+	    	button_ToggleUnread, textfield_Search, button_Search,
+	    	button_Return, button_Logout, button_Quit);
 	}
 	
 	/*-********************************************************************************************
