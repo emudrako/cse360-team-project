@@ -40,7 +40,7 @@ public class ViewMyPosts {
 	// GUI Area 1
 	protected static Label label_PageTitle = new Label();
 	protected static Label label_UserDetails = new Label();
-	protected static Button button_UpdateThisUser = new Button("Account Update");
+	protected static Button button_UpdateThisUser = new Button("Update Account");
 
 
 	private static Line line_Separator1 = new Line(20, 95, width-20, 95);
@@ -100,7 +100,7 @@ public class ViewMyPosts {
 		
 		label_UserDetails.setText("User: " + theUser.getUserName());
 
-		
+		theStage.setTitle("My Posts");
 		theStage.setScene(theMyPostsScene);
 		theStage.show();
 	}
