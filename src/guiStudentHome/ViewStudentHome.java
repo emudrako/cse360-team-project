@@ -46,6 +46,7 @@ public class ViewStudentHome {
 
 	// GUI Area 2
 	protected static Button button_RelatedPosts = new Button("View Related Posts from Others");
+	protected static Button button_DiscussionBoard = new Button("Discussion Board");
 	
 	private static Line line_Separator4 = new Line(20, 525, width-20, 525);
 	
@@ -121,6 +122,10 @@ public class ViewStudentHome {
 		setupButtonUI(button_RelatedPosts, "Dialog", 18, 350, Pos.CENTER, 225, 200);
 		button_RelatedPosts.setOnAction((_) ->
 		{ guiRelatedPosts.ViewRelatedPosts.displayRelatedPosts(theStage, theUser); });		
+		// Button to take student to the Discussion Board page
+		setupButtonUI(button_DiscussionBoard, "Dialog", 18, 200, Pos.CENTER, 315, button_RelatedPosts.getLayoutY()+50);
+		button_DiscussionBoard.setOnAction((_) ->
+		{ guiDiscussionBoard.ViewDiscussionBoard.displayDiscussionBoard(theStage, theUser);});	
 		
 		// GUI Area 3
 		setupButtonUI(button_Logout, "Dialog", 18, 250, Pos.CENTER, 20, 540);
@@ -129,13 +134,13 @@ public class ViewStudentHome {
 		setupButtonUI(button_Quit, "Dialog", 18, 250, Pos.CENTER, 300, 540);
 		button_Quit.setOnAction((_) -> { ControllerStudentHome.performQuit(); });
 		
-		setupButtonUI(button_MyPosts, "Dialog", 18, 250, Pos.CENTER, 285, button_RelatedPosts.getLayoutY()+50);
+		setupButtonUI(button_MyPosts, "Dialog", 18, 250, Pos.CENTER, 285, button_DiscussionBoard.getLayoutY()+50);
 
 		button_MyPosts.setOnAction((_) -> { ControllerStudentHome.performMyPosts(); });
 
 		theRootPane.getChildren().addAll(
 			    label_PageTitle, label_UserDetails, button_UpdateThisUser, line_Separator1,
-			    button_RelatedPosts, button_MyPosts,
+			    button_RelatedPosts, button_DiscussionBoard, button_MyPosts,
 			    line_Separator4, button_Logout, button_Quit);
 	}
 
