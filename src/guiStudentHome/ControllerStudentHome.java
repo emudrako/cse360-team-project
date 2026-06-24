@@ -37,6 +37,21 @@ public class ControllerStudentHome {
 	}
 
 	/**********
+	 * <p> 
+	 * 
+	 * Title: viewDiscussionBoard() Method. </p>
+	 * 
+	 * <p> Description: Protected method that allows a student to view the Discussion
+	 * Board page. 
+	 * 
+	 * </p>
+	 */
+	protected static void displayDiscussionBoard() {
+		guiDiscussionBoard.ViewDiscussionBoard.displayDiscussionBoard(ViewStudentHome.theStage, 
+				ViewStudentHome.theUser);
+	}
+	
+	/**********
 	 * <p> Method: performUpdate() </p>
 	 *
 	 * <p> Description: Directs the user to the User Update Page. </p>

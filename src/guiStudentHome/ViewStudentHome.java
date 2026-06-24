@@ -44,7 +44,8 @@ public class ViewStudentHome {
 
 	private static Line line_Separator1 = new Line(20, 95, width-20, 95);
 
-	// GUI Area 2 - placeholder, no widgets yet
+	// GUI Area 2 has a button to take the student to the Discussion Board page
+	protected static Button button_DiscussionBoard = new Button("Discussion Board");
 
 	private static Line line_Separator4 = new Line(20, 525, width-20, 525);
 
@@ -113,8 +114,10 @@ public class ViewStudentHome {
 
 		setupButtonUI(button_UpdateThisUser, "Dialog", 18, 170, Pos.CENTER, 610, 45);
 		button_UpdateThisUser.setOnAction((_) -> { ControllerStudentHome.performUpdate(); });
-
-		// GUI Area 2 - placeholder
+		
+		// GUI Area 2
+		setupButtonUI(button_DiscussionBoard, "Dialog", 18, 190, Pos.CENTER, 20, 120);
+		button_DiscussionBoard.setOnAction((_) -> { ControllerStudentHome.displayDiscussionBoard(); });
 
 		// GUI Area 3
 		setupButtonUI(button_Logout, "Dialog", 18, 250, Pos.CENTER, 20, 540);
@@ -125,7 +128,7 @@ public class ViewStudentHome {
 
 		theRootPane.getChildren().addAll(
 			label_PageTitle, label_UserDetails, button_UpdateThisUser, line_Separator1,
-			line_Separator4, button_Logout, button_Quit);
+			line_Separator4, button_Logout, button_Quit, button_DiscussionBoard);
 	}
 
 

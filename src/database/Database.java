@@ -1,10 +1,7 @@
 package database;
 
 import java.sql.*;
-import java.sql.Statement;
-import java.sql.ResultSet;
 import java.time.LocalDateTime; // Import LocalDateTime for invitation code expiration functionality
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -1469,6 +1466,44 @@ public class Database {
 				throw e;
 			}
 		}
+	
+	/**********
+	 * <p> Method: getPostObjects() </p>
+	 * 
+	 * <p> Description: This creates a list of post objects from the database </p>
+	 * 
+	 * @returns a list of Post objects created from the database
+	 * 
+	 */
+		public List<Post> getPostObjects() throws SQLException {
+			List<Post> postObjects = new ArrayList<>();
+			
+			String query = "SELECT * FROM PostsDB";
+			
+			PreparedStatement stmt = connection.prepareStatement(query);
+			ResultSet rs = stmt.executeQuery();
+			
+			if (rs.wasNull()) {
+				return postObjects;
+			}
+			else {
+				while (rs.next()) {
+					int postID = rs.getInt("postID");
+					Post post = new Post(
+						rs.getString("title"),
+						rs.getString("body"),
+						rs.getString("authorUsername"),
+						rs.getString("thread")
+						);
+					post.setPostID(postID);
+					postObjects.add(post);
+				}
+			}
+			
+			
+			return postObjects;
+		}
+		
 	/*******
 	* <p> Method: readPost </p>
 	* 
@@ -1601,6 +1636,42 @@ public class Database {
 					throw e;
 				}
 			}
+	
+	/**********
+	 * <p> Method: getReplyObjects() </p>
+	 * 
+	 * <p> Description: This creates a list of reply objects from the database </p>
+	 * 
+	 * @returns a list of Reply objects created from the database
+	 * 
+	 */
+			public List<Reply> getReplyObjects() throws SQLException {
+				List<Reply> replyObjects = new ArrayList<>();
+				
+				String query = "SELECT * FROM RepliesDB";
+				
+				PreparedStatement stmt = connection.prepareStatement(query);
+				ResultSet rs = stmt.executeQuery();
+				
+				if (rs.wasNull()) {
+					return replyObjects;
+				}
+				else {
+					while (rs.next()) {
+						int replyID = rs.getInt("replyID");
+						Reply reply = new Reply(
+							rs.getInt("postID"),
+							rs.getString("body"),
+							rs.getString("authorUsername")
+							);
+						reply.setReplyID(replyID);
+						replyObjects.add(reply);
+					}
+				}
+				
+				return replyObjects;
+			}	
+		
 	/*******
 	* <p> Method: readRepliesForPost </p>
 	* 
