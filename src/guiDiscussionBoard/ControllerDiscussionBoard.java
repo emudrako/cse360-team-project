@@ -17,10 +17,11 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 
 /*******
- * <p> Title: ControllerSetOneTimePassword Class. </p>
+ * <p> Title: ControllerDiscussionBoard Class. </p>
  * 
- * <p> Description: The Java/FX-based Controller Set One Time Password Page.  This class provides the controller
- * actions basic on the user's use of the JavaFX GUI widgets defined by the View class.
+ * <p> Description: The Java/FX-based Discussion Board page controller. This class provides
+ * the controller actions for the Discussion Board page including loading posts and replies
+ * from the database, creating post cards, handling reply creation, and navigation.</p>
  * 
  * The class has been written assuming that the View or the Model are the only class methods that
  * can invoke these methods.  This is why each has been declared at "protected".  Do not change any
