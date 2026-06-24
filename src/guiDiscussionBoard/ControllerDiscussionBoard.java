@@ -124,7 +124,6 @@ public class ControllerDiscussionBoard {
 		ViewDiscussionBoard.displayPostCards(posts);
 	}
 	
-
 	
 	/**********
 	 * <p> Method: createPostCard() </p>
@@ -170,28 +169,29 @@ public class ControllerDiscussionBoard {
 	 * 
 	 */
 	protected static void newReply(int postID, String body, String authorUsername) {
-		String errMsg = recognizers.PostReplyValidator.checkForValidReply(body);
-		if (!errMsg.isEmpty()) {
-			alertPostInputValidation.setTitle("Error");
-			alertPostInputValidation.setHeaderText(errMsg);
-			alertPostInputValidation.showAndWait();
-			return;
-		}
-		
-		Reply reply = new Reply(postID, body, authorUsername);
-		
-		try {
-			theDatabase.createReply(reply);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		replyList.addReply(reply);
-		alertPostCreated.setContentText("Reply successfully created!");
-		alertPostCreated.showAndWait();
-		ViewDiscussionBoard.scrollPane_PostBody.setContent(null);
-		repaintTheWindow();
+	    String errMsg = recognizers.PostReplyValidator.checkForValidReply(body);
+	    if (!errMsg.isEmpty()) {
+	        Alert alertError = new Alert(Alert.AlertType.INFORMATION);
+	        alertError.setTitle("Error");
+	        alertError.setHeaderText(errMsg);
+	        alertError.showAndWait();
+	        return;
+	    }
+	    
+	    Reply reply = new Reply(postID, body, authorUsername);
+	    
+	    try {
+	        theDatabase.createReply(reply);
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+	    
+	    replyList.addReply(reply);
+	    Alert alertSuccess = new Alert(Alert.AlertType.CONFIRMATION);
+	    alertSuccess.setContentText("Reply successfully created!");
+	    alertSuccess.showAndWait();
+	    ViewDiscussionBoard.scrollPane_PostBody.setContent(null);
+	    repaintTheWindow();
 	}
 	
 	/**********
