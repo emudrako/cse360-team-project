@@ -77,7 +77,8 @@ public class ViewDiscussionBoard {
 	// the selected thread
 	protected static VBox subjectList = new VBox(10);
 	protected static ScrollPane scrollPane_PostCards = new ScrollPane(subjectList);
-	// Keeps track of the currently selected post
+	// Keeps track of the currently selected post for use in displayPost and
+	// newReplyForm methods
 	protected static Post currentPost = new Post();
 	// Area 4: This shows a list of the body of the selected post and all replies
 	protected static VBox newPost = new VBox();
