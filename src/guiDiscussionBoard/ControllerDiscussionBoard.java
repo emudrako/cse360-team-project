@@ -70,7 +70,6 @@ public class ControllerDiscussionBoard {
 		
 		ViewDiscussionBoard.theRootPane.getChildren().addAll(
 				ViewDiscussionBoard.label_PageTitle, ViewDiscussionBoard.label_UserDetails,
-				ViewDiscussionBoard.button_UpdateThisUser, ViewDiscussionBoard.line_Separator1,
 				ViewDiscussionBoard.button_NewPost,
 				ViewDiscussionBoard.button_MyPosts,
 				ViewDiscussionBoard.button_RelatedPosts,
@@ -123,6 +122,42 @@ public class ControllerDiscussionBoard {
 		ViewDiscussionBoard.displayPostCards(posts);
 	}
 	
+	/**********
+	 * <p> Method: performSearch() </p>
+	 *
+	 * <p> Description: Filters the post card list by a keyword entered in the search
+	 * field. Matches against post title and body. Reloads all posts if the field
+	 * is empty. </p>
+	 *
+	 */
+	protected static void performSearch() {
+	    String keyword = ViewDiscussionBoard.textfield_Search.getText().trim().toLowerCase();
+	    if (keyword.isEmpty()) {
+	        repaintTheWindow();
+	        return;
+	    }
+	    ViewDiscussionBoard.postCardList.getChildren().clear();
+	    ViewDiscussionBoard.scrollPane_PostBody.setContent(null);
+	    try {
+	        List<Post> allPosts = theDatabase.getPostObjects();
+	        boolean found = false;
+	        for (Post post : allPosts) {
+	            if (!post.getIsDeleted() &&
+	               (post.getTitle().toLowerCase().contains(keyword) ||
+	                post.getBody().toLowerCase().contains(keyword))) {
+	                ViewDiscussionBoard.postCardList.getChildren().add(createPostCard(post));
+	                found = true;
+	            }
+	        }
+	        if (!found) {
+	            ViewDiscussionBoard.postCardList.getChildren().add(
+	                new Label("No posts matching: " + keyword));
+	        }
+	    } catch (Exception e) {
+	        ViewDiscussionBoard.postCardList.getChildren().add(
+	            new Label("Error: " + e.getMessage()));
+	    }
+	}
 	
 	/**********
 	 * <p> Method: createPostCard() </p>
@@ -214,10 +249,9 @@ public class ControllerDiscussionBoard {
 	}
 	
 	/**********
-	 * <p> Method: performReturn() </p>
+	 * <p> Method: performHome() </p>
 	 * 
-	 * <p> Description: This method returns the user (who must be an Admin as only admins are the
-	 * only users who have access to this page) to the Admin Home page. </p>
+	 * <p> Description: This method returns the user to the student home page </p>
 	 * 
 	 */
 	protected static void performReturn() {

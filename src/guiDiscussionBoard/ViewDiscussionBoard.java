@@ -53,10 +53,8 @@ public class ViewDiscussionBoard {
 	// These are the widget attributes for the GUI. There are 3 areas for this GUI.
 	
 	// GUI Area 1: It informs the user about the purpose of this page, whose account is being used,
-	// and a button to allow this user to update the account settings.
 	protected static Label label_PageTitle = new Label();
 	protected static Label label_UserDetails = new Label();
-	protected static Button button_UpdateThisUser = new Button("Account Update");
 	
 	// This is a separator and it is used to partition the GUI for various tasks
 	protected static Line line_Separator1 = new Line(20, 95, width-20, 95);
@@ -92,10 +90,9 @@ public class ViewDiscussionBoard {
 	protected static Line line_Separator4 = new Line(20, height-60, width-20, height-60);
 	
 	// GUI Area 5: This is last of the GUI areas.  It is used for quitting the application, logging
-	// out, and on other pages a return is provided so the user can return to a previous page when
-	// the actions on that page are complete.  Be advised that in most cases in this code, the 
+	// out, and returning to home. Be advised that in most cases in this code, the 
 	// return is to a fixed page as opposed to the actual page that invoked the pages.
-	protected static Button button_Return = new Button("Return");
+	protected static Button button_Home = new Button("Home");
 	protected static Button button_Logout = new Button("Logout");
 	protected static Button button_Quit = new Button("Quit");
 
@@ -181,10 +178,6 @@ public class ViewDiscussionBoard {
 		label_UserDetails.setText("User: " + theUser.getUserName());
 		setupLabelUI(label_UserDetails, "Arial", 20, width, Pos.BASELINE_LEFT, 20, 55);
 		
-		setupButtonUI(button_UpdateThisUser, "Dialog", 18, 170, Pos.CENTER, width-200, 45);
-		button_UpdateThisUser.setOnAction((_) -> 
-			{guiUserUpdate.ViewUserUpdate.displayUserUpdate(theStage, theUser); });
-		
 		// GUI Area 2
 		setupButtonUI(button_NewPost, "Dialog", 16, 50, Pos.CENTER, 20, 130);
 		button_NewPost.setOnAction((_) ->
@@ -229,8 +222,8 @@ public class ViewDiscussionBoard {
 		setupScrollPane(scrollPane_PostBody, 0, 575, 500, 570, 120);
 		
 		// GUI Area 5	
-		setupButtonUI(button_Return, "Dialog", 18, 210, Pos.CENTER, 20, height-45);
-		button_Return.setOnAction((_) -> {ControllerDiscussionBoard.performReturn(); });
+		setupButtonUI(button_Home, "Dialog", 18, 210, Pos.CENTER, 20, height-45);
+		button_Home.setOnAction((_) -> {ControllerDiscussionBoard.performHome(); });
 
 		setupButtonUI(button_Logout, "Dialog", 18, 210, Pos.CENTER, 300, height-45);
 		button_Logout.setOnAction((_) -> {ControllerDiscussionBoard.performLogout(); });
