@@ -103,9 +103,9 @@ public class ControllerMyPosts {
 	    showingUnreadOnly = !showingUnreadOnly;
 	    
 	    if (showingUnreadOnly) {
-	        ViewMyPosts.button_ToggleUnread.setText("Show All Replies");
+	        ViewMyPosts.button_ToggleUnread.setText("All");
 	    } else {
-	        ViewMyPosts.button_ToggleUnread.setText("Show Unread Only");
+	        ViewMyPosts.button_ToggleUnread.setText("Unread");
 	    }
 	    
 	    ViewMyPosts.postCardList.getChildren().clear();

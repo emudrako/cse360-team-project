@@ -57,15 +57,15 @@ public class ViewMyPosts {
 
 	// GUI Area 2 - Post Cards and Post Body
 	protected static Label label_PostsHeader = new Label("");
+	protected static Button button_ToggleUnread = new Button("Unread");
+	protected static ComboBox <String> combobox_SelectUser = new ComboBox <String>();
+	protected static javafx.scene.control.TextField textfield_Search = new javafx.scene.control.TextField();
+	protected static Button button_Search = new Button("→");
 	protected static javafx.scene.layout.VBox postCardList = new javafx.scene.layout.VBox(10);
 	protected static javafx.scene.control.ScrollPane scrollPane_PostCards = new javafx.scene.control.ScrollPane(postCardList);
 	protected static javafx.scene.control.ScrollPane scrollPane_PostBody = new javafx.scene.control.ScrollPane();
 	protected static entityClasses.Post currentPost = new entityClasses.Post();
-	protected static Button button_ToggleUnread = new Button("Show Unread Only");
-	protected static Label label_SearchReplies = new Label ("Search Replies: ");
-	protected static ComboBox <String> combobox_SelectUser = new ComboBox <String>();
-	protected static javafx.scene.control.TextField textfield_Search = new javafx.scene.control.TextField();
-	protected static Button button_Search = new Button("Search");
+
 
 
 	
@@ -135,7 +135,7 @@ public class ViewMyPosts {
 		setupLabelUI(label_UserDetails, "Arial", 12, 200, Pos.BASELINE_LEFT, 20, 10);
 		
 		// Buttons on the right hand side for app navigation
-		setupButtonUI(button_discussionBoard, "Dialog", 12, 70, Pos.CENTER, 690, 10);
+		setupButtonUI(button_discussionBoard, "Dialog", 12, 70, Pos.CENTER, 692, 10);
 		button_discussionBoard.setOnAction((_) -> {ControllerMyPosts.performGoToDiscussionBoard(); });
 		
 		setupButtonUI(button_Home, "Dialog", 12, 52, Pos.CENTER, 805, 10);
@@ -160,43 +160,42 @@ public class ViewMyPosts {
 	    // GUI Area 2
 	 // GUI Area 2
 	    setupLabelUI(label_PostsHeader, "Arial", 14, 200, Pos.BASELINE_LEFT, 20, 100);
-
-	    scrollPane_PostCards.setLayoutX(20);
-	    scrollPane_PostCards.setLayoutY(120);
-	    scrollPane_PostCards.setPrefWidth(350);
-	    scrollPane_PostCards.setPrefHeight(380);
-
-	    scrollPane_PostBody.setLayoutX(390);
-	    scrollPane_PostBody.setLayoutY(120);
-	    scrollPane_PostBody.setPrefWidth(550);
-	    scrollPane_PostBody.setPrefHeight(380);
-
-	    setupButtonUI(button_ToggleUnread, "Dialog", 14, 150, Pos.CENTER, 20, 510);
-	    button_ToggleUnread.setOnAction((_) -> { ControllerMyPosts.performToggleUnread(); });
-
-	    setupLabelUI(label_SearchReplies, "Arial", 12, 80, Pos.BASELINE_LEFT, button_ToggleUnread.getLayoutX()+
-	    		button_ToggleUnread.getMinWidth()+20, 515);
 	    
-	    setupComboBoxUI(combobox_SelectUser, "Dialog", 14, 250, (label_SearchReplies.getLayoutX()+
-	    		label_SearchReplies.getMinWidth()+10), 510);
+	    setupButtonUI(button_ToggleUnread, "Dialog", 14, 150, Pos.CENTER, 20, 120);
+	    button_ToggleUnread.setOnAction((_) -> { ControllerMyPosts.performToggleUnread(); });
+	    
+	    setupComboBoxUI(combobox_SelectUser, "Dialog", 12, 100, (button_ToggleUnread.getLayoutX()+
+	            button_ToggleUnread.getMinWidth()+5), 120);
+	    
 	    List<String> userList = theDatabase.getUserList();	
 		combobox_SelectUser.setItems(FXCollections.observableArrayList(userList));
 		combobox_SelectUser.getSelectionModel().select(0);
 	    
 		textfield_Search.setLayoutX(combobox_SelectUser.getLayoutX()+combobox_SelectUser.getMinWidth()+10);
-	    textfield_Search.setLayoutY(510);
-	    textfield_Search.setPrefWidth(200);
+	    textfield_Search.setLayoutY(120);
+	    textfield_Search.setPrefWidth(100);
 	    textfield_Search.setPromptText("Keyword");
 	    
-	    setupButtonUI(button_Search, "Dialog", 14, 50, Pos.CENTER, (textfield_Search.getLayoutX()+
-	    		textfield_Search.getPrefWidth()+10), 510);
+	    setupButtonUI(button_Search, "Dialog", 14, 35, Pos.CENTER, (textfield_Search.getLayoutX()+
+	            textfield_Search.getPrefWidth()+5), 120);
 	    button_Search.setOnAction((_) -> { ControllerMyPosts.searchReplies(); });
+
+	    scrollPane_PostCards.setLayoutX(20);
+	    scrollPane_PostCards.setLayoutY(220);
+	    scrollPane_PostCards.setPrefWidth(350);
+	    scrollPane_PostCards.setPrefHeight(280);
+
+	    scrollPane_PostBody.setLayoutX(390);
+	    scrollPane_PostBody.setLayoutY(220);
+	    scrollPane_PostBody.setPrefWidth(550);
+	    scrollPane_PostBody.setPrefHeight(280);
+
 	    
 
 	    theRootPane.getChildren().addAll(
 	    	label_PageTitle, label_UserDetails, line_Separator1,
 	    	label_PostsHeader, scrollPane_PostCards, scrollPane_PostBody,
-	    	button_ToggleUnread,label_SearchReplies, combobox_SelectUser, textfield_Search, 
+	    	button_ToggleUnread, combobox_SelectUser, textfield_Search, 
 	    	button_Search, button_Home, button_Logout, button_Quit, button_discussionBoard);
 	}
 	
