@@ -19,7 +19,8 @@ import entityClasses.User;
  * <p> Title: ViewMyPosts Class. </p>
  *
  * <p> Description: The Java/FX-based page for viewing the My Posts page.
- * Allows the student to ...</p>
+ * Allows the student to view their submitted posts, filter for unread replies,
+ * search replies by user or keyword, and select a specific post to view its full body.</p>
  *
  * <p> Copyright: Maranda Martinez © 2026 </p>
  *
@@ -97,7 +98,7 @@ public class ViewMyPosts {
 	 * 
 	 * @param ps specifies the JavaFX Stage to be used for this GUI and it's methods
 	 * 
-	 * @param user specifies the .. currently logged in
+	 * @param user specifies the User. currently logged in
 	 */
 	
 	public static void displayMyPosts(Stage ps, User user) {

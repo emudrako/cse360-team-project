@@ -56,7 +56,9 @@ public class ControllerMyPosts {
 	/**********
 	 * <p> Method: loadMyPosts() </p>
 	 * 
-	 * <p> Description:  </p>
+	 * <p> Description:  Retrieves all posts by the curent user from the database and creates
+	 * a post card for each, and populates the post card scroll pane. Displays a message
+	 * if no posts exist.</p>
 	 * 
 	 */
 	protected static void loadMyPosts() {
@@ -93,7 +95,8 @@ public class ControllerMyPosts {
 	/**********
 	 * <p> Method: performToggleUnread() </p>
 	 * 
-	 * <p> Description: </p>
+	 * <p> Description: Allows toggle in the post card list between showing all posts and showing
+	 * only posts with unread replies.</p>
 	 * 
 	 */
 	protected static void performToggleUnread() {
@@ -144,7 +147,8 @@ public class ControllerMyPosts {
 	/**********
 	 * <p> Method: performSearch() </p>
 	 * 
-	 * <p> Description: </p>
+	 * <p> Description: Fileters the current user's post by the keyboard entered into the search field.
+	 * Matches against post title and body, it reloads all posts if the field field is empty.</p>
 	 * 
 	 */
 	protected static void performSearch() {
@@ -353,7 +357,13 @@ public class ControllerMyPosts {
 	    
 	    return card;
 	}
-
+/**********
+ * <p> Method: displayPostBody(Post post)</>
+ * <p> Description: Populates the post body and has a scroll ability, it shows the selected post's
+ * title, thread, body and all of its associated replies, it also marks each reply as read for the current 
+ * user upon display.</p>
+ * @param post the Post object whose full content and replies should be displayed.
+ */
 	private static void displayPostBody(entityClasses.Post post) {
 	    javafx.scene.layout.VBox fullPost = new javafx.scene.layout.VBox(5);
 	    fullPost.setPadding(new javafx.geometry.Insets(10));
@@ -401,7 +411,8 @@ public class ControllerMyPosts {
 	 * 
 	 * <p> Description: This method populates the post body Scroll Pane with the
 	 * replies from the user's search criteria. </p>
-	 * 
+	 * @param reply  the Reply object to render
+	 * @return       a VBox containing the reply author and body
 	 */
 	protected static VBox displayReply(Reply reply) {
 		VBox viewReply = new VBox(5);
