@@ -138,7 +138,7 @@ public class ViewStudentHome {
 
 		theRootPane.getChildren().addAll(
 			    label_PageTitle, label_UserDetails, button_UpdateThisUser, line_Separator1,
-			    button_DiscussionBoard, line_Separator4, button_Logout, button_Quit);
+			    button_DiscussionBoard, line_Separator4, button_Logout, button_Quit, button_MyPosts);
 
 	}
 
