@@ -39,9 +39,10 @@ public class ViewMyPosts {
 	Attributes
 
 	 */
+	// Height and width for the window
 
-	private static double width = applicationMain.FoundationsMain.WINDOW_WIDTH;
-	private static double height = applicationMain.FoundationsMain.WINDOW_HEIGHT;
+	private static double width = 1000;
+	private static double height = 900;
 
 	// GUI Area 1
 	protected static Label label_PageTitle = new Label();
@@ -55,7 +56,7 @@ public class ViewMyPosts {
 	private static Line line_Separator1 = new Line(20, 95, width-20, 95);
 
 	// GUI Area 2 - Post Cards and Post Body
-	protected static Label label_PostsHeader = new Label("My Posts");
+	protected static Label label_PostsHeader = new Label("");
 	protected static javafx.scene.layout.VBox postCardList = new javafx.scene.layout.VBox(10);
 	protected static javafx.scene.control.ScrollPane scrollPane_PostCards = new javafx.scene.control.ScrollPane(postCardList);
 	protected static javafx.scene.control.ScrollPane scrollPane_PostBody = new javafx.scene.control.ScrollPane();
@@ -128,22 +129,22 @@ public class ViewMyPosts {
 	 
 	    // GUI Area 1
 	    label_PageTitle.setText("My Posts");
-	    setupLabelUI(label_PageTitle, "Arial", 28, width, Pos.CENTER, 0, 5);
+		setupLabelUI(label_PageTitle, "Arial", 40, 400, Pos.BASELINE_LEFT, 20, 45);
 	    
 		label_UserDetails.setText("User: " + theUser.getUserName());
 		setupLabelUI(label_UserDetails, "Arial", 12, 200, Pos.BASELINE_LEFT, 20, 10);
 		
 		// Buttons on the right hand side for app navigation
-		setupButtonUI(button_discussionBoard, "Dialog", 12, 52, Pos.CENTER, 790, 10);
-		button_Home.setOnAction((_) -> {ControllerMyPosts.performGoToDiscussionBoard(); });
+		setupButtonUI(button_discussionBoard, "Dialog", 12, 70, Pos.CENTER, 690, 10);
+		button_discussionBoard.setOnAction((_) -> {ControllerMyPosts.performGoToDiscussionBoard(); });
 		
-		setupButtonUI(button_Home, "Dialog", 12, 52, Pos.CENTER, 845, 10);
+		setupButtonUI(button_Home, "Dialog", 12, 52, Pos.CENTER, 805, 10);
 		button_Home.setOnAction((_) -> {ControllerMyPosts.performHome(); });
 
-		setupButtonUI(button_Logout, "Dialog", 12, 57, Pos.CENTER, 900, 10);
+		setupButtonUI(button_Logout, "Dialog", 12, 57, Pos.CENTER, 860, 10);
 		button_Logout.setOnAction((_) -> {ControllerMyPosts.performLogout(); });
     
-		setupButtonUI(button_Quit, "Dialog", 12, 30, Pos.CENTER, 960, 10);
+		setupButtonUI(button_Quit, "Dialog", 12, 30, Pos.CENTER, 920, 10);
 		button_Quit.setOnAction((_) -> {ControllerMyPosts.performQuit(); });
 	    
 		//Style for Page Title and User Details
@@ -196,7 +197,7 @@ public class ViewMyPosts {
 	    	label_PageTitle, label_UserDetails, line_Separator1,
 	    	label_PostsHeader, scrollPane_PostCards, scrollPane_PostBody,
 	    	button_ToggleUnread,label_SearchReplies, combobox_SelectUser, textfield_Search, 
-	    	button_Search, button_Home, button_Logout, button_Quit);
+	    	button_Search, button_Home, button_Logout, button_Quit, button_discussionBoard);
 	}
 	
 	/*-********************************************************************************************
