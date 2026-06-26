@@ -291,17 +291,17 @@ public class ControllerMyPosts {
 	    				postTitle.setFont( new Font("Arial", 16));
 	    				postTitle.setTextFill(Color.BLUE);
 	    				replyList.getChildren().add(postTitle);
-	    				//displayPostBody(post);
+	    				replyList.getChildren().add(displayReply(reply));
 	    			}
-	    			else {
-	    				VBox deletedPost = new VBox(10);
-	    				javafx.scene.control.Label empty = new javafx.scene.control.Label("Original post has " +
+	    			if (post.getPostID() == reply.getPostID() && post.getIsDeleted()) {
+	    				javafx.scene.control.Label postDeleted = new javafx.scene.control.Label("Original post has " +
 	    			    	"been deleted");
-	    			    deletedPost.getChildren().add(empty);
-	    				ViewMyPosts.scrollPane_PostBody.getChildrenUnmodifiable().add(deletedPost);
+	    				postDeleted.setFont( new Font("Arial", 16));
+	    				postDeleted.setTextFill(Color.BLUE);
+	    				replyList.getChildren().add(postDeleted);
+	    				replyList.getChildren().add(displayReply(reply));
 	    			}
 	    		}
-	    		replyList.getChildren().add(displayReply(reply));
 	    	}
 	    	ViewMyPosts.scrollPane_PostBody.setContent(replyList);
 	    }
