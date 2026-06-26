@@ -75,16 +75,18 @@ public class ControllerDiscussionBoard {
 		        ViewDiscussionBoard.textfield_Search,
 		        ViewDiscussionBoard.button_Search,
 		        ViewDiscussionBoard.button_CreatePost,
-				ViewDiscussionBoard.thread_Header,
-				ViewDiscussionBoard.thread_General,
-				ViewDiscussionBoard.thread_Homework,
-				ViewDiscussionBoard.thread_Quizzes,
+		        ViewDiscussionBoard.button_General,
+		        ViewDiscussionBoard.button_Homework,
+		        ViewDiscussionBoard.button_Quizzes,
+		        ViewDiscussionBoard.button_ViewAll,
 				ViewDiscussionBoard.scrollPane_PostCards,
 				ViewDiscussionBoard.scrollPane_PostBody,
 				ViewDiscussionBoard.line_Separator4, 
 				ViewDiscussionBoard.button_Home,
 				ViewDiscussionBoard.button_Logout,
-				ViewDiscussionBoard.button_Quit);
+				ViewDiscussionBoard.button_Quit,
+				ViewDiscussionBoard.label_Subtitle)
+		;
 		
 		// Always reload posts from the database to ensure newly created posts appear immediately
 		List<Post> posts = new ArrayList<>();
@@ -175,7 +177,8 @@ public class ControllerDiscussionBoard {
 	protected static VBox createPostCard(Post post) {
 	    VBox postCard = new VBox(5);
 	    postCard.setPadding(new Insets(10));
-	    postCard.setMinWidth(ViewDiscussionBoard.scrollPane_PostCards.getMinWidth()-20);
+	    postCard.setMinWidth(ViewDiscussionBoard.scrollPane_PostCards.getMinWidth()-40);
+	    postCard.setMaxWidth(ViewDiscussionBoard.scrollPane_PostCards.getMinWidth()-40);
 	    postCard.setStyle(
 	        "-fx-border-color: lightgray;" +
 	        "-fx-border-radius: 5;" +

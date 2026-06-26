@@ -46,7 +46,7 @@ public class ViewDiscussionBoard {
 	// These are the application values required by the user interface
 	
 	private static double width = 1000;
-	private static double height = 700;
+	private static double height = 900;
 
 	// A list of post objects that will be populated from the database
 	
@@ -55,9 +55,11 @@ public class ViewDiscussionBoard {
 	// GUI Area 1: It informs the user about the purpose of this page, whose account is being used,
 	protected static Label label_PageTitle = new Label();
 	protected static Label label_UserDetails = new Label();
+	protected static Label label_Subtitle = new Label("Your class forum");
 	// It is used for quitting the application, logging
 	// out, and returning to home. Be advised that in most cases in this code, the 
 	// return is to a fixed page as opposed to the actual page that invoked the pages.
+	protected static String selectedThread = "";
 	protected static Button button_Home = new Button("Home");
 	protected static Button button_Logout = new Button("Logout");
 	protected static Button button_Quit = new Button("X");
@@ -68,12 +70,12 @@ public class ViewDiscussionBoard {
 	
 	// Area 2: This contains the button to create a new post and contains a list of 
 	//threads for the student to select from
+
+	protected static Button button_General = new Button ("General");
+	protected static Button button_Homework = new Button ("Homework");
+	protected static Button button_Quizzes = new Button("Quizzes");
+	protected static Button button_ViewAll = new Button ("View All");
 	
-	protected static String selectedThread = "";
-	protected static Label thread_Header = new Label ("Threads");
-	protected static Label thread_General = new Label ("General");
-	protected static Label thread_Homework = new Label ("Homework");
-	protected static Label thread_Quizzes = new Label ("Quizzes");
 	
 	//  This is the search bar and submit and Create post
 	protected static TextField textfield_Search = new TextField();
@@ -172,74 +174,73 @@ public class ViewDiscussionBoard {
 		// Create the Pane for the list of widgets and the Scene for the window
 		theRootPane = new Pane();
 		theDiscussionBoardScene = new Scene(theRootPane, width, height);
+		theRootPane.setStyle("-fx-background-color: #FFFFFF;");// make the background white
 		
 		// Populate the window with the title and other common widgets and set their static state
 		
 		// GUI Area 1
-		label_PageTitle.setText("Discussion Board Page");
-		setupLabelUI(label_PageTitle, "Arial", 28, width, Pos.CENTER, 0, 5);
-
 		label_UserDetails.setText("User: " + theUser.getUserName());
-		setupLabelUI(label_UserDetails, "Arial", 20, width, Pos.BASELINE_LEFT, 20, 55);
+		setupLabelUI(label_UserDetails, "Arial", 12, 200, Pos.BASELINE_LEFT, 20, 10);
 		
-		setupButtonUI(button_MyPosts, "Dialog", 16, 100, Pos.CENTER, 580, 10);
+		label_PageTitle.setText("Discussion Board");
+		setupLabelUI(label_PageTitle, "Arial", 40, 400, Pos.BASELINE_LEFT, 20, 45);
+		
+		setupLabelUI(label_Subtitle, "Arial", 24, 400, Pos.BASELINE_LEFT, 23, 100);
+		label_Subtitle.setStyle("-fx-text-fill: #666666; -fx-font-style: italic;");
+		
+		setupButtonUI(button_MyPosts, "Dialog", 12, 70, Pos.CENTER, 772, 10);
 		button_MyPosts.setOnAction((_) ->
 		    {guiMyPosts.ViewMyPosts.displayMyPosts(theStage, theUser);});
 		
-		setupButtonUI(button_Home, "Dialog", 16, 100, Pos.CENTER, 690, 10);
+		setupButtonUI(button_Home, "Dialog", 12, 52, Pos.CENTER, 845, 10);
 		button_Home.setOnAction((_) -> {ControllerDiscussionBoard.performHome(); });
 
-		setupButtonUI(button_Logout, "Dialog", 16, 100, Pos.CENTER, 800, 10);
+		setupButtonUI(button_Logout, "Dialog", 12, 57, Pos.CENTER, 900, 10);
 		button_Logout.setOnAction((_) -> {ControllerDiscussionBoard.performLogout(); });
     
-		setupButtonUI(button_Quit, "Dialog", 18, 60, Pos.CENTER, 910, 10);
+		setupButtonUI(button_Quit, "Dialog", 12, 30, Pos.CENTER, 960, 10);
 		button_Quit.setOnAction((_) -> {ControllerDiscussionBoard.performQuit(); });
 		
+		button_MyPosts.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
+		button_Home.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
+		button_Logout.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
+		button_Quit.setStyle("-fx-background-color: #BF0D3E; -fx-text-fill: white; -fx-background-radius: 5;");
+
 		
 		// GUI Area 2
 		
-		setupLabelUI(thread_Header, "Arial", 14, 50, Pos.BASELINE_LEFT, 20, 130);
-		thread_Header.setStyle("-fx-underline: true;");
-		
-
-		
-		
-		setupLabelUI(thread_General, "Arial", 20, 50, Pos.BASELINE_LEFT, 20, thread_Header.getLayoutY()+22);
-		thread_General.setStyle("-fx-text-fill: blue;");
-		thread_General.setCursor(Cursor.HAND);
-		thread_General.setOnMouseClicked((_) ->
-			{selectedThread = "General";
-			displayPostCards(ControllerDiscussionBoard.postList.getAllPosts());});
-		
-		setupLabelUI(thread_Homework, "Arial", 20, 50, Pos.BASELINE_LEFT, 20, thread_General.getLayoutY()+30);
-		thread_Homework.setStyle("-fx-text-fill: Orange;");
-		thread_Homework.setCursor(Cursor.HAND);
-		thread_Homework.setOnMouseClicked((_) ->
-		{selectedThread = "Homework";
-		displayPostCards(ControllerDiscussionBoard.postList.getAllPosts());});
-		
-		setupLabelUI(thread_Quizzes, "Arial", 20, 50, Pos.BASELINE_LEFT, 20, thread_Homework.getLayoutY()+30);
-		thread_Quizzes.setStyle("-fx-text-fill: red;");
-		thread_Quizzes.setCursor(Cursor.HAND);
-		thread_Quizzes.setOnMouseClicked((_) ->
-		{selectedThread = "Quizzes";
-		displayPostCards(ControllerDiscussionBoard.postList.getAllPosts());});
-		
 		// Search row
-		setupTextUI(textfield_Search, "Arial", 14, 250, Pos.BASELINE_LEFT, 200, 97, true);
+		setupTextUI(textfield_Search, "Arial", 14, 250, Pos.BASELINE_LEFT, 20, 240, true);
 
-		setupButtonUI(button_Search, "Dialog", 14, 80, Pos.CENTER, 460, 94);
+		setupButtonUI(button_Search, "Dialog", 14, 75, Pos.CENTER, 265, 240);
 		button_Search.setOnAction((_) -> { ControllerDiscussionBoard.performSearch(); });
 
-		setupButtonUI(button_CreatePost, "Dialog", 14, 40, Pos.CENTER, 550, 94);
+		setupButtonUI(button_CreatePost, "Dialog", 14, 30, Pos.CENTER, 340, 240);
 		button_CreatePost.setOnAction((_) -> { guiRelatedPosts.ViewRelatedPosts.displayRelatedPosts(theStage, theUser); });
 		
+		setupButtonUI(button_General, "Dialog", 13, 80, Pos.CENTER, 20, 270);
+		button_General.setOnAction((_) -> { selectedThread = "General"; displayPostCards(ControllerDiscussionBoard.postList.getAllPosts()); });
+
+		setupButtonUI(button_Homework, "Dialog", 13, 80, Pos.CENTER, 110, 270);
+		button_Homework.setOnAction((_) -> { selectedThread = "Homework"; displayPostCards(ControllerDiscussionBoard.postList.getAllPosts()); });
+
+		setupButtonUI(button_Quizzes, "Dialog", 13, 80, Pos.CENTER, 200, 270);
+		button_Quizzes.setOnAction((_) -> { selectedThread = "Quizzes"; displayPostCards(ControllerDiscussionBoard.postList.getAllPosts()); });
+
+		setupButtonUI(button_ViewAll, "Dialog", 13, 80, Pos.CENTER, 290, 270);
+		button_ViewAll.setOnAction((_) -> { selectedThread = ""; displayPostCards(ControllerDiscussionBoard.postList.getAllPosts()); });
+		
+		
 		// GUI Area 3
-		setupScrollPane(scrollPane_PostCards, 10, 350, 500, 200, 120);
+		setupScrollPane(scrollPane_PostCards, 10, 400, 460, 20, 298);
 		
 		// GUI Area 4
-		setupScrollPane(scrollPane_PostBody, 0, 575, 500, 570, 120);
+		setupScrollPane(scrollPane_PostBody, 0, 550, 460, 435, 298);
 		
+		
+		label_PageTitle.setStyle("-fx-text-fill: #041E42; -fx-font-weight: bold;");
+		label_Subtitle.setStyle("-fx-text-fill: #666666; -fx-font-style: italic;");
+		label_UserDetails.setStyle("-fx-text-fill: #666666;");
 		
 		// This is the end of the GUI Widgets for the page
 	}	
@@ -255,21 +256,21 @@ public class ViewDiscussionBoard {
 	protected static void displayPostCards(List<Post> postObjects) {
 		List<Post> newPostList = new ArrayList<>();
 		
-		if (selectedThread == "General") {
+		if (selectedThread.equals("General")) {
 			for (Post post : postObjects) {
 				if (post.getThread().equals("General")) {
 					newPostList.add(post);
 				}
 			}
 		}
-		else if (selectedThread == "Homework") {
+		else if (selectedThread.equals("Homework")) {
 			for (Post post : postObjects) {
 				if (post.getThread().equals("Homework")) {
 					newPostList.add(post);
 				}
 			}
 		}
-		else if (selectedThread == "Quizzes") {
+		else if (selectedThread.equals("Quizzes")) {
 			for (Post post : postObjects) {
 				if (post.getThread().equals("Quizzes")) {
 					newPostList.add(post);
