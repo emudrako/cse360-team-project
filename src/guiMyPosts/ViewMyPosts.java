@@ -57,6 +57,7 @@ public class ViewMyPosts {
 
 	// GUI Area 2 - Post Cards and Post Body
 	protected static Label label_PostsHeader = new Label("");
+	protected static Label label_Filter = new Label("Filter:");
 	protected static Button button_ToggleUnread = new Button("Unread");
 	protected static ComboBox <String> combobox_SelectUser = new ComboBox <String>();
 	protected static javafx.scene.control.TextField textfield_Search = new javafx.scene.control.TextField();
@@ -125,7 +126,8 @@ public class ViewMyPosts {
 	 */
 	private ViewMyPosts() {
 	    theRootPane = new Pane();
-	    theMyPostsScene = new Scene(theRootPane, 960, height);
+		theMyPostsScene = new Scene(theRootPane, width, height);
+		theRootPane.setStyle("-fx-background-color: #FFFFFF;");// make the background white
 	 
 	    // GUI Area 1
 	    label_PageTitle.setText("My Posts");
@@ -161,23 +163,28 @@ public class ViewMyPosts {
 	 // GUI Area 2
 	    setupLabelUI(label_PostsHeader, "Arial", 14, 200, Pos.BASELINE_LEFT, 20, 100);
 	    
-	    setupButtonUI(button_ToggleUnread, "Dialog", 14, 150, Pos.CENTER, 20, 120);
+	    setupLabelUI(label_Filter, "Arial", 12, 40, Pos.BASELINE_LEFT, 20, 195);
+	    
+	    setupButtonUI(button_ToggleUnread, "Dialog", 12, 70, Pos.CENTER, 50, 190);
 	    button_ToggleUnread.setOnAction((_) -> { ControllerMyPosts.performToggleUnread(); });
 	    
-	    setupComboBoxUI(combobox_SelectUser, "Dialog", 12, 100, (button_ToggleUnread.getLayoutX()+
-	            button_ToggleUnread.getMinWidth()+5), 120);
+	    setupComboBoxUI(combobox_SelectUser, "Dialog", 12, 85, (button_ToggleUnread.getLayoutX()+
+	            button_ToggleUnread.getMinWidth()+5), 190);
+	    combobox_SelectUser.setMaxWidth(90);
 	    
 	    List<String> userList = theDatabase.getUserList();	
 		combobox_SelectUser.setItems(FXCollections.observableArrayList(userList));
 		combobox_SelectUser.getSelectionModel().select(0);
 	    
 		textfield_Search.setLayoutX(combobox_SelectUser.getLayoutX()+combobox_SelectUser.getMinWidth()+10);
-	    textfield_Search.setLayoutY(120);
+	    textfield_Search.setLayoutY(190);
+	    textfield_Search.setPrefHeight(22);
+	    textfield_Search.setStyle("-fx-font-size: 12px;");
 	    textfield_Search.setPrefWidth(100);
 	    textfield_Search.setPromptText("Keyword");
 	    
-	    setupButtonUI(button_Search, "Dialog", 14, 35, Pos.CENTER, (textfield_Search.getLayoutX()+
-	            textfield_Search.getPrefWidth()+5), 120);
+	    setupButtonUI(button_Search, "Dialog", 12, 25, Pos.CENTER, (textfield_Search.getLayoutX()+
+	            textfield_Search.getPrefWidth()+5), 190);
 	    button_Search.setOnAction((_) -> { ControllerMyPosts.searchReplies(); });
 
 	    scrollPane_PostCards.setLayoutX(20);
@@ -196,7 +203,7 @@ public class ViewMyPosts {
 	    	label_PageTitle, label_UserDetails, line_Separator1,
 	    	label_PostsHeader, scrollPane_PostCards, scrollPane_PostBody,
 	    	button_ToggleUnread, combobox_SelectUser, textfield_Search, 
-	    	button_Search, button_Home, button_Logout, button_Quit, button_discussionBoard);
+	    	button_Search, button_Home, button_Logout, button_Quit, button_discussionBoard, label_Filter);
 	}
 	
 	/*-********************************************************************************************

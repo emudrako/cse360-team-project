@@ -303,7 +303,7 @@ public class Database {
  */
 	public List<String> getUserList () {
 		List<String> userList = new ArrayList<String>();
-		userList.add("<Select a User>");
+		userList.add("<User>");
 		String query = "SELECT userName FROM userDB";
 		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
 			ResultSet rs = pstmt.executeQuery();

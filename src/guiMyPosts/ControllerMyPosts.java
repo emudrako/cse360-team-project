@@ -206,7 +206,7 @@ public class ControllerMyPosts {
 	    List<entityClasses.Reply> myReplies = new java.util.ArrayList<>();
 	    List<entityClasses.Reply> searchedReplies = new java.util.ArrayList<>();
 	    
-	    if (keyword.isEmpty() && username.equals("<Select a User>")) {
+	    if (keyword.isEmpty() && username.equals("User")) {
 	        loadMyPosts();
 	        return;
 	    }
@@ -240,19 +240,19 @@ public class ControllerMyPosts {
 		}
 	    
 	    for (entityClasses.Reply reply : myReplies) {
-	    	if (!username.equals("<Select a User>") && !keyword.isEmpty()) {
+	    	if (!username.equals("<User>") && !keyword.isEmpty()) {
 	    		if (reply.getAuthorUsername().equals(username) && reply.getBody().toLowerCase().contains(keyword)) {
 	    			searchedReplies.add(reply);
 	    			foundReplies++;
 	    		}
 	    	}
-	    	if (username.equals("<Select a User>") && !keyword.isEmpty()) {
+	    	if (username.equals("<User>") && !keyword.isEmpty()) {
 	    		if (reply.getBody().toLowerCase().contains(keyword)) {
 	    			searchedReplies.add(reply);
 	    			foundReplies++;
 	    		}
 	    	}
-	    	if (!username.equals("<Select a User>") && keyword.isEmpty()) {
+	    	if (!username.equals("<User>") && keyword.isEmpty()) {
 	    		if (reply.getAuthorUsername().equals(username)) {
 	    			searchedReplies.add(reply);
 	    			foundReplies++;
@@ -262,17 +262,17 @@ public class ControllerMyPosts {
 	    
 	    
 	    if (foundReplies == 0) {
-	    	if (!username.equals("<Select a User>") && !keyword.isEmpty()) {	    	
+	    	if (!username.equals("<User>") && !keyword.isEmpty()) {	    	
 	    		javafx.scene.control.Label empty = new javafx.scene.control.Label("No replies from user: " +
 	    		username + " and matching keyword: " + '"' + keyword + '"');
 	            ViewMyPosts.postCardList.getChildren().add(empty);
 	    	}
-	    	if (!username.equals("<Select a User>") && keyword.isEmpty()) {
+	    	if (!username.equals("<User>") && keyword.isEmpty()) {
 	    		javafx.scene.control.Label empty = new javafx.scene.control.Label("No replies from user: " +
 	    	    username);
 	    	    ViewMyPosts.postCardList.getChildren().add(empty);
 	    	}
-	    	if (username.equals("<Select a User>") && !keyword.isEmpty()) {
+	    	if (username.equals("<User>") && !keyword.isEmpty()) {
 	    		javafx.scene.control.Label empty = new javafx.scene.control.Label("No replies matching keyword  " +
 	    		'"' + keyword + '"');
 	    	    ViewMyPosts.postCardList.getChildren().add(empty);
