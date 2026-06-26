@@ -69,21 +69,24 @@ public class ControllerDiscussionBoard {
 		ViewDiscussionBoard.theRootPane.getChildren().clear();
 		
 		ViewDiscussionBoard.theRootPane.getChildren().addAll(
-				ViewDiscussionBoard.label_PageTitle, ViewDiscussionBoard.label_UserDetails,
-				ViewDiscussionBoard.button_UpdateThisUser, ViewDiscussionBoard.line_Separator1,
-				ViewDiscussionBoard.button_NewPost,
-				ViewDiscussionBoard.button_MyPosts,
-				ViewDiscussionBoard.button_RelatedPosts,
-				ViewDiscussionBoard.thread_Header,
-				ViewDiscussionBoard.thread_General,
-				ViewDiscussionBoard.thread_Homework,
-				ViewDiscussionBoard.thread_Quizzes,
+				ViewDiscussionBoard.label_PageTitle, 
+				ViewDiscussionBoard.label_UserDetails,
+		        ViewDiscussionBoard.button_MyPosts,
+		        ViewDiscussionBoard.textfield_Search,
+		        ViewDiscussionBoard.button_Search,
+		        ViewDiscussionBoard.button_CreatePost,
+		        ViewDiscussionBoard.button_General,
+		        ViewDiscussionBoard.button_Homework,
+		        ViewDiscussionBoard.button_Quizzes,
+		        ViewDiscussionBoard.button_ViewAll,
 				ViewDiscussionBoard.scrollPane_PostCards,
 				ViewDiscussionBoard.scrollPane_PostBody,
 				ViewDiscussionBoard.line_Separator4, 
-				ViewDiscussionBoard.button_Return,
+				ViewDiscussionBoard.button_Home,
 				ViewDiscussionBoard.button_Logout,
-				ViewDiscussionBoard.button_Quit);
+				ViewDiscussionBoard.button_Quit,
+				ViewDiscussionBoard.label_Subtitle)
+		;
 		
 		// Always reload posts from the database to ensure newly created posts appear immediately
 		List<Post> posts = new ArrayList<>();
@@ -123,6 +126,42 @@ public class ControllerDiscussionBoard {
 		ViewDiscussionBoard.displayPostCards(posts);
 	}
 	
+	/**********
+	 * <p> Method: performSearch() </p>
+	 *
+	 * <p> Description: Filters the post card list by a keyword entered in the search
+	 * field. Matches against post title and body. Reloads all posts if the field
+	 * is empty. </p>
+	 *
+	 */
+	protected static void performSearch() {
+	    String keyword = ViewDiscussionBoard.textfield_Search.getText().trim().toLowerCase();
+	    if (keyword.isEmpty()) {
+	        repaintTheWindow();
+	        return;
+	    }
+	    ViewDiscussionBoard.postCardList.getChildren().clear();
+	    ViewDiscussionBoard.scrollPane_PostBody.setContent(null);
+	    try {
+	        List<Post> allPosts = theDatabase.getPostObjects();
+	        boolean found = false;
+	        for (Post post : allPosts) {
+	            if (!post.getIsDeleted() &&
+	               (post.getTitle().toLowerCase().contains(keyword) ||
+	                post.getBody().toLowerCase().contains(keyword))) {
+	                ViewDiscussionBoard.postCardList.getChildren().add(createPostCard(post));
+	                found = true;
+	            }
+	        }
+	        if (!found) {
+	            ViewDiscussionBoard.postCardList.getChildren().add(
+	                new Label("No posts matching: " + keyword));
+	        }
+	    } catch (Exception e) {
+	        ViewDiscussionBoard.postCardList.getChildren().add(
+	            new Label("Error: " + e.getMessage()));
+	    }
+	}
 	
 	/**********
 	 * <p> Method: createPostCard() </p>
@@ -138,13 +177,15 @@ public class ControllerDiscussionBoard {
 	protected static VBox createPostCard(Post post) {
 	    VBox postCard = new VBox(5);
 	    postCard.setPadding(new Insets(10));
-	    postCard.setMinWidth(ViewDiscussionBoard.scrollPane_PostCards.getMinWidth()-20);
+	    postCard.setMinWidth(ViewDiscussionBoard.scrollPane_PostCards.getMinWidth()-40);
+	    postCard.setMaxWidth(ViewDiscussionBoard.scrollPane_PostCards.getMinWidth()-40);
 	    postCard.setStyle(
-	        "-fx-border-color: lightgray;" +
-	        "-fx-border-radius: 5;" +
-	        "-fx-background-color: white;" +
-	        "-fx-background-radius: 5;"
-	    );
+	    	    "-fx-border-color: #E0E0E0;" +
+	    	    "-fx-border-radius: 8;" +
+	    	    "-fx-background-color: white;" +
+	    	    "-fx-background-radius: 8;" +
+	    	    "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4, 0, 0, 2);"
+	    	);
 	    
 	    // Title at top in bold
 	    Label title = new Label(post.getTitle());
@@ -180,6 +221,7 @@ public class ControllerDiscussionBoard {
 	    return postCard;
 	}
 	
+	
 	/**********
 	 * <p> Method: newReply() </p>
 	 * 
@@ -214,13 +256,12 @@ public class ControllerDiscussionBoard {
 	}
 	
 	/**********
-	 * <p> Method: performReturn() </p>
+	 * <p> Method: performHome() </p>
 	 * 
-	 * <p> Description: This method returns the user (who must be an Admin as only admins are the
-	 * only users who have access to this page) to the Admin Home page. </p>
+	 * <p> Description: This method returns the user to the student home page </p>
 	 * 
 	 */
-	protected static void performReturn() {
+	protected static void performHome() {
 		guiStudentHome.ViewStudentHome.displayStudentHome(ViewDiscussionBoard.theStage,
 				ViewDiscussionBoard.theUser);
 		ViewDiscussionBoard.currentPost = new Post();

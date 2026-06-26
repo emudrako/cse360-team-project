@@ -14,7 +14,8 @@ import entityClasses.User;
  * <p> Title: ViewCreatePost Class. </p>
  *
  * <p> Description: The Java/FX-based page for viewing the Create Post page.
- * Allows the student to ...</p>
+ * Allows the student to compose and submit a new discussion post by entering a title, body, and 
+ * selecting a thread category</p>
  *
  * <p> Copyright: Maranda Martinez © 2026 </p>
  *
@@ -92,7 +93,7 @@ public class ViewCreatePost {
 	 * 
 	 * @param ps specifies the JavaFX Stage to be used for this GUI and it's methods
 	 * 
-	 * @param user specifies the .. currently logged in
+	 * @param user specifies the User currently logged in
 	 */
 	
 	public static void displayCreatePost(Stage ps, User user) {
