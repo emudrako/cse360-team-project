@@ -60,21 +60,26 @@ public class ViewDiscussionBoard {
 	protected static Line line_Separator1 = new Line(20, 95, width-20, 95);
 	
 	
-	// Area 2: This contains the button to create a new post, a button for the student to view only
-	// their posts, and contains a list of threads for the student to select from
-	protected static Button button_NewPost = new Button("New Post");
+	// Area 2: This contains the button to create a new post and contains a list of 
+	//threads for the student to select from
+	
 	protected static Button button_MyPosts = new Button("My Posts");
-	protected static Button button_RelatedPosts = new Button("Related Posts");
 	protected static String selectedThread = "";
 	protected static Label thread_Header = new Label ("Threads");
 	protected static Label thread_General = new Label ("General");
 	protected static Label thread_Homework = new Label ("Homework");
 	protected static Label thread_Quizzes = new Label ("Quizzes");
 	
+	//  This is the search bar and submit and Create post
+	protected static TextField textfield_Search = new TextField();
+	protected static Button button_Search = new Button("Search");
+	protected static Button button_CreatePost = new Button("+");
+	protected static VBox postCardList = new VBox(10);
+	
 	// Area 3: This shows the student a list of the subject lines of each post in
 	// the selected thread
 	protected static VBox subjectList = new VBox(10);
-	protected static ScrollPane scrollPane_PostCards = new ScrollPane(subjectList);
+	protected static ScrollPane scrollPane_PostCards = new ScrollPane(postCardList);
 	// Keeps track of the currently selected post for use in displayPost and
 	// newReplyForm methods
 	protected static Post currentPost = new Post();
@@ -179,20 +184,14 @@ public class ViewDiscussionBoard {
 		setupLabelUI(label_UserDetails, "Arial", 20, width, Pos.BASELINE_LEFT, 20, 55);
 		
 		// GUI Area 2
-		setupButtonUI(button_NewPost, "Dialog", 16, 50, Pos.CENTER, 20, 130);
-		button_NewPost.setOnAction((_) ->
-	    {guiCreatePost.ViewCreatePost.displayCreatePost(theStage, theUser);});
 		
-		setupButtonUI(button_MyPosts, "Dialog", 16, 50, Pos.CENTER, 20, button_NewPost.getLayoutY()+100);
-		button_MyPosts.setOnAction((_) ->
-	    {guiMyPosts.ViewMyPosts.displayMyPosts(theStage, theUser);});
-		
-		setupLabelUI(thread_Header, "Arial", 14, 50, Pos.BASELINE_LEFT, 20, button_MyPosts.getLayoutY()+80);
+		setupLabelUI(thread_Header, "Arial", 14, 50, Pos.BASELINE_LEFT, 20, 130);
 		thread_Header.setStyle("-fx-underline: true;");
 		
-		setupButtonUI(button_RelatedPosts, "Dialog", 16, 120, Pos.CENTER, 20, 450);
-		button_RelatedPosts.setOnAction((_) ->
-		    {guiRelatedPosts.ViewRelatedPosts.displayRelatedPosts(theStage, theUser);});
+		setupButtonUI(button_MyPosts, "Dialog", 16, 100, Pos.CENTER, 20, 55);
+		button_MyPosts.setOnAction((_) ->
+		    {guiMyPosts.ViewMyPosts.displayMyPosts(theStage, theUser);});
+		
 		
 		setupLabelUI(thread_General, "Arial", 20, 50, Pos.BASELINE_LEFT, 20, thread_Header.getLayoutY()+22);
 		thread_General.setStyle("-fx-text-fill: blue;");
@@ -214,6 +213,15 @@ public class ViewDiscussionBoard {
 		thread_Quizzes.setOnMouseClicked((_) ->
 		{selectedThread = "Quizzes";
 		displayPostCards(ControllerDiscussionBoard.postList.getAllPosts());});
+		
+		// Search row
+		setupTextUI(textfield_Search, "Arial", 14, 250, Pos.BASELINE_LEFT, 200, 97, true);
+
+		setupButtonUI(button_Search, "Dialog", 14, 80, Pos.CENTER, 460, 94);
+		button_Search.setOnAction((_) -> { ControllerDiscussionBoard.performSearch(); });
+
+		setupButtonUI(button_CreatePost, "Dialog", 14, 40, Pos.CENTER, 550, 94);
+		button_CreatePost.setOnAction((_) -> { guiRelatedPosts.ViewRelatedPosts.displayRelatedPosts(theStage, theUser); });
 		
 		// GUI Area 3
 		setupScrollPane(scrollPane_PostCards, 10, 350, 500, 200, 120);
@@ -271,14 +279,10 @@ public class ViewDiscussionBoard {
 			newPostList = postObjects;
 		}
 		
-		VBox postCards = new VBox(10);
-		
+		postCardList.getChildren().clear();
 		for (Post post : newPostList) {
-			VBox postCard = ControllerDiscussionBoard.createPostCard(post);
-			postCards.getChildren().add(postCard);
+		    postCardList.getChildren().add(ControllerDiscussionBoard.createPostCard(post));
 		}
-		
-		scrollPane_PostCards.setContent(postCards);
 		selectedThread = "";
 	}
 	

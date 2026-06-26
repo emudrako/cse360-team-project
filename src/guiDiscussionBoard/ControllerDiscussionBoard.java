@@ -69,10 +69,12 @@ public class ControllerDiscussionBoard {
 		ViewDiscussionBoard.theRootPane.getChildren().clear();
 		
 		ViewDiscussionBoard.theRootPane.getChildren().addAll(
-				ViewDiscussionBoard.label_PageTitle, ViewDiscussionBoard.label_UserDetails,
-				ViewDiscussionBoard.button_NewPost,
-				ViewDiscussionBoard.button_MyPosts,
-				ViewDiscussionBoard.button_RelatedPosts,
+				ViewDiscussionBoard.label_PageTitle, 
+				ViewDiscussionBoard.label_UserDetails,
+		        ViewDiscussionBoard.button_MyPosts,
+		        ViewDiscussionBoard.textfield_Search,
+		        ViewDiscussionBoard.button_Search,
+		        ViewDiscussionBoard.button_CreatePost,
 				ViewDiscussionBoard.thread_Header,
 				ViewDiscussionBoard.thread_General,
 				ViewDiscussionBoard.thread_Homework,
@@ -80,7 +82,7 @@ public class ControllerDiscussionBoard {
 				ViewDiscussionBoard.scrollPane_PostCards,
 				ViewDiscussionBoard.scrollPane_PostBody,
 				ViewDiscussionBoard.line_Separator4, 
-				ViewDiscussionBoard.button_Return,
+				ViewDiscussionBoard.button_Home,
 				ViewDiscussionBoard.button_Logout,
 				ViewDiscussionBoard.button_Quit);
 		
@@ -215,6 +217,7 @@ public class ControllerDiscussionBoard {
 	    return postCard;
 	}
 	
+	
 	/**********
 	 * <p> Method: newReply() </p>
 	 * 
@@ -254,7 +257,7 @@ public class ControllerDiscussionBoard {
 	 * <p> Description: This method returns the user to the student home page </p>
 	 * 
 	 */
-	protected static void performReturn() {
+	protected static void performHome() {
 		guiStudentHome.ViewStudentHome.displayStudentHome(ViewDiscussionBoard.theStage,
 				ViewDiscussionBoard.theUser);
 		ViewDiscussionBoard.currentPost = new Post();
