@@ -1,12 +1,17 @@
 package guiMyPosts;
+import javafx.collections.FXCollections;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+
+import java.util.List;
+
 import database.Database;
 import entityClasses.User;
 
@@ -51,6 +56,8 @@ public class ViewMyPosts {
 	protected static javafx.scene.control.ScrollPane scrollPane_PostBody = new javafx.scene.control.ScrollPane();
 	protected static entityClasses.Post currentPost = new entityClasses.Post();
 	protected static Button button_ToggleUnread = new Button("Show Unread Only");
+	protected static Label label_SearchReplies = new Label ("Search Replies: ");
+	protected static ComboBox <String> combobox_SelectUser = new ComboBox <String>();
 	protected static javafx.scene.control.TextField textfield_Search = new javafx.scene.control.TextField();
 	protected static Button button_Search = new Button("Search");
 
@@ -115,7 +122,7 @@ public class ViewMyPosts {
 	 */
 	private ViewMyPosts() {
 	    theRootPane = new Pane();
-	    theMyPostsScene = new Scene(theRootPane, width, height);
+	    theMyPostsScene = new Scene(theRootPane, 960, height);
 	 
 	    // GUI Area 1
 	    label_PageTitle.setText("My Posts");
@@ -144,12 +151,23 @@ public class ViewMyPosts {
 	    setupButtonUI(button_ToggleUnread, "Dialog", 14, 150, Pos.CENTER, 20, 510);
 	    button_ToggleUnread.setOnAction((_) -> { ControllerMyPosts.performToggleUnread(); });
 
-	    textfield_Search.setLayoutX(20);
-	    textfield_Search.setLayoutY(545);
+	    setupLabelUI(label_SearchReplies, "Arial", 12, 80, Pos.BASELINE_LEFT, button_ToggleUnread.getLayoutX()+
+	    		button_ToggleUnread.getMinWidth()+20, 515);
+	    
+	    setupComboBoxUI(combobox_SelectUser, "Dialog", 14, 250, (label_SearchReplies.getLayoutX()+
+	    		label_SearchReplies.getMinWidth()+20), 510);
+	    List<String> userList = theDatabase.getUserList();	
+		combobox_SelectUser.setItems(FXCollections.observableArrayList(userList));
+		combobox_SelectUser.getSelectionModel().select(0);
+	    
+		textfield_Search.setLayoutX(combobox_SelectUser.getLayoutX()+combobox_SelectUser.getMinWidth()+10);
+	    textfield_Search.setLayoutY(510);
 	    textfield_Search.setPrefWidth(200);
-
-	    setupButtonUI(button_Search, "Dialog", 14, 100, Pos.CENTER, 230, 540);
-	    button_Search.setOnAction((_) -> { ControllerMyPosts.performSearch(); });
+	    textfield_Search.setPromptText("Keyword");
+	    
+	    setupButtonUI(button_Search, "Dialog", 14, 50, Pos.CENTER, (textfield_Search.getLayoutX()+
+	    		textfield_Search.getPrefWidth()+10), 510);
+	    button_Search.setOnAction((_) -> { ControllerMyPosts.searchReplies(); });
 	    
 	    // GUI Area 3
 	    setupButtonUI(button_Return, "Dialog", 18, 250, Pos.CENTER, 20, 540);
@@ -164,8 +182,8 @@ public class ViewMyPosts {
 	    theRootPane.getChildren().addAll(
 	    	label_PageTitle, label_UserDetails, button_UpdateThisUser, line_Separator1,
 	    	label_PostsHeader, scrollPane_PostCards, scrollPane_PostBody,
-	    	button_ToggleUnread, textfield_Search, button_Search,
-	    	button_Return, button_Logout, button_Quit);
+	    	button_ToggleUnread,label_SearchReplies, combobox_SelectUser, textfield_Search, 
+	    	button_Search, button_Return, button_Logout, button_Quit);
 	}
 	
 	/*-********************************************************************************************
@@ -188,6 +206,24 @@ public class ViewMyPosts {
 		b.setAlignment(p);
 		b.setLayoutX(x);
 		b.setLayoutY(y);
+	}
+	
+	/**********
+	 * Private local method to initialize the standard fields for a ComboBox
+	 * 
+	 * @param c		The ComboBox object to be initialized
+	 * @param ff	The font to be used
+	 * @param f		The size of the font to be used
+	 * @param w		The width of the ComboBox
+	 * @param x		The location from the left edge (x axis)
+	 * @param y		The location from the top (y axis)
+	 */
+	protected static void setupComboBoxUI(ComboBox <String> c, String ff, double f, double w,
+			double x, double y){
+		c.setStyle("-fx-font: " + f + " " + ff + ";");
+		c.setMinWidth(w);
+		c.setLayoutX(x);
+		c.setLayoutY(y);
 	}
 
 }

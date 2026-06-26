@@ -1,7 +1,16 @@
 package guiMyPosts;
+import java.sql.SQLException;
 import java.util.List;
 import database.Database;
+import entityClasses.Reply;
+import guiDiscussionBoard.ViewDiscussionBoard;
 import javafx.geometry.Insets;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
+import javafx.scene.effect.ColorInput;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 
 
 /*******
@@ -176,6 +185,124 @@ public class ControllerMyPosts {
 	    }
 	}
 	
+	/**********
+	 * <p> Method: searchReplies() </p>
+	 * 
+	 * <p> Description: Searches all posts from the current user to find replies that match a specific
+	 * username and/or keyword. </p>
+	 * 
+	 */
+	protected static void searchReplies() {
+	    String keyword = ViewMyPosts.textfield_Search.getText().trim().toLowerCase();
+	    String username = ViewMyPosts.combobox_SelectUser.getValue();
+	    ViewMyPosts.textfield_Search.clear();
+	    ViewMyPosts.combobox_SelectUser.getSelectionModel().select(0);
+	    int foundReplies = 0;
+	    List<entityClasses.Post> myPosts = new java.util.ArrayList<>();
+	    List<entityClasses.Reply> myReplies = new java.util.ArrayList<>();
+	    List<entityClasses.Reply> searchedReplies = new java.util.ArrayList<>();
+	    
+	    if (keyword.isEmpty() && username.equals("<Select a User>")) {
+	        loadMyPosts();
+	        return;
+	    }
+	    
+	    ViewMyPosts.postCardList.getChildren().clear();
+	    ViewMyPosts.scrollPane_PostBody.setContent(null);
+	    String currentUsername = ViewMyPosts.theUser.getUserName();
+	    
+	    try {
+			List<entityClasses.Post> allPosts = theDatabase.getPostObjects();
+			List<entityClasses.Reply> allReplies = theDatabase.getReplyObjects(); 
+			// Searches all posts for posts that are created by the current user
+			// then adds them to the myPosts list
+			for (entityClasses.Post post : allPosts) {
+				if (post.getAuthorUsername().equals(currentUsername)) {
+					myPosts.add(post);
+				}
+			}
+			// Searches all replies for replies that are made to a post created by
+			// the current user then adds them to the myReplies list
+			for (entityClasses.Reply reply : allReplies) {
+				for (entityClasses.Post post : myPosts) {
+					if (reply.getPostID() == post.getPostID()) {
+						myReplies.add(reply);
+					}
+				}
+			}
+		} catch (SQLException e) {
+			javafx.scene.control.Label err = new javafx.scene.control.Label("Error: " + e.getMessage());
+	        ViewMyPosts.postCardList.getChildren().add(err);
+		}
+	    
+	    for (entityClasses.Reply reply : myReplies) {
+	    	if (!username.equals("<Select a User>") && !keyword.isEmpty()) {
+	    		if (reply.getAuthorUsername().equals(username) && reply.getBody().toLowerCase().contains(keyword)) {
+	    			searchedReplies.add(reply);
+	    			foundReplies++;
+	    		}
+	    	}
+	    	if (username.equals("<Select a User>") && !keyword.isEmpty()) {
+	    		if (reply.getBody().toLowerCase().contains(keyword)) {
+	    			searchedReplies.add(reply);
+	    			foundReplies++;
+	    		}
+	    	}
+	    	if (!username.equals("<Select a User>") && keyword.isEmpty()) {
+	    		if (reply.getAuthorUsername().equals(username)) {
+	    			searchedReplies.add(reply);
+	    			foundReplies++;
+	    		}
+	    	}
+	    }
+	    
+	    
+	    if (foundReplies == 0) {
+	    	if (!username.equals("<Select a User>") && !keyword.isEmpty()) {	    	
+	    		javafx.scene.control.Label empty = new javafx.scene.control.Label("No replies from user: " +
+	    		username + " and matching keyword: " + '"' + keyword + '"');
+	            ViewMyPosts.postCardList.getChildren().add(empty);
+	    	}
+	    	if (!username.equals("<Select a User>") && keyword.isEmpty()) {
+	    		javafx.scene.control.Label empty = new javafx.scene.control.Label("No replies from user: " +
+	    	    username);
+	    	    ViewMyPosts.postCardList.getChildren().add(empty);
+	    	}
+	    	if (username.equals("<Select a User>") && !keyword.isEmpty()) {
+	    		javafx.scene.control.Label empty = new javafx.scene.control.Label("No replies matching keyword  " +
+	    		'"' + keyword + '"');
+	    	    ViewMyPosts.postCardList.getChildren().add(empty);
+	    	}
+	    }
+	    else {
+	    	ViewMyPosts.scrollPane_PostBody.setContent(null);
+	    	VBox replyList = new VBox();
+	    	for (entityClasses.Reply reply : myReplies) {
+	    		for (entityClasses.Post post : myPosts) {
+	    			if (post.getPostID() == reply.getPostID() && !post.getIsDeleted()) {
+	    				int replyCount = theDatabase.getReplyCount(post.getPostID());
+		                int unreadCount = theDatabase.getUnreadReplyCount(post.getPostID(), currentUsername);
+	    				ViewMyPosts.postCardList.getChildren().add(createPostCard(post, replyCount, unreadCount));
+	    				javafx.scene.control.Label postTitle = new Label("From post: " + post.getTitle());
+	    				postTitle.setFont( new Font("Arial", 16));
+	    				postTitle.setTextFill(Color.BLUE);
+	    				replyList.getChildren().add(postTitle);
+	    				//displayPostBody(post);
+	    			}
+	    			else {
+	    				VBox deletedPost = new VBox(10);
+	    				javafx.scene.control.Label empty = new javafx.scene.control.Label("Original post has " +
+	    			    	"been deleted");
+	    			    deletedPost.getChildren().add(empty);
+	    				ViewMyPosts.scrollPane_PostBody.getChildrenUnmodifiable().add(deletedPost);
+	    			}
+	    		}
+	    		replyList.getChildren().add(displayReply(reply));
+	    	}
+	    	ViewMyPosts.scrollPane_PostBody.setContent(replyList);
+	    }
+	}
+	
 	private static javafx.scene.layout.VBox createPostCard(entityClasses.Post post, int replyCount, int unreadCount) {
 	    javafx.scene.layout.VBox card = new javafx.scene.layout.VBox(5);
 	    card.setPadding(new javafx.geometry.Insets(10));
@@ -269,6 +396,31 @@ public class ControllerMyPosts {
 	    ViewMyPosts.scrollPane_PostBody.setContent(fullPost);
 	}
 	
+	/**********
+	 * <p> Method: displayReply() </p>
+	 * 
+	 * <p> Description: This method populates the post body Scroll Pane with the
+	 * replies from the user's search criteria. </p>
+	 * 
+	 */
+	protected static VBox displayReply(Reply reply) {
+		VBox viewReply = new VBox(5);
+		viewReply.setPadding(new Insets(15));
+		
+		Label author = new Label(reply.getAuthorUsername() + " says:");
+		author.setStyle("-fx-font-weight: bold;" + "-fx-font-size: 12px;");
+		
+		TextArea body = new TextArea(reply.getBody());
+		body.setPrefHeight(100);
+		body.setWrapText(true);
+		body.setEditable(false);
+		
+		viewReply.getChildren().addAll(
+				author,
+				body
+				);
+		return viewReply;
+	}
 	
 	/**********
 	 * <p> Method: performReturn() </p>

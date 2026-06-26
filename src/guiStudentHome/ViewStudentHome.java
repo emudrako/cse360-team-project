@@ -119,6 +119,7 @@ public class ViewStudentHome {
 				// create their own, helping avoid duplicate questions.
 
 		// Button to take student to the Discussion Board page
+		setupButtonUI(button_DiscussionBoard, "Dialong", 14, 50, Pos.CENTER, 20, 100);
 		button_DiscussionBoard.setOnAction((_) ->
 	    { ControllerStudentHome.displayDiscussionBoard(); });
 		
