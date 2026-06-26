@@ -45,7 +45,7 @@ public class ViewDiscussionBoard {
 	
 	// These are the application values required by the user interface
 	
-	private static double width = 800;
+	private static double width = 1000;
 	private static double height = 700;
 
 	// A list of post objects that will be populated from the database
@@ -55,7 +55,13 @@ public class ViewDiscussionBoard {
 	// GUI Area 1: It informs the user about the purpose of this page, whose account is being used,
 	protected static Label label_PageTitle = new Label();
 	protected static Label label_UserDetails = new Label();
-	
+	// It is used for quitting the application, logging
+	// out, and returning to home. Be advised that in most cases in this code, the 
+	// return is to a fixed page as opposed to the actual page that invoked the pages.
+	protected static Button button_Home = new Button("Home");
+	protected static Button button_Logout = new Button("Logout");
+	protected static Button button_Quit = new Button("X");
+	protected static Button button_MyPosts = new Button("My Posts");
 	// This is a separator and it is used to partition the GUI for various tasks
 	protected static Line line_Separator1 = new Line(20, 95, width-20, 95);
 	
@@ -63,7 +69,6 @@ public class ViewDiscussionBoard {
 	// Area 2: This contains the button to create a new post and contains a list of 
 	//threads for the student to select from
 	
-	protected static Button button_MyPosts = new Button("My Posts");
 	protected static String selectedThread = "";
 	protected static Label thread_Header = new Label ("Threads");
 	protected static Label thread_General = new Label ("General");
@@ -94,12 +99,6 @@ public class ViewDiscussionBoard {
 	// This is a separator and it is used to partition the GUI for various tasks
 	protected static Line line_Separator4 = new Line(20, height-60, width-20, height-60);
 	
-	// GUI Area 5: This is last of the GUI areas.  It is used for quitting the application, logging
-	// out, and returning to home. Be advised that in most cases in this code, the 
-	// return is to a fixed page as opposed to the actual page that invoked the pages.
-	protected static Button button_Home = new Button("Home");
-	protected static Button button_Logout = new Button("Logout");
-	protected static Button button_Quit = new Button("Quit");
 
 	// This is the end of the GUI objects for the page.
 	
@@ -183,14 +182,26 @@ public class ViewDiscussionBoard {
 		label_UserDetails.setText("User: " + theUser.getUserName());
 		setupLabelUI(label_UserDetails, "Arial", 20, width, Pos.BASELINE_LEFT, 20, 55);
 		
+		setupButtonUI(button_MyPosts, "Dialog", 16, 100, Pos.CENTER, 580, 10);
+		button_MyPosts.setOnAction((_) ->
+		    {guiMyPosts.ViewMyPosts.displayMyPosts(theStage, theUser);});
+		
+		setupButtonUI(button_Home, "Dialog", 16, 100, Pos.CENTER, 690, 10);
+		button_Home.setOnAction((_) -> {ControllerDiscussionBoard.performHome(); });
+
+		setupButtonUI(button_Logout, "Dialog", 16, 100, Pos.CENTER, 800, 10);
+		button_Logout.setOnAction((_) -> {ControllerDiscussionBoard.performLogout(); });
+    
+		setupButtonUI(button_Quit, "Dialog", 18, 60, Pos.CENTER, 910, 10);
+		button_Quit.setOnAction((_) -> {ControllerDiscussionBoard.performQuit(); });
+		
+		
 		// GUI Area 2
 		
 		setupLabelUI(thread_Header, "Arial", 14, 50, Pos.BASELINE_LEFT, 20, 130);
 		thread_Header.setStyle("-fx-underline: true;");
 		
-		setupButtonUI(button_MyPosts, "Dialog", 16, 100, Pos.CENTER, 20, 55);
-		button_MyPosts.setOnAction((_) ->
-		    {guiMyPosts.ViewMyPosts.displayMyPosts(theStage, theUser);});
+
 		
 		
 		setupLabelUI(thread_General, "Arial", 20, 50, Pos.BASELINE_LEFT, 20, thread_Header.getLayoutY()+22);
@@ -229,15 +240,6 @@ public class ViewDiscussionBoard {
 		// GUI Area 4
 		setupScrollPane(scrollPane_PostBody, 0, 575, 500, 570, 120);
 		
-		// GUI Area 5	
-		setupButtonUI(button_Home, "Dialog", 18, 210, Pos.CENTER, 20, height-45);
-		button_Home.setOnAction((_) -> {ControllerDiscussionBoard.performHome(); });
-
-		setupButtonUI(button_Logout, "Dialog", 18, 210, Pos.CENTER, 300, height-45);
-		button_Logout.setOnAction((_) -> {ControllerDiscussionBoard.performLogout(); });
-    
-		setupButtonUI(button_Quit, "Dialog", 18, 210, Pos.CENTER, 570, height-45);
-		button_Quit.setOnAction((_) -> {ControllerDiscussionBoard.performQuit(); });
 		
 		// This is the end of the GUI Widgets for the page
 	}	
