@@ -103,9 +103,9 @@ public class ControllerMyPosts {
 	    showingUnreadOnly = !showingUnreadOnly;
 	    
 	    if (showingUnreadOnly) {
-	        ViewMyPosts.button_ToggleUnread.setText("Show All Replies");
+	        ViewMyPosts.button_ToggleUnread.setText("All");
 	    } else {
-	        ViewMyPosts.button_ToggleUnread.setText("Show Unread Only");
+	        ViewMyPosts.button_ToggleUnread.setText("Unread");
 	    }
 	    
 	    ViewMyPosts.postCardList.getChildren().clear();
@@ -206,7 +206,7 @@ public class ControllerMyPosts {
 	    List<entityClasses.Reply> myReplies = new java.util.ArrayList<>();
 	    List<entityClasses.Reply> searchedReplies = new java.util.ArrayList<>();
 	    
-	    if (keyword.isEmpty() && username.equals("<Select a User>")) {
+	    if (keyword.isEmpty() && username.equals("User")) {
 	        loadMyPosts();
 	        return;
 	    }
@@ -240,19 +240,19 @@ public class ControllerMyPosts {
 		}
 	    
 	    for (entityClasses.Reply reply : myReplies) {
-	    	if (!username.equals("<Select a User>") && !keyword.isEmpty()) {
+	    	if (!username.equals("<User>") && !keyword.isEmpty()) {
 	    		if (reply.getAuthorUsername().equals(username) && reply.getBody().toLowerCase().contains(keyword)) {
 	    			searchedReplies.add(reply);
 	    			foundReplies++;
 	    		}
 	    	}
-	    	if (username.equals("<Select a User>") && !keyword.isEmpty()) {
+	    	if (username.equals("<User>") && !keyword.isEmpty()) {
 	    		if (reply.getBody().toLowerCase().contains(keyword)) {
 	    			searchedReplies.add(reply);
 	    			foundReplies++;
 	    		}
 	    	}
-	    	if (!username.equals("<Select a User>") && keyword.isEmpty()) {
+	    	if (!username.equals("<User>") && keyword.isEmpty()) {
 	    		if (reply.getAuthorUsername().equals(username)) {
 	    			searchedReplies.add(reply);
 	    			foundReplies++;
@@ -262,17 +262,17 @@ public class ControllerMyPosts {
 	    
 	    
 	    if (foundReplies == 0) {
-	    	if (!username.equals("<Select a User>") && !keyword.isEmpty()) {	    	
+	    	if (!username.equals("<User>") && !keyword.isEmpty()) {	    	
 	    		javafx.scene.control.Label empty = new javafx.scene.control.Label("No replies from user: " +
 	    		username + " and matching keyword: " + '"' + keyword + '"');
 	            ViewMyPosts.postCardList.getChildren().add(empty);
 	    	}
-	    	if (!username.equals("<Select a User>") && keyword.isEmpty()) {
+	    	if (!username.equals("<User>") && keyword.isEmpty()) {
 	    		javafx.scene.control.Label empty = new javafx.scene.control.Label("No replies from user: " +
 	    	    username);
 	    	    ViewMyPosts.postCardList.getChildren().add(empty);
 	    	}
-	    	if (username.equals("<Select a User>") && !keyword.isEmpty()) {
+	    	if (username.equals("<User>") && !keyword.isEmpty()) {
 	    		javafx.scene.control.Label empty = new javafx.scene.control.Label("No replies matching keyword  " +
 	    		'"' + keyword + '"');
 	    	    ViewMyPosts.postCardList.getChildren().add(empty);
@@ -434,15 +434,18 @@ public class ControllerMyPosts {
 	}
 	
 	/**********
-	 * <p> Method: performReturn() </p>
+	 * <p> Method: performHome() </p>
 	 * 
 	 * <p> Description: This method returns the user to the user's homepage </p>
 	 * 
 	 */
-	protected static void performReturn() {
-	    guiDiscussionBoard.ViewDiscussionBoard.displayDiscussionBoard(ViewMyPosts.theStage, ViewMyPosts.theUser);
+	protected static void performHome() {
+	    guiStudentHome.ViewStudentHome.displayStudentHome(ViewMyPosts.theStage, ViewMyPosts.theUser);
 	}
 	
+	protected static void performGoToDiscussionBoard() {
+	    guiDiscussionBoard.ViewDiscussionBoard.displayDiscussionBoard(ViewMyPosts.theStage, ViewMyPosts.theUser);
+	}
 	
 	/**********
 	 * <p> Method: performLogout() </p>

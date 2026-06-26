@@ -46,6 +46,7 @@ public class ViewStudentHome {
 
 	// GUI Area 2
 	protected static Button button_DiscussionBoard = new Button("Discussion Board");
+	protected static Button button_MyPosts = new Button("My Posts");
 	
 	private static Line line_Separator4 = new Line(20, 525, width-20, 525);
 
@@ -123,6 +124,10 @@ public class ViewStudentHome {
 		button_DiscussionBoard.setOnAction((_) ->
 	    { ControllerStudentHome.displayDiscussionBoard(); });
 		
+		// Button to take student to the My Posts page
+		setupButtonUI(button_MyPosts, "Dialog", 16, 150, Pos.CENTER, 400, 350);
+		button_MyPosts.setOnAction((_) -> { guiMyPosts.ViewMyPosts.displayMyPosts(theStage, theUser); });
+		
 		// GUI Area 3
 		setupButtonUI(button_Logout, "Dialog", 18, 250, Pos.CENTER, 20, 540);
 		button_Logout.setOnAction((_) -> { ControllerStudentHome.performLogout(); });
@@ -133,7 +138,7 @@ public class ViewStudentHome {
 
 		theRootPane.getChildren().addAll(
 			    label_PageTitle, label_UserDetails, button_UpdateThisUser, line_Separator1,
-			    button_DiscussionBoard, line_Separator4, button_Logout, button_Quit);
+			    button_DiscussionBoard, line_Separator4, button_Logout, button_Quit, button_MyPosts);
 
 	}
 

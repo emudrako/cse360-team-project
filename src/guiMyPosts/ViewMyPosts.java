@@ -14,6 +14,7 @@ import java.util.List;
 
 import database.Database;
 import entityClasses.User;
+import guiDiscussionBoard.ControllerDiscussionBoard;
 
 /*******
  * <p> Title: ViewMyPosts Class. </p>
@@ -38,34 +39,36 @@ public class ViewMyPosts {
 	Attributes
 
 	 */
+	// Height and width for the window
 
-	private static double width = applicationMain.FoundationsMain.WINDOW_WIDTH;
-	private static double height = applicationMain.FoundationsMain.WINDOW_HEIGHT;
+	private static double width = 1000;
+	private static double height = 900;
 
 	// GUI Area 1
 	protected static Label label_PageTitle = new Label();
 	protected static Label label_UserDetails = new Label();
-	protected static Button button_UpdateThisUser = new Button("Update Account");
+	protected static Button button_discussionBoard = new Button("Discussion Board");
+	protected static Button button_Home = new Button("Home");
+	protected static Button button_Logout = new Button("Logout");
+	protected static Button button_Quit = new Button("X");
 
 
 	private static Line line_Separator1 = new Line(20, 95, width-20, 95);
 
 	// GUI Area 2 - Post Cards and Post Body
-	protected static Label label_PostsHeader = new Label("My Posts");
+	protected static Label label_PostsHeader = new Label("");
+	protected static Label label_Filter = new Label("Filter:");
+	protected static Button button_ToggleUnread = new Button("Unread");
+	protected static ComboBox <String> combobox_SelectUser = new ComboBox <String>();
+	protected static javafx.scene.control.TextField textfield_Search = new javafx.scene.control.TextField();
+	protected static Button button_Search = new Button("→");
 	protected static javafx.scene.layout.VBox postCardList = new javafx.scene.layout.VBox(10);
 	protected static javafx.scene.control.ScrollPane scrollPane_PostCards = new javafx.scene.control.ScrollPane(postCardList);
 	protected static javafx.scene.control.ScrollPane scrollPane_PostBody = new javafx.scene.control.ScrollPane();
 	protected static entityClasses.Post currentPost = new entityClasses.Post();
-	protected static Button button_ToggleUnread = new Button("Show Unread Only");
-	protected static Label label_SearchReplies = new Label ("Search Replies: ");
-	protected static ComboBox <String> combobox_SelectUser = new ComboBox <String>();
-	protected static javafx.scene.control.TextField textfield_Search = new javafx.scene.control.TextField();
-	protected static Button button_Search = new Button("Search");
 
-	// GUI Area 3 
-	protected static Button button_Return = new Button("Return");
-	protected static Button button_Logout = new Button("Logout");
-	protected static Button button_Quit = new Button("Quit");
+
+
 	
 	private static ViewMyPosts theView;
 	private static Database theDatabase = applicationMain.FoundationsMain.database;
@@ -123,68 +126,84 @@ public class ViewMyPosts {
 	 */
 	private ViewMyPosts() {
 	    theRootPane = new Pane();
-	    theMyPostsScene = new Scene(theRootPane, 960, height);
+		theMyPostsScene = new Scene(theRootPane, width, height);
+		theRootPane.setStyle("-fx-background-color: #FFFFFF;");// make the background white
 	 
 	    // GUI Area 1
 	    label_PageTitle.setText("My Posts");
-	    setupLabelUI(label_PageTitle, "Arial", 28, width, Pos.CENTER, 0, 5);
+		setupLabelUI(label_PageTitle, "Arial", 40, 400, Pos.BASELINE_LEFT, 20, 45);
 	    
-	    label_UserDetails.setText("User: " + theUser.getUserName());
-	    setupLabelUI(label_UserDetails, "Arial", 20, width, Pos.BASELINE_LEFT, 20, 55);
+		label_UserDetails.setText("User: " + theUser.getUserName());
+		setupLabelUI(label_UserDetails, "Arial", 12, 200, Pos.BASELINE_LEFT, 20, 10);
+		
+		// Buttons on the right hand side for app navigation
+		setupButtonUI(button_discussionBoard, "Dialog", 12, 70, Pos.CENTER, 692, 10);
+		button_discussionBoard.setOnAction((_) -> {ControllerMyPosts.performGoToDiscussionBoard(); });
+		
+		setupButtonUI(button_Home, "Dialog", 12, 52, Pos.CENTER, 805, 10);
+		button_Home.setOnAction((_) -> {ControllerMyPosts.performHome(); });
+
+		setupButtonUI(button_Logout, "Dialog", 12, 57, Pos.CENTER, 860, 10);
+		button_Logout.setOnAction((_) -> {ControllerMyPosts.performLogout(); });
+    
+		setupButtonUI(button_Quit, "Dialog", 12, 30, Pos.CENTER, 920, 10);
+		button_Quit.setOnAction((_) -> {ControllerMyPosts.performQuit(); });
 	    
-	    setupButtonUI(button_UpdateThisUser, "Dialog", 18, 170, Pos.CENTER, 610, 45);
-	    button_UpdateThisUser.setOnAction((_) -> { guiUserUpdate.ViewUserUpdate.displayUserUpdate(theStage, theUser); });
-	    
+		//Style for Page Title and User Details
+		label_PageTitle.setStyle("-fx-text-fill: #041E42; -fx-font-weight: bold;");;
+		label_UserDetails.setStyle("-fx-text-fill: #666666;");
+		
+		//Style for navigation buttons
+		button_discussionBoard.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
+		button_Home.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
+		button_Logout.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
+		button_Quit.setStyle("-fx-background-color: #BF0D3E; -fx-text-fill: white; -fx-background-radius: 5;");
+		
 	    // GUI Area 2
 	 // GUI Area 2
 	    setupLabelUI(label_PostsHeader, "Arial", 14, 200, Pos.BASELINE_LEFT, 20, 100);
-
-	    scrollPane_PostCards.setLayoutX(20);
-	    scrollPane_PostCards.setLayoutY(120);
-	    scrollPane_PostCards.setPrefWidth(350);
-	    scrollPane_PostCards.setPrefHeight(380);
-
-	    scrollPane_PostBody.setLayoutX(390);
-	    scrollPane_PostBody.setLayoutY(120);
-	    scrollPane_PostBody.setPrefWidth(550);
-	    scrollPane_PostBody.setPrefHeight(380);
-
-	    setupButtonUI(button_ToggleUnread, "Dialog", 14, 150, Pos.CENTER, 20, 510);
-	    button_ToggleUnread.setOnAction((_) -> { ControllerMyPosts.performToggleUnread(); });
-
-	    setupLabelUI(label_SearchReplies, "Arial", 12, 80, Pos.BASELINE_LEFT, button_ToggleUnread.getLayoutX()+
-	    		button_ToggleUnread.getMinWidth()+20, 515);
 	    
-	    setupComboBoxUI(combobox_SelectUser, "Dialog", 14, 250, (label_SearchReplies.getLayoutX()+
-	    		label_SearchReplies.getMinWidth()+20), 510);
+	    setupLabelUI(label_Filter, "Arial", 12, 40, Pos.BASELINE_LEFT, 20, 195);
+	    
+	    setupButtonUI(button_ToggleUnread, "Dialog", 12, 70, Pos.CENTER, 50, 190);
+	    button_ToggleUnread.setOnAction((_) -> { ControllerMyPosts.performToggleUnread(); });
+	    
+	    setupComboBoxUI(combobox_SelectUser, "Dialog", 12, 85, (button_ToggleUnread.getLayoutX()+
+	            button_ToggleUnread.getMinWidth()+5), 190);
+	    combobox_SelectUser.setMaxWidth(90);
+	    
 	    List<String> userList = theDatabase.getUserList();	
 		combobox_SelectUser.setItems(FXCollections.observableArrayList(userList));
 		combobox_SelectUser.getSelectionModel().select(0);
 	    
 		textfield_Search.setLayoutX(combobox_SelectUser.getLayoutX()+combobox_SelectUser.getMinWidth()+10);
-	    textfield_Search.setLayoutY(510);
-	    textfield_Search.setPrefWidth(200);
+	    textfield_Search.setLayoutY(190);
+	    textfield_Search.setPrefHeight(22);
+	    textfield_Search.setStyle("-fx-font-size: 12px;");
+	    textfield_Search.setPrefWidth(100);
 	    textfield_Search.setPromptText("Keyword");
 	    
-	    setupButtonUI(button_Search, "Dialog", 14, 50, Pos.CENTER, (textfield_Search.getLayoutX()+
-	    		textfield_Search.getPrefWidth()+10), 510);
+	    setupButtonUI(button_Search, "Dialog", 12, 25, Pos.CENTER, (textfield_Search.getLayoutX()+
+	            textfield_Search.getPrefWidth()+5), 190);
 	    button_Search.setOnAction((_) -> { ControllerMyPosts.searchReplies(); });
+
+	    scrollPane_PostCards.setLayoutX(20);
+	    scrollPane_PostCards.setLayoutY(220);
+	    scrollPane_PostCards.setPrefWidth(350);
+	    scrollPane_PostCards.setPrefHeight(280);
+
+	    scrollPane_PostBody.setLayoutX(390);
+	    scrollPane_PostBody.setLayoutY(220);
+	    scrollPane_PostBody.setPrefWidth(550);
+	    scrollPane_PostBody.setPrefHeight(280);
+
 	    
-	    // GUI Area 3
-	    setupButtonUI(button_Return, "Dialog", 18, 250, Pos.CENTER, 20, 540);
-	    button_Return.setOnAction((_) -> { ControllerMyPosts.performReturn(); });
-
-	    setupButtonUI(button_Logout, "Dialog", 18, 250, Pos.CENTER, 270, 540);
-	    button_Logout.setOnAction((_) -> { ControllerMyPosts.performLogout(); });
-
-	    setupButtonUI(button_Quit, "Dialog", 18, 250, Pos.CENTER, 520, 540);
-	    button_Quit.setOnAction((_) -> { ControllerMyPosts.performQuit(); });
 
 	    theRootPane.getChildren().addAll(
-	    	label_PageTitle, label_UserDetails, button_UpdateThisUser, line_Separator1,
+	    	label_PageTitle, label_UserDetails, line_Separator1,
 	    	label_PostsHeader, scrollPane_PostCards, scrollPane_PostBody,
-	    	button_ToggleUnread,label_SearchReplies, combobox_SelectUser, textfield_Search, 
-	    	button_Search, button_Return, button_Logout, button_Quit);
+	    	button_ToggleUnread, combobox_SelectUser, textfield_Search, 
+	    	button_Search, button_Home, button_Logout, button_Quit, button_discussionBoard, label_Filter);
 	}
 	
 	/*-********************************************************************************************
