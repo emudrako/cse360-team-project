@@ -175,6 +175,10 @@ public class ControllerDiscussionBoard {
 	 * 
 	 */
 	protected static VBox createPostCard(Post post) {
+		// Remove deleted posts
+	    if (post.getIsDeleted()) {
+	        return null;
+	    }
 	    VBox postCard = new VBox(5);
 	    postCard.setPadding(new Insets(10));
 	    postCard.setMinWidth(ViewDiscussionBoard.scrollPane_PostCards.getMinWidth()-40);

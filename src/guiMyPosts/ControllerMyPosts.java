@@ -405,6 +405,10 @@ public class ControllerMyPosts {
 	    }
 	    
 	    ViewMyPosts.scrollPane_PostBody.setContent(fullPost);
+	 // Show delete button only for the current user's posts
+	    ViewMyPosts.button_DeletePost.setVisible(
+	        post.getAuthorUsername().equals(ViewMyPosts.theUser.getUserName())
+	    );
 	}
 	
 	/**********
@@ -453,6 +457,57 @@ public class ControllerMyPosts {
 	    guiDiscussionBoard.ViewDiscussionBoard.displayDiscussionBoard(ViewMyPosts.theStage, ViewMyPosts.theUser);
 	}
 	
+	/**********
+	 * <p> Method: performDeletePost() </p>
+	 * 
+	 * <p> Description: Shows confirmation dialog then soft deletes the currently viewed post
+	 * if the user confirms. Only the student's own posts can be deleted. </p>
+	 * 
+	 */
+	protected static void performDeletePost() {
+	    if (ViewMyPosts.currentPost == null || ViewMyPosts.currentPost.getPostID() == 0) {
+	        return;
+	    }
+
+	    if (!ViewMyPosts.currentPost.getAuthorUsername().equals(ViewMyPosts.theUser.getUserName())) {
+	        showAlert("Error", "You can only delete your own posts.", javafx.scene.control.Alert.AlertType.ERROR);
+	        return;
+	    }
+
+	    // Confirmation Dialog
+	    javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
+	    alert.setTitle("Delete Post");
+	    alert.setHeaderText("Are you sure?");
+	    alert.setContentText("This action cannot be undone.\n\nThe post will be removed from view, but any replies will remain.");
+
+	    alert.showAndWait().ifPresent(response -> {
+	        if (response == javafx.scene.control.ButtonType.OK) {
+	            try {
+	                theDatabase.deletePost(ViewMyPosts.currentPost.getPostID());
+	                
+	                // Refresh the view
+	                loadMyPosts();
+	                ViewMyPosts.scrollPane_PostBody.setContent(null);
+	                ViewMyPosts.button_DeletePost.setVisible(false);
+	                ViewMyPosts.currentPost = new entityClasses.Post(); // reset
+	                
+	                showAlert("Success", "Post has been deleted.", javafx.scene.control.Alert.AlertType.INFORMATION);
+	            } catch (Exception e) {
+	                showAlert("Error", "Failed to delete post: " + e.getMessage(), 
+	                         javafx.scene.control.Alert.AlertType.ERROR);
+	            }
+	        }
+	    });
+	}
+
+
+	private static void showAlert(String title, String message, javafx.scene.control.Alert.AlertType type) {
+	    javafx.scene.control.Alert alert = new javafx.scene.control.Alert(type);
+	    alert.setTitle(title);
+	    alert.setHeaderText(null);
+	    alert.setContentText(message);
+	    alert.showAndWait();
+	}
 	/**********
 	 * <p> Method: performLogout() </p>
 	 * 

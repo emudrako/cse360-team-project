@@ -47,6 +47,7 @@ public class ViewMyPosts {
 	// GUI Area 1
 	protected static Label label_PageTitle = new Label();
 	protected static Label label_UserDetails = new Label();
+	protected static Button button_DeletePost = new Button("Delete Post");
 	protected static Button button_discussionBoard = new Button("Discussion Board");
 	protected static Button button_Home = new Button("Home");
 	protected static Button button_Logout = new Button("Logout");
@@ -142,6 +143,14 @@ public class ViewMyPosts {
 		
 		setupButtonUI(button_Home, "Dialog", 12, 52, Pos.CENTER, 805, 10);
 		button_Home.setOnAction((_) -> {ControllerMyPosts.performHome(); });
+		
+		// Delete button
+		setupButtonUI(button_DeletePost, "Dialog", 12, 100, Pos.CENTER, 600, 520);
+		button_DeletePost.setStyle("-fx-background-color: #BF0D3E; -fx-text-fill: white; -fx-background-radius: 5;");
+		button_DeletePost.setVisible(false);
+		button_DeletePost.setOnAction((_) -> ControllerMyPosts.performDeletePost());
+
+		theRootPane.getChildren().add(button_DeletePost);
 
 		setupButtonUI(button_Logout, "Dialog", 12, 57, Pos.CENTER, 860, 10);
 		button_Logout.setOnAction((_) -> {ControllerMyPosts.performLogout(); });
@@ -160,7 +169,6 @@ public class ViewMyPosts {
 		button_Quit.setStyle("-fx-background-color: #BF0D3E; -fx-text-fill: white; -fx-background-radius: 5;");
 		
 	    // GUI Area 2
-	 // GUI Area 2
 	    setupLabelUI(label_PostsHeader, "Arial", 14, 200, Pos.BASELINE_LEFT, 20, 100);
 	    
 	    setupLabelUI(label_Filter, "Arial", 12, 40, Pos.BASELINE_LEFT, 20, 195);
