@@ -171,6 +171,7 @@ public class Database {
 	    		+ "postID INT, "
 	    		+ "body VARCHAR(1000), "
 	    		+ "authorUsername VARCHAR(255))";
+	    		//+ "parentReplyID INT";
 	    statement.execute(repliesTable);
 
 	    // Add createdAt to existing tables if upgrading from an older schema
