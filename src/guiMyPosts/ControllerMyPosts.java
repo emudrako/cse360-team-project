@@ -5,6 +5,7 @@ import database.Database;
 import entityClasses.Reply;
 import guiDiscussionBoard.ViewDiscussionBoard;
 import javafx.geometry.Insets;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.effect.ColorInput;
@@ -385,8 +386,8 @@ public class ControllerMyPosts {
 	            javafx.scene.control.TextArea replyBody = new javafx.scene.control.TextArea(reply.getBody());
 	            replyBody.setPrefHeight(80);
 	            replyBody.setWrapText(true);
-	            replyBody.setEditable(false);
-	            replyBox.getChildren().addAll(replyAuthor, replyTimestamp, replyBody);
+	            replyBody.setEditable(false);	     
+	            replyBox.getChildren().addAll(replyAuthor, replyTimestamp, replyBody);	            
 	            fullPost.getChildren().add(replyBox);
 	        }
 	    } catch (Exception e) {
@@ -415,9 +416,14 @@ public class ControllerMyPosts {
 		body.setWrapText(true);
 		body.setEditable(false);
 		
+		Button button_Reply = new Button("Reply");
+		button_Reply.setFont(Font.font("Dialog", 14));
+		button_Reply.setMinWidth(50);
+		
 		viewReply.getChildren().addAll(
 				author,
-				body
+				body,
+				button_Reply
 				);
 		return viewReply;
 	}

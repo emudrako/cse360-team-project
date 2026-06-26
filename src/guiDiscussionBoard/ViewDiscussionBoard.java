@@ -400,9 +400,18 @@ public class ViewDiscussionBoard {
 		body.setWrapText(true);
 		body.setEditable(false);
 		
+		Button button_Reply = new Button("Reply");
+		button_Reply.setOnAction((_) -> {
+			VBox replyToReply = new VBox(newReplyForm());
+			viewReply.getChildren().addAll(
+					replyToReply
+					);
+		});
+		
 		viewReply.getChildren().addAll(
 				author,
-				body
+				body,
+				button_Reply
 				);
 		return viewReply;
 	}
