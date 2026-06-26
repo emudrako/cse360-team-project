@@ -180,11 +180,12 @@ public class ControllerDiscussionBoard {
 	    postCard.setMinWidth(ViewDiscussionBoard.scrollPane_PostCards.getMinWidth()-40);
 	    postCard.setMaxWidth(ViewDiscussionBoard.scrollPane_PostCards.getMinWidth()-40);
 	    postCard.setStyle(
-	        "-fx-border-color: lightgray;" +
-	        "-fx-border-radius: 5;" +
-	        "-fx-background-color: white;" +
-	        "-fx-background-radius: 5;"
-	    );
+	    	    "-fx-border-color: #E0E0E0;" +
+	    	    "-fx-border-radius: 8;" +
+	    	    "-fx-background-color: white;" +
+	    	    "-fx-background-radius: 8;" +
+	    	    "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4, 0, 0, 2);"
+	    	);
 	    
 	    // Title at top in bold
 	    Label title = new Label(post.getTitle());

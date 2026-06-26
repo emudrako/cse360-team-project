@@ -210,32 +210,32 @@ public class ViewDiscussionBoard {
 		// GUI Area 2
 		
 		// Search row
-		setupTextUI(textfield_Search, "Arial", 14, 250, Pos.BASELINE_LEFT, 20, 240, true);
+		setupTextUI(textfield_Search, "Arial", 14, 250, Pos.BASELINE_LEFT, 20, 190, true);
 
-		setupButtonUI(button_Search, "Dialog", 14, 75, Pos.CENTER, 265, 240);
+		setupButtonUI(button_Search, "Dialog", 14, 75, Pos.CENTER, 265, 190);
 		button_Search.setOnAction((_) -> { ControllerDiscussionBoard.performSearch(); });
 
-		setupButtonUI(button_CreatePost, "Dialog", 14, 30, Pos.CENTER, 340, 240);
+		setupButtonUI(button_CreatePost, "Dialog", 14, 30, Pos.CENTER, 340, 190);
 		button_CreatePost.setOnAction((_) -> { guiRelatedPosts.ViewRelatedPosts.displayRelatedPosts(theStage, theUser); });
 		
-		setupButtonUI(button_General, "Dialog", 13, 80, Pos.CENTER, 20, 270);
+		setupButtonUI(button_General, "Dialog", 13, 80, Pos.CENTER, 20, 220);
 		button_General.setOnAction((_) -> { selectedThread = "General"; displayPostCards(ControllerDiscussionBoard.postList.getAllPosts()); });
 
-		setupButtonUI(button_Homework, "Dialog", 13, 80, Pos.CENTER, 110, 270);
+		setupButtonUI(button_Homework, "Dialog", 13, 80, Pos.CENTER, 110, 220);
 		button_Homework.setOnAction((_) -> { selectedThread = "Homework"; displayPostCards(ControllerDiscussionBoard.postList.getAllPosts()); });
 
-		setupButtonUI(button_Quizzes, "Dialog", 13, 80, Pos.CENTER, 200, 270);
+		setupButtonUI(button_Quizzes, "Dialog", 13, 80, Pos.CENTER, 200, 220);
 		button_Quizzes.setOnAction((_) -> { selectedThread = "Quizzes"; displayPostCards(ControllerDiscussionBoard.postList.getAllPosts()); });
 
-		setupButtonUI(button_ViewAll, "Dialog", 13, 80, Pos.CENTER, 290, 270);
+		setupButtonUI(button_ViewAll, "Dialog", 13, 80, Pos.CENTER, 290, 220);
 		button_ViewAll.setOnAction((_) -> { selectedThread = ""; displayPostCards(ControllerDiscussionBoard.postList.getAllPosts()); });
 		
 		
 		// GUI Area 3
-		setupScrollPane(scrollPane_PostCards, 10, 400, 460, 20, 298);
+		setupScrollPane(scrollPane_PostCards, 10, 400, 460, 20, 258);
 		
 		// GUI Area 4
-		setupScrollPane(scrollPane_PostBody, 0, 550, 460, 435, 298);
+		setupScrollPane(scrollPane_PostBody, 0, 550, 460, 435, 258);
 		
 		
 		label_PageTitle.setStyle("-fx-text-fill: #041E42; -fx-font-weight: bold;");
@@ -340,6 +340,14 @@ public class ViewDiscussionBoard {
 		VBox fullPost = new VBox(5);
 		fullPost.setPadding(new Insets(10));
 		
+		fullPost.setStyle(
+			    "-fx-background-color: white;" +
+			    "-fx-border-color: #E0E0E0;" +
+			    "-fx-border-radius: 8;" +
+			    "-fx-background-radius: 8;" +
+			    "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4, 0, 0, 2);"
+			);
+		
 		Label title = new Label(post.getTitle());
 		title.setStyle("-fx-font-weight: bold;" + "-fx-font-size: 18px;");
 		
@@ -393,7 +401,7 @@ public class ViewDiscussionBoard {
 		viewReply.setPadding(new Insets(15));
 		
 		Label author = new Label(reply.getAuthorUsername() + " says:");
-		author.setStyle("-fx-font-weight: bold;" + "-fx-font-size: 12px;");
+		author.setStyle("-fx-font-weight: bold;" + "-fx-font-size: 14px;");
 		
 		TextArea body = new TextArea(reply.getBody());
 		body.setPrefHeight(100);
