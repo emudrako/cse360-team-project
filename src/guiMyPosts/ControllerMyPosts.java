@@ -434,15 +434,18 @@ public class ControllerMyPosts {
 	}
 	
 	/**********
-	 * <p> Method: performReturn() </p>
+	 * <p> Method: performHome() </p>
 	 * 
 	 * <p> Description: This method returns the user to the user's homepage </p>
 	 * 
 	 */
-	protected static void performReturn() {
-	    guiDiscussionBoard.ViewDiscussionBoard.displayDiscussionBoard(ViewMyPosts.theStage, ViewMyPosts.theUser);
+	protected static void performHome() {
+	    guiStudentHome.ViewStudentHome.displayStudentHome(ViewMyPosts.theStage, ViewMyPosts.theUser);
 	}
 	
+	protected static void performGoToDiscussionBoard() {
+	    guiDiscussionBoard.ViewDiscussionBoard.displayDiscussionBoard(ViewMyPosts.theStage, ViewMyPosts.theUser);
+	}
 	
 	/**********
 	 * <p> Method: performLogout() </p>

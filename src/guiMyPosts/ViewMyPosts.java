@@ -14,6 +14,7 @@ import java.util.List;
 
 import database.Database;
 import entityClasses.User;
+import guiDiscussionBoard.ControllerDiscussionBoard;
 
 /*******
  * <p> Title: ViewMyPosts Class. </p>
@@ -45,6 +46,10 @@ public class ViewMyPosts {
 	// GUI Area 1
 	protected static Label label_PageTitle = new Label();
 	protected static Label label_UserDetails = new Label();
+	protected static Button button_discussionBoard = new Button("Discussion Board");
+	protected static Button button_Home = new Button("Home");
+	protected static Button button_Logout = new Button("Logout");
+	protected static Button button_Quit = new Button("X");
 
 
 	private static Line line_Separator1 = new Line(20, 95, width-20, 95);
@@ -61,10 +66,7 @@ public class ViewMyPosts {
 	protected static javafx.scene.control.TextField textfield_Search = new javafx.scene.control.TextField();
 	protected static Button button_Search = new Button("Search");
 
-	// GUI Area 3 
-	protected static Button button_Return = new Button("Return");
-	protected static Button button_Logout = new Button("Logout");
-	protected static Button button_Quit = new Button("Quit");
+
 	
 	private static ViewMyPosts theView;
 	private static Database theDatabase = applicationMain.FoundationsMain.database;
@@ -130,8 +132,30 @@ public class ViewMyPosts {
 	    
 		label_UserDetails.setText("User: " + theUser.getUserName());
 		setupLabelUI(label_UserDetails, "Arial", 12, 200, Pos.BASELINE_LEFT, 20, 10);
+		
+		// Buttons on the right hand side for app navigation
+		setupButtonUI(button_discussionBoard, "Dialog", 12, 52, Pos.CENTER, 790, 10);
+		button_Home.setOnAction((_) -> {ControllerMyPosts.performGoToDiscussionBoard(); });
+		
+		setupButtonUI(button_Home, "Dialog", 12, 52, Pos.CENTER, 845, 10);
+		button_Home.setOnAction((_) -> {ControllerMyPosts.performHome(); });
+
+		setupButtonUI(button_Logout, "Dialog", 12, 57, Pos.CENTER, 900, 10);
+		button_Logout.setOnAction((_) -> {ControllerMyPosts.performLogout(); });
+    
+		setupButtonUI(button_Quit, "Dialog", 12, 30, Pos.CENTER, 960, 10);
+		button_Quit.setOnAction((_) -> {ControllerMyPosts.performQuit(); });
 	    
-	    
+		//Style for Page Title and User Details
+		label_PageTitle.setStyle("-fx-text-fill: #041E42; -fx-font-weight: bold;");;
+		label_UserDetails.setStyle("-fx-text-fill: #666666;");
+		
+		//Style for navigation buttons
+		button_discussionBoard.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
+		button_Home.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
+		button_Logout.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
+		button_Quit.setStyle("-fx-background-color: #BF0D3E; -fx-text-fill: white; -fx-background-radius: 5;");
+		
 	    // GUI Area 2
 	 // GUI Area 2
 	    setupLabelUI(label_PostsHeader, "Arial", 14, 200, Pos.BASELINE_LEFT, 20, 100);
@@ -167,21 +191,12 @@ public class ViewMyPosts {
 	    		textfield_Search.getPrefWidth()+10), 510);
 	    button_Search.setOnAction((_) -> { ControllerMyPosts.searchReplies(); });
 	    
-	    // GUI Area 3
-	    setupButtonUI(button_Return, "Dialog", 18, 250, Pos.CENTER, 20, 540);
-	    button_Return.setOnAction((_) -> { ControllerMyPosts.performReturn(); });
-
-	    setupButtonUI(button_Logout, "Dialog", 18, 250, Pos.CENTER, 270, 540);
-	    button_Logout.setOnAction((_) -> { ControllerMyPosts.performLogout(); });
-
-	    setupButtonUI(button_Quit, "Dialog", 18, 250, Pos.CENTER, 520, 540);
-	    button_Quit.setOnAction((_) -> { ControllerMyPosts.performQuit(); });
 
 	    theRootPane.getChildren().addAll(
 	    	label_PageTitle, label_UserDetails, line_Separator1,
 	    	label_PostsHeader, scrollPane_PostCards, scrollPane_PostBody,
 	    	button_ToggleUnread,label_SearchReplies, combobox_SelectUser, textfield_Search, 
-	    	button_Search, button_Return, button_Logout, button_Quit);
+	    	button_Search, button_Home, button_Logout, button_Quit);
 	}
 	
 	/*-********************************************************************************************
