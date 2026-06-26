@@ -171,7 +171,6 @@ public class Database {
 	    		+ "postID INT, "
 	    		+ "body VARCHAR(1000), "
 	    		+ "authorUsername VARCHAR(255))";
-	    		//+ "parentReplyID INT";
 	    statement.execute(repliesTable);
 
 	    // Add createdAt to existing tables if upgrading from an older schema
@@ -179,6 +178,10 @@ public class Database {
 	    		+ "createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP");
 	    statement.execute("ALTER TABLE RepliesDB ADD COLUMN IF NOT EXISTS "
 	    		+ "createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP");
+	    
+	    // Add parentReplyID to existing tables if upgrading from an older schema
+	    statement.execute("ALTER TABLE RepliesDB ADD COLUMN IF NOT EXISTS "
+	    		+ "parentReplyID INT");
 
 	    // Tracks which replies each user has already read (for unreadCount)
 	    String replyReadStatusTable = "CREATE TABLE IF NOT EXISTS ReplyReadStatusDB ("
