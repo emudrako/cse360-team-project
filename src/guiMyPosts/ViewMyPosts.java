@@ -45,7 +45,6 @@ public class ViewMyPosts {
 	// GUI Area 1
 	protected static Label label_PageTitle = new Label();
 	protected static Label label_UserDetails = new Label();
-	protected static Button button_UpdateThisUser = new Button("Update Account");
 
 
 	private static Line line_Separator1 = new Line(20, 95, width-20, 95);
@@ -129,11 +128,9 @@ public class ViewMyPosts {
 	    label_PageTitle.setText("My Posts");
 	    setupLabelUI(label_PageTitle, "Arial", 28, width, Pos.CENTER, 0, 5);
 	    
-	    label_UserDetails.setText("User: " + theUser.getUserName());
-	    setupLabelUI(label_UserDetails, "Arial", 20, width, Pos.BASELINE_LEFT, 20, 55);
+		label_UserDetails.setText("User: " + theUser.getUserName());
+		setupLabelUI(label_UserDetails, "Arial", 12, 200, Pos.BASELINE_LEFT, 20, 10);
 	    
-	    setupButtonUI(button_UpdateThisUser, "Dialog", 18, 170, Pos.CENTER, 610, 45);
-	    button_UpdateThisUser.setOnAction((_) -> { guiUserUpdate.ViewUserUpdate.displayUserUpdate(theStage, theUser); });
 	    
 	    // GUI Area 2
 	 // GUI Area 2
@@ -156,7 +153,7 @@ public class ViewMyPosts {
 	    		button_ToggleUnread.getMinWidth()+20, 515);
 	    
 	    setupComboBoxUI(combobox_SelectUser, "Dialog", 14, 250, (label_SearchReplies.getLayoutX()+
-	    		label_SearchReplies.getMinWidth()+20), 510);
+	    		label_SearchReplies.getMinWidth()+10), 510);
 	    List<String> userList = theDatabase.getUserList();	
 		combobox_SelectUser.setItems(FXCollections.observableArrayList(userList));
 		combobox_SelectUser.getSelectionModel().select(0);
@@ -181,7 +178,7 @@ public class ViewMyPosts {
 	    button_Quit.setOnAction((_) -> { ControllerMyPosts.performQuit(); });
 
 	    theRootPane.getChildren().addAll(
-	    	label_PageTitle, label_UserDetails, button_UpdateThisUser, line_Separator1,
+	    	label_PageTitle, label_UserDetails, line_Separator1,
 	    	label_PostsHeader, scrollPane_PostCards, scrollPane_PostBody,
 	    	button_ToggleUnread,label_SearchReplies, combobox_SelectUser, textfield_Search, 
 	    	button_Search, button_Return, button_Logout, button_Quit);
