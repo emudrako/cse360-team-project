@@ -34,8 +34,9 @@ public class ViewCreatePost {
 
 	 */
 
-	private static double width = applicationMain.FoundationsMain.WINDOW_WIDTH;
-	private static double height = applicationMain.FoundationsMain.WINDOW_HEIGHT;
+	// Height and width for the window
+	private static double width = 1000;
+	private static double height = 900;
 
 	// GUI Area 1
 	protected static Label label_PageTitle = new Label();
@@ -117,6 +118,7 @@ public class ViewCreatePost {
 	 */
 	private ViewCreatePost() {
 	    theRootPane = new Pane();
+		theRootPane.setStyle("-fx-background-color: #FFFFFF;");// make the background white
 	    theCreatePost = new Scene(theRootPane, width, height);
 	 
 	    // GUI Area 1
