@@ -66,4 +66,16 @@ public class ControllerUserUpdate {
 			System.exit(0);
 		}
  	}
+
+	/**********
+	 * <p> Method: performQuit() </p>
+	 *
+	 * <p> Description: This method terminates the execution of the program,
+	 * consistent with every other Foundations-SU26 controller's performQuit method.
+	 * </p>
+	 *
+	 */
+	protected static void performQuit() {
+		System.exit(0);
+	}
 }

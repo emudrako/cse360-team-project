@@ -12,6 +12,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import entityClasses.User;
+import guiDiscussionBoard.ControllerDiscussionBoard;
+import guiUserLogin.ControllerUserLogin;
 
 /*******
  * <p> Title: ViewUserUpdate Class. </p>
@@ -51,11 +53,13 @@ public class ViewUserUpdate {
 	
 	// Unlike may of the other pages, the GUI on this page is not organized into areas and the user
 	// is not able to logout, return, or quit from this page
+	private static Button button_Quit = new Button("X");
+	
+	private static Label label_UserDetails = new Label("Username:");
 	
 	// These widgets display the purpose of the page and guide the user.
-	private static Label label_ApplicationTitle = new Label("Update a User's Account Details");
-    private static Label label_Purpose = 
-    		new Label(" Use this page to define or update your account information."); 
+	private static Label label_ApplicationTitle = new Label("Update Account");
+
     
     // These are static output labels and do not change during execution
 	private static Label label_Username = new Label("Username:");
@@ -77,17 +81,17 @@ public class ViewUserUpdate {
 	
 	// These buttons enable the user to edit the various dynamic fields.  The username and the
 	// passwords for a user are currently not editable.
-	private static Button button_UpdateUsername = new Button("Update Username");
-	private static Button button_UpdatePassword = new Button("Update Password");
-	private static Button button_UpdateFirstName = new Button("Update First Name");
-	private static Button button_UpdateMiddleName = new Button("Update Middle Name");
-	private static Button button_UpdateLastName = new Button("Update Last Name");
-	private static Button button_UpdatePreferredFirstName = new Button("Update Preferred First Name");
-	private static Button button_UpdateEmailAddress = new Button("Update Email Address");
+	private static Button button_UpdateUsername = new Button("Update");
+	private static Button button_UpdatePassword = new Button("Update");
+	private static Button button_UpdateFirstName = new Button("Update");
+	private static Button button_UpdateMiddleName = new Button("Update");
+	private static Button button_UpdateLastName = new Button("Update");
+	private static Button button_UpdatePreferredFirstName = new Button("Update");
+	private static Button button_UpdateEmailAddress = new Button("Update");
 
 	// This button enables the user to finish working on this page and proceed to the user's home
 	// page determined by the user's role at the time of log in.
-	private static Button button_ProceedToUserHomePage = new Button("Proceed to the User Home Page");
+	private static Button button_Home = new Button("Home");
 	
 	// This is the end of the GUI widgets for this page.
 	
@@ -210,8 +214,35 @@ public class ViewUserUpdate {
 		// Create the Pane for the list of widgets and the Scene for the window
 		theRootPane = new Pane();
 		theUserUpdateScene = new Scene(theRootPane, width, height);
-		theRootPane.setStyle("-fx-background-color: #FFFFFF;");// make the background white
+		theRootPane.setStyle("-fx-background-color: #041E42;");
+		// setup a card to have all the fields inside
+		javafx.scene.shape.Rectangle card = new javafx.scene.shape.Rectangle();
+		card.setWidth(600);
+		card.setHeight(620);
+		card.setX(200);
+		card.setY(80);
+		card.setArcWidth(20);
+		card.setArcHeight(20);
+		card.setFill(javafx.scene.paint.Color.WHITE);
+		card.setEffect(new javafx.scene.effect.DropShadow(20, javafx.scene.paint.Color.rgb(0,0,0,0.3)));
+		
+        // Set up the button to proceed to this user's home page
+		setupButtonUI(button_Home, "Dialog", 12, 52, Pos.CENTER, 900, 10);
+        button_Home.setOnAction((_) -> 
+        	{ControllerUserUpdate.goToUserHomePage(theStage, theUser);});
+		button_Home.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
 
+        
+		// Set up the Quit button  
+		setupButtonUI(button_Quit, "Dialog", 12, 30, Pos.CENTER, 960, 10);
+		button_Quit.setOnAction((_) -> { ControllerUserUpdate.performQuit(); });
+		button_Quit.setStyle("-fx-background-color: #BF0D3E; -fx-text-fill: white; -fx-background-radius: 5;");
+
+		label_UserDetails.setText("User: " + theUser.getUserName());
+		setupLabelUI(label_UserDetails, "Arial", 12, 200, Pos.BASELINE_LEFT, 20, 10);
+		label_UserDetails.setStyle("-fx-text-fill: white;");
+
+		
 		// Initialize the pop-up dialogs to an empty text filed.
 		dialogUpdateFirstName = new TextInputDialog("");
 		dialogUpdateMiddleName = new TextInputDialog("");
@@ -236,28 +267,25 @@ public class ViewUserUpdate {
 		dialogUpdateEmailAddresss.setHeaderText("Update your Email Address");
 
 		// Label theScene with the name of the startup screen, centered at the top of the pane
-		setupLabelUI(label_ApplicationTitle, "Arial", 28, width, Pos.CENTER, 0, 5);
-
-        // Label to display the welcome message for the first theUser
-        setupLabelUI(label_Purpose, "Arial", 20, width, Pos.CENTER, 0, 50);
+		setupLabelUI(label_ApplicationTitle, "Arial", 28, 400, Pos.CENTER, 300, 140);
         
         // Display the titles, values, and update buttons for the various admin account attributes.
         // If the attributes is null or empty, display "<none>".
         
-        // USername
-        setupLabelUI(label_Username, "Arial", 18, 190, Pos.BASELINE_RIGHT, 5, 100);
-        setupLabelUI(label_CurrentUsername, "Arial", 18, 260, Pos.BASELINE_LEFT, 200, 100);
-        setupButtonUI(button_UpdateUsername, "Dialog", 18, 275, Pos.CENTER, 500, 93);
+        // Username
+        setupLabelUI(label_Username, "Arial", 14, 190, Pos.BASELINE_LEFT, 260, 210);
+        setupLabelUI(label_CurrentUsername, "Arial", 14, 260, Pos.BASELINE_LEFT, 460, 210);
+        setupButtonUI(button_UpdateUsername, "Dialog", 14, 80, Pos.CENTER, 670, 203);
        
         // password
-        setupLabelUI(label_Password, "Arial", 18, 190, Pos.BASELINE_RIGHT, 5, 150);
-        setupLabelUI(label_CurrentPassword, "Arial", 18, 260, Pos.BASELINE_LEFT, 200, 150);
-        setupButtonUI(button_UpdatePassword, "Dialog", 18, 275, Pos.CENTER, 500, 143);
+        setupLabelUI(label_Password, "Arial", 14, 150, Pos.BASELINE_LEFT, 260, 270);
+        setupLabelUI(label_CurrentPassword, "Arial", 14, 180, Pos.BASELINE_LEFT, 460, 270);
+        setupButtonUI(button_UpdatePassword, "Dialog", 14, 80, Pos.CENTER, 670, 263);
         
         // First Name
-        setupLabelUI(label_FirstName, "Arial", 18, 190, Pos.BASELINE_RIGHT, 5, 200);
-        setupLabelUI(label_CurrentFirstName, "Arial", 18, 260, Pos.BASELINE_LEFT, 200, 200);
-        setupButtonUI(button_UpdateFirstName, "Dialog", 18, 275, Pos.CENTER, 500, 193);
+        setupLabelUI(label_FirstName, "Arial", 14, 190, Pos.BASELINE_LEFT, 260, 330);
+        setupLabelUI(label_CurrentFirstName, "Arial", 14, 260, Pos.BASELINE_LEFT, 460, 330);
+        setupButtonUI(button_UpdateFirstName, "Dialog", 14, 80, Pos.CENTER, 670, 323);
         button_UpdateFirstName.setOnAction((_) -> {result = dialogUpdateFirstName.showAndWait();
         	result.ifPresent(_ -> theDatabase.updateFirstName(theUser.getUserName(), result.get()));
         	theDatabase.getUserAccountDetails(theUser.getUserName());
@@ -268,9 +296,9 @@ public class ViewUserUpdate {
          	});
                
         // Middle Name
-        setupLabelUI(label_MiddleName, "Arial", 18, 190, Pos.BASELINE_RIGHT, 5, 250);
-        setupLabelUI(label_CurrentMiddleName, "Arial", 18, 260, Pos.BASELINE_LEFT, 200, 250);
-        setupButtonUI(button_UpdateMiddleName, "Dialog", 18, 275, Pos.CENTER, 500, 243);
+        setupLabelUI(label_MiddleName, "Arial", 14, 190, Pos.BASELINE_LEFT, 260, 390);
+        setupLabelUI(label_CurrentMiddleName, "Arial", 14, 260, Pos.BASELINE_LEFT, 460, 390);
+        setupButtonUI(button_UpdateMiddleName, "Dialog", 14, 80, Pos.CENTER, 670, 383);
         button_UpdateMiddleName.setOnAction((_) -> {result = dialogUpdateMiddleName.showAndWait();
     		result.ifPresent(_ -> theDatabase.updateMiddleName(theUser.getUserName(), result.get()));
     		theDatabase.getUserAccountDetails(theUser.getUserName());
@@ -281,9 +309,9 @@ public class ViewUserUpdate {
     		});
         
         // Last Name
-        setupLabelUI(label_LastName, "Arial", 18, 190, Pos.BASELINE_RIGHT, 5, 300);
-        setupLabelUI(label_CurrentLastName, "Arial", 18, 260, Pos.BASELINE_LEFT, 200, 300);
-        setupButtonUI(button_UpdateLastName, "Dialog", 18, 275, Pos.CENTER, 500, 293);
+        setupLabelUI(label_LastName, "Arial", 14, 190, Pos.BASELINE_LEFT, 260, 450);
+        setupLabelUI(label_CurrentLastName, "Arial", 14, 260, Pos.BASELINE_LEFT, 460, 450);
+        setupButtonUI(button_UpdateLastName, "Dialog", 14, 80, Pos.CENTER, 670, 443);
         button_UpdateLastName.setOnAction((_) -> {result = dialogUpdateLastName.showAndWait();
     		result.ifPresent(_ -> theDatabase.updateLastName(theUser.getUserName(), result.get()));
     		theDatabase.getUserAccountDetails(theUser.getUserName());
@@ -294,11 +322,9 @@ public class ViewUserUpdate {
     		});
         
         // Preferred First Name
-        setupLabelUI(label_PreferredFirstName, "Arial", 18, 190, Pos.BASELINE_RIGHT, 
-        		5, 350);
-        setupLabelUI(label_CurrentPreferredFirstName, "Arial", 18, 260, Pos.BASELINE_LEFT, 
-        		200, 350);
-        setupButtonUI(button_UpdatePreferredFirstName, "Dialog", 18, 275, Pos.CENTER, 500, 343);
+        setupLabelUI(label_PreferredFirstName, "Arial", 14, 190, Pos.BASELINE_LEFT, 260, 510);
+        setupLabelUI(label_CurrentPreferredFirstName, "Arial", 14, 260, Pos.BASELINE_LEFT, 460, 510);
+        setupButtonUI(button_UpdatePreferredFirstName, "Dialog", 14, 80, Pos.CENTER, 670, 503);
         button_UpdatePreferredFirstName.setOnAction((_) -> 
         	{result = dialogUpdatePreferredFirstName.showAndWait();
     		result.ifPresent(_ -> 
@@ -311,9 +337,9 @@ public class ViewUserUpdate {
      		});
         
         // Email Address
-        setupLabelUI(label_EmailAddress, "Arial", 18, 190, Pos.BASELINE_RIGHT, 5, 400);
-        setupLabelUI(label_CurrentEmailAddress, "Arial", 18, 260, Pos.BASELINE_LEFT, 200, 400);
-        setupButtonUI(button_UpdateEmailAddress, "Dialog", 18, 275, Pos.CENTER, 500, 393);
+        setupLabelUI(label_EmailAddress, "Arial", 14, 190, Pos.BASELINE_LEFT, 260, 570);
+        setupLabelUI(label_CurrentEmailAddress, "Arial", 14, 260, Pos.BASELINE_LEFT, 460, 570);
+        setupButtonUI(button_UpdateEmailAddress, "Dialog", 14, 80, Pos.CENTER, 670, 563);
         button_UpdateEmailAddress.setOnAction((_) -> {result = dialogUpdateEmailAddresss.showAndWait();
     		result.ifPresent(_ -> theDatabase.updateEmailAddress(theUser.getUserName(), result.get()));
     		theDatabase.getUserAccountDetails(theUser.getUserName());
@@ -323,15 +349,37 @@ public class ViewUserUpdate {
         	else label_CurrentEmailAddress.setText(newEmail);
  			});
         
-        // Set up the button to proceed to this user's home page
-        setupButtonUI(button_ProceedToUserHomePage, "Dialog", 18, 300, 
-        		Pos.CENTER, width/2-150, 450);
-        button_ProceedToUserHomePage.setOnAction((_) -> 
-        	{ControllerUserUpdate.goToUserHomePage(theStage, theUser);});
+     // Styling for the labels 
+        label_Username.setStyle("-fx-font-weight: bold; -fx-text-fill: #041E42;");
+        label_Password.setStyle("-fx-font-weight: bold; -fx-text-fill: #041E42;");
+        label_FirstName.setStyle("-fx-font-weight: bold; -fx-text-fill: #041E42;");
+        label_MiddleName.setStyle("-fx-font-weight: bold; -fx-text-fill: #041E42;");
+        label_LastName.setStyle("-fx-font-weight: bold; -fx-text-fill: #041E42;");
+        label_PreferredFirstName.setStyle("-fx-font-weight: bold; -fx-text-fill: #041E42;");
+        label_EmailAddress.setStyle("-fx-font-weight: bold; -fx-text-fill: #041E42;");
+
+        // Styling current values
+        label_CurrentUsername.setStyle("-fx-text-fill: #666666;");
+        label_CurrentPassword.setStyle("-fx-text-fill: #666666;");
+        label_CurrentFirstName.setStyle("-fx-text-fill: #666666;");
+        label_CurrentMiddleName.setStyle("-fx-text-fill: #666666;");
+        label_CurrentLastName.setStyle("-fx-text-fill: #666666;");
+        label_CurrentPreferredFirstName.setStyle("-fx-text-fill: #666666;");
+        label_CurrentEmailAddress.setStyle("-fx-text-fill: #666666;");
+        
+        // Styling for the update buttons
+        String updateStyle = "-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;";
+        button_UpdateUsername.setStyle(updateStyle);
+        button_UpdatePassword.setStyle(updateStyle);
+        button_UpdateFirstName.setStyle(updateStyle);
+        button_UpdateMiddleName.setStyle(updateStyle);
+        button_UpdateLastName.setStyle(updateStyle);
+        button_UpdatePreferredFirstName.setStyle(updateStyle);
+        button_UpdateEmailAddress.setStyle(updateStyle);
     	
         // Populate the Pane's list of children widgets
-        theRootPane.getChildren().addAll(
-        		label_ApplicationTitle, label_Purpose, label_Username,
+        theRootPane.getChildren().addAll(card, button_Quit, label_UserDetails,
+        		label_ApplicationTitle, label_Username, button_UpdateUsername,
         		label_CurrentUsername, 
         		label_Password, label_CurrentPassword, 
         		button_UpdatePassword, 
@@ -341,7 +389,7 @@ public class ViewUserUpdate {
         		label_PreferredFirstName, label_CurrentPreferredFirstName,
         		button_UpdatePreferredFirstName, button_UpdateEmailAddress,
         		label_EmailAddress, label_CurrentEmailAddress, 
-        		button_ProceedToUserHomePage);
+        		button_Home);
 	}
 	
 	
