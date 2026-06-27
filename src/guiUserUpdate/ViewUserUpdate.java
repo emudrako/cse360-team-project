@@ -43,12 +43,9 @@ public class ViewUserUpdate {
 	Attributes
 
 	 */
-
-	// These are the application values required by the user interface
-	
-	private static double width = applicationMain.FoundationsMain.WINDOW_WIDTH;
-	private static double height = applicationMain.FoundationsMain.WINDOW_HEIGHT;
-
+	// Height and width for the window
+	private static double width = 1000;
+	private static double height = 900;
 	
 	// These are the widget attributes for the GUI. There are 3 areas for this GUI.
 	
@@ -213,6 +210,7 @@ public class ViewUserUpdate {
 		// Create the Pane for the list of widgets and the Scene for the window
 		theRootPane = new Pane();
 		theUserUpdateScene = new Scene(theRootPane, width, height);
+		theRootPane.setStyle("-fx-background-color: #FFFFFF;");// make the background white
 
 		// Initialize the pop-up dialogs to an empty text filed.
 		dialogUpdateFirstName = new TextInputDialog("");
