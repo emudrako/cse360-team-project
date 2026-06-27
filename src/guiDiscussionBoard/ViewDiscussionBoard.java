@@ -52,40 +52,45 @@ public class ViewDiscussionBoard {
 	
 	// These are the widget attributes for the GUI. There are 3 areas for this GUI.
 	
-	// GUI Area 1: It informs the user about the purpose of this page, whose account is being used,
+	
+	// GUI Area 1
+	
+    //  Labels for title
 	protected static Label label_PageTitle = new Label();
 	protected static Label label_UserDetails = new Label();
 	protected static Label label_Subtitle = new Label("Your class forum");
-	// It is used for quitting the application, logging
-	// out, and returning to home. Be advised that in most cases in this code, the 
-	// return is to a fixed page as opposed to the actual page that invoked the pages.
+
+	// Buttons for navigating, allowing going back home, logging out, viewing my posts, and quitting
 	protected static String selectedThread = "";
 	protected static Button button_Home = new Button("Home");
 	protected static Button button_Logout = new Button("Logout");
 	protected static Button button_Quit = new Button("X");
 	protected static Button button_MyPosts = new Button("My Posts");
+	
 	// This is a separator and it is used to partition the GUI for various tasks
 	protected static Line line_Separator1 = new Line(20, 95, width-20, 95);
 	
 	
-	// Area 2: This contains the button to create a new post and contains a list of 
-	//threads for the student to select from
+	// GUI Area 2: 
 
+	
+	//  Search bar and its submit button
+	protected static TextField textfield_Search = new TextField();
+	protected static Button button_Search = new Button("Search");
+	
+	// Buttons for thread filters
 	protected static Button button_General = new Button ("General");
 	protected static Button button_Homework = new Button ("Homework");
 	protected static Button button_Quizzes = new Button("Quizzes");
 	protected static Button button_ViewAll = new Button ("View All");
-	
-	
-	//  This is the search bar and submit and Create post
-	protected static TextField textfield_Search = new TextField();
-	protected static Button button_Search = new Button("Search");
-	protected static Button button_CreatePost = new Button("+");
-	protected static VBox postCardList = new VBox(10);
+
+	// Create new post button
+	protected static Button button_CreatePost = new Button("Create a New Post +");
 	
 	// Area 3: This shows the student a list of the subject lines of each post in
 	// the selected thread
 	protected static VBox subjectList = new VBox(10);
+	protected static VBox postCardList = new VBox(10);
 	protected static ScrollPane scrollPane_PostCards = new ScrollPane(postCardList);
 	// Keeps track of the currently selected post for use in displayPost and
 	// newReplyForm methods
@@ -183,9 +188,9 @@ public class ViewDiscussionBoard {
 		setupLabelUI(label_UserDetails, "Arial", 12, 200, Pos.BASELINE_LEFT, 20, 10);
 		
 		label_PageTitle.setText("Discussion Board");
-		setupLabelUI(label_PageTitle, "Arial", 40, 400, Pos.BASELINE_LEFT, 20, 45);
+		setupLabelUI(label_PageTitle, "Arial", 40, 400, Pos.BASELINE_LEFT, 20, 35);
 		
-		setupLabelUI(label_Subtitle, "Arial", 24, 400, Pos.BASELINE_LEFT, 23, 100);
+		setupLabelUI(label_Subtitle, "Arial", 20, 400, Pos.BASELINE_LEFT, 23, 80);
 		label_Subtitle.setStyle("-fx-text-fill: #666666; -fx-font-style: italic;");
 		
 		setupButtonUI(button_MyPosts, "Dialog", 12, 70, Pos.CENTER, 772, 10);
@@ -205,37 +210,50 @@ public class ViewDiscussionBoard {
 		button_Home.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
 		button_Logout.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
 		button_Quit.setStyle("-fx-background-color: #BF0D3E; -fx-text-fill: white; -fx-background-radius: 5;");
+		button_MyPosts.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
+		button_Home.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
+		button_Logout.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
+		button_Quit.setStyle("-fx-background-color: #BF0D3E; -fx-text-fill: white; -fx-background-radius: 5;");
 
 		
 		// GUI Area 2
 		
 		// Search row
-		setupTextUI(textfield_Search, "Arial", 14, 250, Pos.BASELINE_LEFT, 20, 190, true);
+		setupTextUI(textfield_Search, "Arial", 14, 250, Pos.BASELINE_LEFT, 20, 128, true);
 
-		setupButtonUI(button_Search, "Dialog", 14, 75, Pos.CENTER, 265, 190);
+		setupButtonUI(button_Search, "Dialog", 14, 75, Pos.CENTER, 270, 128);
 		button_Search.setOnAction((_) -> { ControllerDiscussionBoard.performSearch(); });
 
-		setupButtonUI(button_CreatePost, "Dialog", 14, 30, Pos.CENTER, 340, 190);
+		setupButtonUI(button_CreatePost, "Dialog", 12, 150, Pos.CENTER, 440, 160);
 		button_CreatePost.setOnAction((_) -> { guiRelatedPosts.ViewRelatedPosts.displayRelatedPosts(theStage, theUser); });
 		
-		setupButtonUI(button_General, "Dialog", 13, 80, Pos.CENTER, 20, 220);
+		// Buttons to filter posts by threads for story 3
+		setupButtonUI(button_General, "Dialog", 13, 80, Pos.CENTER, 20, 160);
 		button_General.setOnAction((_) -> { selectedThread = "General"; displayPostCards(ControllerDiscussionBoard.postList.getAllPosts()); });
 
-		setupButtonUI(button_Homework, "Dialog", 13, 80, Pos.CENTER, 110, 220);
+		setupButtonUI(button_Homework, "Dialog", 13, 80, Pos.CENTER, 110, 160);
 		button_Homework.setOnAction((_) -> { selectedThread = "Homework"; displayPostCards(ControllerDiscussionBoard.postList.getAllPosts()); });
 
-		setupButtonUI(button_Quizzes, "Dialog", 13, 80, Pos.CENTER, 200, 220);
+		setupButtonUI(button_Quizzes, "Dialog", 13, 80, Pos.CENTER, 200, 160);
 		button_Quizzes.setOnAction((_) -> { selectedThread = "Quizzes"; displayPostCards(ControllerDiscussionBoard.postList.getAllPosts()); });
 
-		setupButtonUI(button_ViewAll, "Dialog", 13, 80, Pos.CENTER, 290, 220);
+		setupButtonUI(button_ViewAll, "Dialog", 13, 80, Pos.CENTER, 290, 160);
 		button_ViewAll.setOnAction((_) -> { selectedThread = ""; displayPostCards(ControllerDiscussionBoard.postList.getAllPosts()); });
 		
+		// style for buttons
+		button_General.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
+		button_Homework.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
+		button_Quizzes.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
+		button_ViewAll.setStyle("-fx-background-color: #002D72; -fx-text-fill: white; -fx-background-radius: 5;");
+
+		button_Search.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
+		button_CreatePost.setStyle("-fx-background-color: #041E42; -fx-text-fill: white; -fx-background-radius: 5;");
 		
 		// GUI Area 3
-		setupScrollPane(scrollPane_PostCards, 10, 400, 460, 20, 258);
+		setupScrollPane(scrollPane_PostCards, 10, 400, 600, 20, 193);
 		
 		// GUI Area 4
-		setupScrollPane(scrollPane_PostBody, 0, 550, 460, 435, 258);
+		setupScrollPane(scrollPane_PostBody, 0, 550, 600, 435, 193);
 		
 		
 		label_PageTitle.setStyle("-fx-text-fill: #041E42; -fx-font-weight: bold;");

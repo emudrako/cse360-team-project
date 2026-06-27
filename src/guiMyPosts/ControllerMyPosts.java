@@ -65,27 +65,31 @@ public class ControllerMyPosts {
 	protected static void loadMyPosts() {
 	    ViewMyPosts.postCardList.getChildren().clear();
 	    ViewMyPosts.scrollPane_PostBody.setContent(null);
-	    
+
 	    String currentUsername = ViewMyPosts.theUser.getUserName();
-	    
+
 	    try {
 	        List<entityClasses.Post> allPosts = theDatabase.getPostObjects();
 	        boolean hasPosts = false;
-	        
+
 	        for (entityClasses.Post post : allPosts) {
 	            if (post.getAuthorUsername().equals(currentUsername) && !post.getIsDeleted()) {
-	                int replyCount = theDatabase.getReplyCount(post.getPostID());
-	                int unreadCount = theDatabase.getUnreadReplyCount(post.getPostID(), currentUsername);
-	                ViewMyPosts.postCardList.getChildren().add(createPostCard(post, replyCount, unreadCount));
-	                hasPosts = true;
+	            	// Thread filtering
+	                if (ViewMyPosts.selectedThread.isEmpty() ||
+	                    post.getThread().equals(ViewMyPosts.selectedThread)) {
+	                    int replyCount = theDatabase.getReplyCount(post.getPostID());
+	                    int unreadCount = theDatabase.getUnreadReplyCount(post.getPostID(), currentUsername);
+	                    ViewMyPosts.postCardList.getChildren().add(createPostCard(post, replyCount, unreadCount));
+	                    hasPosts = true;
+	                }
 	            }
 	        }
-	        
+
 	        if (!hasPosts) {
 	            javafx.scene.control.Label empty = new javafx.scene.control.Label("No posts yet.");
 	            ViewMyPosts.postCardList.getChildren().add(empty);
 	        }
-	        
+
 	    } catch (Exception e) {
 	        javafx.scene.control.Label err = new javafx.scene.control.Label("Error loading posts: " + e.getMessage());
 	        ViewMyPosts.postCardList.getChildren().add(err);
@@ -143,6 +147,7 @@ public class ControllerMyPosts {
 	        displayPostBody(ViewMyPosts.currentPost);
 	    }
 	}
+	
 	
 	
 	/**********
@@ -310,13 +315,15 @@ public class ControllerMyPosts {
 	
 	private static javafx.scene.layout.VBox createPostCard(entityClasses.Post post, int replyCount, int unreadCount) {
 	    javafx.scene.layout.VBox card = new javafx.scene.layout.VBox(5);
-	    card.setPadding(new javafx.geometry.Insets(10));
-	    card.setMinWidth(330);
+	    card.setPadding(new javafx.geometry.Insets(15, 10, 15, 15));
+	    card.setMinWidth(ViewMyPosts.scrollPane_PostCards.getPrefWidth()-40);
+	    card.setMaxWidth(ViewMyPosts.scrollPane_PostCards.getPrefWidth()-40);
 	    card.setStyle(
-	        "-fx-border-color: lightgray;" +
-	        "-fx-border-radius: 5;" +
+	        "-fx-border-color: #E0E0E0;" +
+	        "-fx-border-radius: 8;" +
 	        "-fx-background-color: white;" +
-	        "-fx-background-radius: 5;"
+	        "-fx-background-radius: 8;" +
+	        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4, 0, 0, 2);"
 	    );
 	    
 	    // Title at top in bold
