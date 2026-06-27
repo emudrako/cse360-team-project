@@ -254,39 +254,45 @@ public class ViewDiscussionBoard {
 	 * 
 	 */
 	protected static void displayPostCards(List<Post> postObjects) {
-		List<Post> newPostList = new ArrayList<>();
-		
-		if (selectedThread.equals("General")) {
-			for (Post post : postObjects) {
-				if (post.getThread().equals("General")) {
-					newPostList.add(post);
-				}
-			}
-		}
-		else if (selectedThread.equals("Homework")) {
-			for (Post post : postObjects) {
-				if (post.getThread().equals("Homework")) {
-					newPostList.add(post);
-				}
-			}
-		}
-		else if (selectedThread.equals("Quizzes")) {
-			for (Post post : postObjects) {
-				if (post.getThread().equals("Quizzes")) {
-					newPostList.add(post);
-				}
-			}
-		}
-
-		else {
-			newPostList = postObjects;
-		}
-		
-		postCardList.getChildren().clear();
-		for (Post post : newPostList) {
-		    postCardList.getChildren().add(ControllerDiscussionBoard.createPostCard(post));
-		}
-		selectedThread = "";
+	    List<Post> newPostList = new ArrayList<>();
+	    
+	    if (selectedThread.equals("General")) {
+	        for (Post post : postObjects) {
+	            if (post.getThread().equals("General") && !post.getIsDeleted()) {
+	                newPostList.add(post);
+	            }
+	        }
+	    }
+	    else if (selectedThread.equals("Homework")) {
+	        for (Post post : postObjects) {
+	            if (post.getThread().equals("Homework") && !post.getIsDeleted()) {
+	                newPostList.add(post);
+	            }
+	        }
+	    }
+	    else if (selectedThread.equals("Quizzes")) {
+	        for (Post post : postObjects) {
+	            if (post.getThread().equals("Quizzes") && !post.getIsDeleted()) {
+	                newPostList.add(post);
+	            }
+	        }
+	    }
+	    else {
+	        for (Post post : postObjects) {
+	            if (!post.getIsDeleted()) {
+	                newPostList.add(post);
+	            }
+	        }
+	    }
+	    
+	    postCardList.getChildren().clear();
+	    for (Post post : newPostList) {
+	        VBox card = ControllerDiscussionBoard.createPostCard(post);
+	        if (card != null) {
+	            postCardList.getChildren().add(card);
+	        }
+	    }
+	    selectedThread = "";
 	}
 	
 	/**********
@@ -329,64 +335,67 @@ public class ViewDiscussionBoard {
 		}
 	
 	/**********
-	 * <p> Method: displayPost() </p>
-	 * 
-	 * <p> Description: This method populates the post body Scroll Pane with the
-	 * full post details when the user clicks on a post card. </p>
-	 * 
-	 */
+	* <p> Method: displayPost() </p>
+	*
+	* <p> Description: This method populates the post body Scroll Pane with the
+	* full post details when the user clicks on a post card. </p>
+	*
+	*/
 	protected static void displayPost(Post post) {
-		ViewDiscussionBoard.scrollPane_PostBody.setContent(null);
-		VBox fullPost = new VBox(5);
-		fullPost.setPadding(new Insets(10));
-		
-		fullPost.setStyle(
-			    "-fx-background-color: white;" +
-			    "-fx-border-color: #E0E0E0;" +
-			    "-fx-border-radius: 8;" +
-			    "-fx-background-radius: 8;" +
-			    "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4, 0, 0, 2);"
-			);
-		
-		Label title = new Label(post.getTitle());
-		title.setStyle("-fx-font-weight: bold;" + "-fx-font-size: 18px;");
-		
-		Label author = new Label("Author: " + post.getAuthorUsername());
-		Label thread = new Label("Thread: " + post.getThread());
-		
-		TextArea body = new TextArea(post.getBody());
-		body.setPrefHeight(100);
-		body.setWrapText(true);
-		body.setEditable(false);
-		
-		Button button_Reply = new Button("Reply");
-		button_Reply.setOnAction((_) ->
-			{onReplyForm = true;
-			displayPost(post);
-			});
-		
-		fullPost.getChildren().addAll(
-				title,
-				author,
-				thread,
-				body,
-				button_Reply
-				);
-		
-		if (onReplyForm == true) {
-			VBox replyForm = newReplyForm();
-			fullPost.getChildren().add(replyForm);
-			onReplyForm = false;
-		}
-		
-		List<Reply> replies = ControllerDiscussionBoard.replyList.getAllReplies();
-		for (Reply reply : replies) {
-			if (reply.getPostID() == currentPost.getPostID()) {
-				fullPost.getChildren().add(displayReply(reply));
-			}
-		}
-		
-		ViewDiscussionBoard.scrollPane_PostBody.setContent(fullPost);
+	    ViewDiscussionBoard.scrollPane_PostBody.setContent(null);
+	    VBox fullPost = new VBox(5);
+	    fullPost.setPadding(new Insets(10));
+	    fullPost.setStyle(
+	        "-fx-background-color: white;" +
+	        "-fx-border-color: #E0E0E0;" +
+	        "-fx-border-radius: 8;" +
+	        "-fx-background-radius: 8;" +
+	        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4, 0, 0, 2);"
+	    );
+
+	    // soft deleted
+	    if (post.getIsDeleted()) {
+	        Label deletedMsg = new Label("Original post has been deleted");
+	        deletedMsg.setStyle("-fx-font-size: 16px; -fx-text-fill: #BF0D3E; -fx-font-weight: bold;");
+	        fullPost.getChildren().add(deletedMsg);
+	    } 
+	    else {
+	        // Normal post display
+	        Label title = new Label(post.getTitle());
+	        title.setStyle("-fx-font-weight: bold;" + "-fx-font-size: 18px;");
+	        
+	        Label author = new Label("Author: " + post.getAuthorUsername());
+	        Label thread = new Label("Thread: " + post.getThread());
+	        
+	        TextArea body = new TextArea(post.getBody());
+	        body.setPrefHeight(100);
+	        body.setWrapText(true);
+	        body.setEditable(false);
+
+	        Button button_Reply = new Button("Reply");
+	        button_Reply.setOnAction((_) -> {
+	            onReplyForm = true;
+	            displayPost(post);
+	        });
+
+	        fullPost.getChildren().addAll(title, author, thread, body, button_Reply);
+	    }
+
+	    // Always show replies (even if original post is deleted)
+	    if (onReplyForm) {
+	        VBox replyForm = newReplyForm();
+	        fullPost.getChildren().add(replyForm);
+	        onReplyForm = false;
+	    }
+
+	    List<Reply> replies = ControllerDiscussionBoard.replyList.getAllReplies();
+	    for (Reply reply : replies) {
+	        if (reply.getPostID() == post.getPostID()) {
+	            fullPost.getChildren().add(displayReply(reply));
+	        }
+	    }
+
+	    ViewDiscussionBoard.scrollPane_PostBody.setContent(fullPost);
 	}
 	
 	/**********
