@@ -42,7 +42,6 @@ public class ViewCreatePost {
 	// GUI Area 1
 	protected static Label label_PageTitle = new Label();
 	protected static Label label_UserDetails = new Label();
-	protected static Button button_UpdateThisUser = new Button("Account Update");
 
 
 	private static Line line_Separator1 = new Line(20, 95, width-20, 95);
@@ -60,8 +59,7 @@ public class ViewCreatePost {
 	protected static Label label_ErrorMessage = new Label();
 
 	// GUI Area 3 
-	protected static Button button_Return = new Button("Return");
-	protected static Button button_Logout = new Button("Logout");
+	protected static Button button_Home = new Button("Home");
 	protected static Button button_Quit = new Button("X");
 	
 	private static ViewCreatePost theView;
@@ -123,17 +121,15 @@ public class ViewCreatePost {
 	    theCreatePost = new Scene(theRootPane, width, height);
 	 
 	    // GUI Area 1
+		setupButtonUI(button_Home, "Dialog", 12, 52, Pos.CENTER, 890, 10);
+	    button_Home.setOnAction((_) -> { ControllerCreatePost.performReturn(); });
 	    label_PageTitle.setText("Create Post");
 	    setupLabelUI(label_PageTitle, "Arial", 28, width, Pos.CENTER, 0, 5);
 	    
-	    label_UserDetails.setText("User: " + theUser.getUserName());
-	    setupLabelUI(label_UserDetails, "Arial", 20, width, Pos.BASELINE_LEFT, 20, 55);
-	    
-	    setupButtonUI(button_UpdateThisUser, "Dialog", 18, 170, Pos.CENTER, 610, 45);
-	    button_UpdateThisUser.setOnAction((_) -> { guiUserUpdate.ViewUserUpdate.displayUserUpdate(theStage, theUser); });
+		label_UserDetails.setText("User: " + theUser.getUserName());
+		setupLabelUI(label_UserDetails, "Arial", 12, 200, Pos.BASELINE_LEFT, 20, 10);
 	    
 	    // GUI Area 2
-	 // GUI Area 2
 	    setupLabelUI(label_TitleHeader, "Arial", 14, 100, Pos.BASELINE_LEFT, 20, 110);
 	    textfield_Title.setLayoutX(120);
 	    textfield_Title.setLayoutY(110);
@@ -159,22 +155,16 @@ public class ViewCreatePost {
 	    label_ErrorMessage.setStyle("-fx-text-fill: red;");
 	    
 	    // GUI Area 3
-	    setupButtonUI(button_Return, "Dialog", 18, 250, Pos.CENTER, 20, 540);
-	    button_Return.setOnAction((_) -> { ControllerCreatePost.performReturn(); });
-
-	    setupButtonUI(button_Logout, "Dialog", 18, 250, Pos.CENTER, 270, 540);
-	    button_Logout.setOnAction((_) -> { ControllerCreatePost.performLogout(); });
-
 		setupButtonUI(button_Quit, "Dialog", 12, 30, Pos.CENTER, 960, 10);
 	    button_Quit.setOnAction((_) -> { ControllerCreatePost.performQuit(); });
 
 	    theRootPane.getChildren().addAll(
-	    	label_PageTitle, label_UserDetails, button_UpdateThisUser, line_Separator1,
+	    	label_PageTitle, label_UserDetails,line_Separator1,
 	    	label_TitleHeader, textfield_Title,
 	    	label_BodyHeader, textarea_Body,
 	    	label_ThreadHeader, combobox_Thread,
 	    	button_Submit, label_ErrorMessage,
-	    	line_Separator4, button_Return, button_Logout, button_Quit);
+	    	line_Separator4, button_Home, button_Quit);
 	}
 	
 	/*-********************************************************************************************
