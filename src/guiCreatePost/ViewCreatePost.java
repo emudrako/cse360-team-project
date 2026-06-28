@@ -121,19 +121,27 @@ public class ViewCreatePost {
 	    theCreatePost = new Scene(theRootPane, width, height);
 	 
 	    // GUI Area 1
-		setupButtonUI(button_Home, "Dialog", 12, 52, Pos.CENTER, 890, 10);
-	    button_Home.setOnAction((_) -> { ControllerCreatePost.performReturn(); });
-	    label_PageTitle.setText("Create Post");
-	    setupLabelUI(label_PageTitle, "Arial", 28, width, Pos.CENTER, 0, 5);
 	    
 		label_UserDetails.setText("User: " + theUser.getUserName());
 		setupLabelUI(label_UserDetails, "Arial", 12, 200, Pos.BASELINE_LEFT, 20, 10);
+		// Home Button Style
+		setupButtonUI(button_Home, "Dialog", 12, 52, Pos.CENTER, 900, 10);
+	    button_Home.setOnAction((_) -> { ControllerCreatePost.performReturn(); });
+		button_Home.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
+		// Quit Button
+		setupButtonUI(button_Quit, "Dialog", 12, 30, Pos.CENTER, 960, 10);
+	    button_Quit.setOnAction((_) -> { ControllerCreatePost.performQuit(); });
+		button_Quit.setStyle("-fx-background-color: #BF0D3E; -fx-text-fill: white; -fx-background-radius: 5;");
 	    
 	    // GUI Area 2
-	    setupLabelUI(label_TitleHeader, "Arial", 14, 100, Pos.BASELINE_LEFT, 20, 110);
+	    setupLabelUI(label_TitleHeader, "Arial", 28, 400, Pos.CENTER, 300, 140);
 	    textfield_Title.setLayoutX(120);
 	    textfield_Title.setLayoutY(110);
 	    textfield_Title.setPrefWidth(500);
+		// Create Post title
+	    label_PageTitle.setText("Create Post");
+	    setupLabelUI(label_PageTitle, "Arial", 28, width, Pos.CENTER, 0, 5);
+	    
 
 	    setupLabelUI(label_BodyHeader, "Arial", 14, 100, Pos.BASELINE_LEFT, 20, 160);
 	    textarea_Body.setLayoutX(120);
@@ -154,10 +162,6 @@ public class ViewCreatePost {
 	    setupLabelUI(label_ErrorMessage, "Arial", 14, 500, Pos.BASELINE_LEFT, 120, 480);
 	    label_ErrorMessage.setStyle("-fx-text-fill: red;");
 	    
-	    // GUI Area 3
-		setupButtonUI(button_Quit, "Dialog", 12, 30, Pos.CENTER, 960, 10);
-	    button_Quit.setOnAction((_) -> { ControllerCreatePost.performQuit(); });
-
 	    theRootPane.getChildren().addAll(
 	    	label_PageTitle, label_UserDetails,line_Separator1,
 	    	label_TitleHeader, textfield_Title,
