@@ -101,8 +101,10 @@ public class PostList {
 	// Gets the subset of Posts matching a keyword.
 	public List<Post> getPostsByKeyword(String keyword) {
 		List<Post> result = new ArrayList<Post>();
+		String lowerKeyword = keyword.toLowerCase();
 		for (Post p : posts) {
-			if (p.getTitle().contains(keyword) || p.getBody().contains(keyword)) {
+			if (p.getTitle().toLowerCase().contains(lowerKeyword) ||
+			    p.getBody().toLowerCase().contains(lowerKeyword)) {
 				result.add(p);
 			}
 		}

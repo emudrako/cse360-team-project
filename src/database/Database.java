@@ -9,6 +9,9 @@ import java.util.UUID;
 import entityClasses.User;
 import entityClasses.Post;
 import entityClasses.Reply;
+import entityClasses.Thread;
+import entityClasses.EvaluationParameter;
+import entityClasses.Request;
 
 /*******
  * <p> Title: Database Class. </p>
@@ -189,6 +192,28 @@ public class Database {
 	    		+ "readerUsername VARCHAR(255), "
 	    		+ "PRIMARY KEY (replyID, readerUsername))";
 	    statement.execute(replyReadStatusTable);
+
+	    // Create the threads table
+	    String threadsTable = "CREATE TABLE IF NOT EXISTS ThreadsDB ("
+	    		+ "threadID    INT AUTO_INCREMENT PRIMARY KEY, "
+	    		+ "name        VARCHAR(255) UNIQUE, "
+	    		+ "description VARCHAR(1000), "
+	    		+ "isDefault   BOOL DEFAULT FALSE, "
+	    		+ "createdBy   VARCHAR(255), "
+	    		+ "createdAt   TIMESTAMP DEFAULT CURRENT_TIMESTAMP)";
+	    statement.execute(threadsTable);
+
+	    // Create the requests table
+	    String requestsTable = "CREATE TABLE IF NOT EXISTS RequestsDB ("
+	    		+ "requestID         INT AUTO_INCREMENT PRIMARY KEY, "
+	    		+ "requestorUsername VARCHAR(255), "
+	    		+ "description       VARCHAR(1000), "
+	    		+ "isClosed          BOOL DEFAULT FALSE, "
+	    		+ "adminNotes        VARCHAR(1000), "
+	    		+ "closedRequestId   INT DEFAULT -1, "
+	    		+ "createdAt         TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
+	    		+ "closedAt          TIMESTAMP)";
+	    statement.execute(requestsTable);
 	}
 	
 
@@ -1901,6 +1926,334 @@ public class Database {
 		}
 		return replies;
 	}
+
+	/*******
+	 * <p> Method: createThread(Thread thread) </p>
+	 *
+	 * <p> Description: Creates a new row in ThreadsDB using the thread parameter and sets
+	 *  the database-generated threadID back onto the Thread object. </p>
+	 *
+	 * @throws SQLException when there is an issue creating the SQL command or executing it.
+	 *
+	 * @param thread specifies the Thread object to be added to the database.
+	 *
+	 */
+	public void createThread(Thread thread) throws SQLException {
+	}
+
+	/*******
+	 * <p> Method: readThread(int threadID) </p>
+	 *
+	 * <p> Description: Retrieves a single Thread object from ThreadsDB matching the
+	 *  specified threadID, or null if no such thread exists. </p>
+	 *
+	 * @param threadID specifies the ID of the thread to retrieve.
+	 *
+	 * @return a Thread object matching the specified threadID, or null if not found.
+	 *
+	 */
+	public Thread readThread(int threadID) {
+		return null;
+	}
+
+	/*******
+	 * <p> Method: readAllThreads() </p>
+	 *
+	 * <p> Description: Retrieves all Thread objects from ThreadsDB. </p>
+	 *
+	 * @return a List of all Thread objects currently stored.
+	 *
+	 */
+	public List<Thread> readAllThreads() {
+		return new ArrayList<Thread>();
+	}
+
+	/*******
+	 * <p> Method: updateThread(int threadID, String newName, String newDescription) </p>
+	 *
+	 * <p> Description: Updates the name and description of an existing thread. Guarded:
+	 *  the "General" thread (isDefault=true) may not be updated. </p>
+	 *
+	 * @param threadID specifies the ID of the thread to update.
+	 *
+	 * @param newName specifies the new name for the thread.
+	 *
+	 * @param newDescription specifies the new description for the thread.
+	 *
+	 */
+	public void updateThread(int threadID, String newName, String newDescription) {
+	}
+
+	/*******
+	 * <p> Method: deleteThread(int threadID) </p>
+	 *
+	 * <p> Description: Deletes a thread from ThreadsDB. Guarded: the "General" thread
+	 *  (isDefault=true) may not be deleted. All posts belonging to the deleted thread
+	 *  are reassigned to "General" before the thread row is removed. </p>
+	 *
+	 * @param threadID specifies the ID of the thread to delete.
+	 *
+	 */
+	public void deleteThread(int threadID) {
+	}
+
+
+	/*******
+	 * <p> Method: createEvaluationParameter(EvaluationParameter p) </p>
+	 *
+	 * <p> Description: Creates a new row in EvaluationParametersDB using the parameter
+	 *  object and sets the database-generated paramID back onto the EvaluationParameter
+	 *  object. </p>
+	 *
+	 * @throws SQLException when there is an issue creating the SQL command or executing it.
+	 *
+	 * @param param specifies the EvaluationParameter object to be added to the database.
+	 *
+	 */
+	public void createEvaluationParameter(EvaluationParameter param) throws SQLException {
+	}
+
+	/*******
+	 * <p> Method: readEvaluationParameter(int paramID) </p>
+	 *
+	 * <p> Description: Retrieves a single EvaluationParameter object from
+	 *  EvaluationParametersDB matching the specified paramID, or null if no such
+	 *  parameter exists. </p>
+	 *
+	 * @param paramID specifies the ID of the parameter to retrieve.
+	 *
+	 * @return an EvaluationParameter object matching the specified paramID, or null if
+	 *  not found.
+	 *
+	 */
+	public EvaluationParameter readEvaluationParameter(int paramID) {
+		return null;
+	}
+
+	/*******
+	 * <p> Method: readAllEvaluationParameters() </p>
+	 *
+	 * <p> Description: Retrieves all EvaluationParameter objects from
+	 *  EvaluationParametersDB. </p>
+	 *
+	 * @return a List of all EvaluationParameter objects currently stored.
+	 *
+	 */
+	public List<EvaluationParameter> readAllEvaluationParameters() {
+		return new ArrayList<EvaluationParameter>();
+	}
+
+	/*******
+	 * <p> Method: updateEvaluationParameter(int paramID, String newName,
+	 *  String newDescription, double maxScore, double weight) </p>
+	 *
+	 * <p> Description: Updates the name, description, maxScore, and weight of an existing
+	 *  evaluation parameter in EvaluationParametersDB. </p>
+	 *
+	 * @param paramID specifies the ID of the parameter to update.
+	 *
+	 * @param newName specifies the new name for the parameter.
+	 *
+	 * @param newDescription specifies the new description for the parameter.
+	 *
+	 * @param maxScore specifies the new maximum score for the parameter.
+	 *
+	 * @param weight specifies the new weight for the parameter (0.0-1.0).
+	 *
+	 */
+	public void updateEvaluationParameter(int paramID, String newName,
+			String newDescription, double maxScore, double weight) {
+	}
+
+	/*******
+	 * <p> Method: deleteEvaluationParameter(int paramID) </p>
+	 *
+	 * <p> Description: Permanently removes an evaluation parameter from
+	 *  EvaluationParametersDB. </p>
+	 *
+	 * @param paramID specifies the ID of the parameter to delete.
+	 *
+	 */
+	public void deleteEvaluationParameter(int paramID) {
+	}
+
+
+	/*******
+	 * <p> Method: createRequest(Request request) </p>
+	 *
+	 * <p> Description: Creates a new row in RequestsDB using the request parameter and
+	 *  sets the database-generated requestID back onto the Request object. </p>
+	 *
+	 * @throws SQLException when there is an issue creating the SQL command or executing it.
+	 *
+	 * @param request specifies the Request object to be added to the database.
+	 *
+	 */
+	public void createRequest(Request request) throws SQLException {
+	}
+
+	/*******
+	 * <p> Method: readRequest(int requestID) </p>
+	 *
+	 * <p> Description: Retrieves a single Request object from RequestsDB matching the
+	 *  specified requestID, or null if no such request exists. </p>
+	 *
+	 * @param requestID specifies the ID of the request to retrieve.
+	 *
+	 * @return a Request object matching the specified requestID, or null if not found.
+	 *
+	 */
+	public Request readRequest(int requestID) {
+		return null;
+	}
+
+	/*******
+	 * <p> Method: readAllRequests() </p>
+	 *
+	 * <p> Description: Retrieves all Request objects from RequestsDB. </p>
+	 *
+	 * @return a List of all Request objects currently stored.
+	 *
+	 */
+	public List<Request> readAllRequests() {
+		return new ArrayList<Request>();
+	}
+
+	/*******
+	 * <p> Method: updateRequest(int requestID, String newDescription) </p>
+	 *
+	 * <p> Description: Updates the description of an existing open request in RequestsDB.
+	 *  Only open requests may be updated. </p>
+	 *
+	 * @param requestID specifies the ID of the request to update.
+	 *
+	 * @param newDescription specifies the new description for the request.
+	 *
+	 */
+	public void updateRequest(int requestID, String newDescription) {
+	}
+
+	/*******
+	 * <p> Method: deleteRequest(int requestID) </p>
+	 *
+	 * <p> Description: Permanently removes a request from RequestsDB. </p>
+	 *
+	 * @param requestID specifies the ID of the request to delete.
+	 *
+	 */
+	public void deleteRequest(int requestID) {
+	}
+
+
+	/*******
+	 * <p> Method: flagPost(int postID, String staffUsername) </p>
+	 *
+	 * <p> Description: Marks the specified post as flagged and records which staff member
+	 *  flagged it by setting isFlagged=true and flaggedBy in PostsDB. </p>
+	 *
+	 * @param postID specifies the ID of the post to flag.
+	 *
+	 * @param staffUsername specifies the username of the staff member flagging the post.
+	 *
+	 */
+	public void flagPost(int postID, String staffUsername) {
+	}
+
+	/*******
+	 * <p> Method: setPostStaffNote(int postID, String note) </p>
+	 *
+	 * <p> Description: Sets a private staff annotation on the specified post in PostsDB.
+	 *  The note is not visible to students. </p>
+	 *
+	 * @param postID specifies the ID of the post to annotate.
+	 *
+	 * @param note specifies the private staff note to attach to the post.
+	 *
+	 */
+	public void setPostStaffNote(int postID, String note) {
+	}
+
+	/*******
+	 * <p> Method: resolvePost(int postID, String staffUsername) </p>
+	 *
+	 * <p> Description: Marks the specified post as resolved and records which staff member
+	 *  resolved it by setting isResolved=true and resolvedBy in PostsDB. </p>
+	 *
+	 * @param postID specifies the ID of the post to resolve.
+	 *
+	 * @param staffUsername specifies the username of the staff member resolving the post.
+	 *
+	 */
+	public void resolvePost(int postID, String staffUsername) {
+	}
+
+	/*******
+	 * <p> Method: readFlaggedPosts() </p>
+	 *
+	 * <p> Description: Retrieves all Post objects from PostsDB where isFlagged is true. </p>
+	 *
+	 * @return a List of all flagged Post objects.
+	 *
+	 */
+	public List<Post> readFlaggedPosts() {
+		return new ArrayList<Post>();
+	}
+
+
+	/*******
+	 * <p> Method: flagReply(int replyID, String staffUsername) </p>
+	 *
+	 * <p> Description: Marks the specified reply as flagged and records which staff member
+	 *  flagged it by setting isFlagged=true and flaggedBy in RepliesDB. </p>
+	 *
+	 * @param replyID specifies the ID of the reply to flag.
+	 *
+	 * @param staffUsername specifies the username of the staff member flagging the reply.
+	 *
+	 */
+	public void flagReply(int replyID, String staffUsername) {
+	}
+
+	/*******
+	 * <p> Method: setReplyStaffNote(int replyID, String note) </p>
+	 *
+	 * <p> Description: Sets a private staff annotation on the specified reply in RepliesDB.
+	 *  The note is not visible to students. </p>
+	 *
+	 * @param replyID specifies the ID of the reply to annotate.
+	 *
+	 * @param note specifies the private staff note to attach to the reply.
+	 *
+	 */
+	public void setReplyStaffNote(int replyID, String note) {
+	}
+
+	/*******
+	 * <p> Method: resolveReply(int replyID, String staffUsername) </p>
+	 *
+	 * <p> Description: Marks the specified reply as resolved and records which staff member
+	 *  resolved it by setting isResolved=true and resolvedBy in RepliesDB. </p>
+	 *
+	 * @param replyID specifies the ID of the reply to resolve.
+	 *
+	 * @param staffUsername specifies the username of the staff member resolving the reply.
+	 *
+	 */
+	public void resolveReply(int replyID, String staffUsername) {
+	}
+
+	/*******
+	 * <p> Method: readFlaggedReplies() </p>
+	 *
+	 * <p> Description: Retrieves all Reply objects from RepliesDB where isFlagged is true. </p>
+	 *
+	 * @return a List of all flagged Reply objects.
+	 *
+	 */
+	public List<Reply> readFlaggedReplies() {
+		return new ArrayList<Reply>();
+	}
+
 
 	/*******
 	 * <p> Method: void closeConnection()</p>

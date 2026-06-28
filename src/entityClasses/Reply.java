@@ -24,6 +24,11 @@ public class Reply {
 	private String body;
 	private String authorUsername;
 	private LocalDateTime createdAt;
+	private boolean isFlagged;
+	private String  flaggedBy;
+	private String  staffNote;   // private staff annotation, not visible to students
+	private boolean isResolved;
+	private String  resolvedBy;
 	
 	/*****
 	 * <p> Method: Reply() </p>
@@ -124,7 +129,7 @@ public class Reply {
 	 * 
 	 */
 	// Sets the Body.
-	public void setBody(String body) { body = body; }
+	public void setBody(String body) { this.body = body; }
 
 	
 	/*****
@@ -172,4 +177,114 @@ public class Reply {
 	 */
 	public void setCreatedAt(LocalDateTime time) { createdAt = time; }
 
+
+	/*****
+	 * <p> Method: boolean getIsFlagged() </p>
+	 *
+	 * <p> Description: This getter returns the IsFlagged attribute. </p>
+	 *
+	 * @return a boolean TRUE if this reply has been flagged by staff, FALSE otherwise
+	 *
+	 */
+	public boolean getIsFlagged() { return isFlagged; }
+
+
+	/*****
+	 * <p> Method: void setIsFlagged(boolean isFlagged) </p>
+	 *
+	 * <p> Description: This setter defines the IsFlagged attribute. </p>
+	 *
+	 * @param isFlagged specifies TRUE if this reply should be marked as flagged
+	 *
+	 */
+	public void setIsFlagged(boolean isFlagged) { this.isFlagged = isFlagged; }
+
+
+	/*****
+	 * <p> Method: String getFlaggedBy() </p>
+	 *
+	 * <p> Description: This getter returns the FlaggedBy username. </p>
+	 *
+	 * @return a String of the username of the staff member who flagged this reply
+	 *
+	 */
+	public String getFlaggedBy() { return flaggedBy; }
+
+
+	/*****
+	 * <p> Method: void setFlaggedBy(String username) </p>
+	 *
+	 * <p> Description: This setter defines the FlaggedBy attribute. </p>
+	 *
+	 * @param username specifies the username of the staff member flagging this reply
+	 *
+	 */
+	public void setFlaggedBy(String username) { flaggedBy = username; }
+
+
+	/*****
+	 * <p> Method: String getStaffNote() </p>
+	 *
+	 * <p> Description: This getter returns the StaffNote. This is a private staff
+	 *  annotation not visible to students. </p>
+	 *
+	 * @return a String of the staff note
+	 *
+	 */
+	public String getStaffNote() { return staffNote; }
+
+
+	/*****
+	 * <p> Method: void setStaffNote(String note) </p>
+	 *
+	 * <p> Description: This setter defines the StaffNote attribute. </p>
+	 *
+	 * @param note specifies the private staff annotation for this reply
+	 *
+	 */
+	public void setStaffNote(String note) { staffNote = note; }
+
+
+	/*****
+	 * <p> Method: boolean getIsResolved() </p>
+	 *
+	 * <p> Description: This getter returns the IsResolved attribute. </p>
+	 *
+	 * @return a boolean TRUE if this reply has been resolved by staff, FALSE otherwise
+	 *
+	 */
+	public boolean getIsResolved() { return isResolved; }
+
+
+	/*****
+	 * <p> Method: void setIsResolved(boolean isResolved) </p>
+	 *
+	 * <p> Description: This setter defines the IsResolved attribute. </p>
+	 *
+	 * @param isResolved specifies TRUE if this reply has been resolved by staff
+	 *
+	 */
+	public void setIsResolved(boolean isResolved) { this.isResolved = isResolved; }
+
+
+	/*****
+	 * <p> Method: String getResolvedBy() </p>
+	 *
+	 * <p> Description: This getter returns the ResolvedBy username. </p>
+	 *
+	 * @return a String of the username of the staff member who resolved this reply
+	 *
+	 */
+	public String getResolvedBy() { return resolvedBy; }
+
+
+	/*****
+	 * <p> Method: void setResolvedBy(String username) </p>
+	 *
+	 * <p> Description: This setter defines the ResolvedBy attribute. </p>
+	 *
+	 * @param username specifies the username of the staff member resolving this reply
+	 *
+	 */
+	public void setResolvedBy(String username) { resolvedBy = username; }
 }
