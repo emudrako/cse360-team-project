@@ -68,11 +68,11 @@ public class ViewRelatedPosts {
 
 	 */
 
-	// Per the team's CSE 360 Discussion UI Style Guide, all pages use 1000x700. This
+	// Per the team's CSE 360 Discussion UI Style Guide, all pages use 1000x900. This
 	// matches the dimensions used by Pete's ViewDiscussionBoard (width axis) so the
 	// page does not visually "shift" when the student transitions from one to the other.
 	private static double width = 1000;
-	private static double height = 700;
+	private static double height = 900;
 
 	// GUI Area 1: Page title, subtitle, current user, and top-right navigation bar
 	// (Cancel / Logout / X). This matches the Pete Discussion Board layout exactly so

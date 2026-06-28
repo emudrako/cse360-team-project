@@ -9,6 +9,7 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import database.Database;
 import entityClasses.User;
+import guiUserLogin.ControllerUserLogin;
 
 /*******
  * <p> Title: ViewCreatePost Class. </p>
@@ -34,8 +35,9 @@ public class ViewCreatePost {
 
 	 */
 
-	private static double width = applicationMain.FoundationsMain.WINDOW_WIDTH;
-	private static double height = applicationMain.FoundationsMain.WINDOW_HEIGHT;
+	// Height and width for the window
+	private static double width = 1000;
+	private static double height = 900;
 
 	// GUI Area 1
 	protected static Label label_PageTitle = new Label();
@@ -60,7 +62,7 @@ public class ViewCreatePost {
 	// GUI Area 3 
 	protected static Button button_Return = new Button("Return");
 	protected static Button button_Logout = new Button("Logout");
-	protected static Button button_Quit = new Button("Quit");
+	protected static Button button_Quit = new Button("X");
 	
 	private static ViewCreatePost theView;
 	private static Database theDatabase = applicationMain.FoundationsMain.database;
@@ -117,6 +119,7 @@ public class ViewCreatePost {
 	 */
 	private ViewCreatePost() {
 	    theRootPane = new Pane();
+		theRootPane.setStyle("-fx-background-color: #FFFFFF;");// make the background white
 	    theCreatePost = new Scene(theRootPane, width, height);
 	 
 	    // GUI Area 1
@@ -162,7 +165,7 @@ public class ViewCreatePost {
 	    setupButtonUI(button_Logout, "Dialog", 18, 250, Pos.CENTER, 270, 540);
 	    button_Logout.setOnAction((_) -> { ControllerCreatePost.performLogout(); });
 
-	    setupButtonUI(button_Quit, "Dialog", 18, 250, Pos.CENTER, 520, 540);
+		setupButtonUI(button_Quit, "Dialog", 12, 30, Pos.CENTER, 960, 10);
 	    button_Quit.setOnAction((_) -> { ControllerCreatePost.performQuit(); });
 
 	    theRootPane.getChildren().addAll(

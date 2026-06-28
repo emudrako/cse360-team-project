@@ -34,8 +34,10 @@ public class ViewStudentHome {
 
 	 */
 
-	private static double width = applicationMain.FoundationsMain.WINDOW_WIDTH;
-	private static double height = applicationMain.FoundationsMain.WINDOW_HEIGHT;
+	// These are the application values required by the user interface
+	
+	private static double width = 1000;
+	private static double height = 900;
 
 	// GUI Area 1
 	protected static Label label_PageTitle = new Label();
@@ -104,6 +106,7 @@ public class ViewStudentHome {
 	private ViewStudentHome() {
 		theRootPane = new Pane();
 		theViewStudentHomeScene = new Scene(theRootPane, width, height);
+		theRootPane.setStyle("-fx-background-color: #FFFFFF;");// make the background white
 
 		// GUI Area 1
 		label_PageTitle.setText("Student Home Page");
