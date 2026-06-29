@@ -11,6 +11,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TitledPane;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.HBox;
@@ -343,7 +344,7 @@ public class ViewDiscussionBoard {
 				
 		button_Submit.setOnAction((_) ->
 			{ControllerDiscussionBoard.newReply(currentPost.getPostID(),
-				textArea_ReplyContent.getText(), theUser.getUserName());
+				textArea_ReplyContent.getText(), theUser.getUserName(), 0, false, 0);
 				displayPost(currentPost);
 			});
 		button_Cancel.setOnAction((_) ->
@@ -437,20 +438,66 @@ public class ViewDiscussionBoard {
 		
 		Button button_Reply = new Button("Reply");
 		button_Reply.setOnAction((_) -> {
-			VBox replyToReply = new VBox(newReplyForm());
-			viewReply.getChildren().addAll(
-					replyToReply
-					);
+			VBox replyToReply = new VBox(replyToReplyForm(reply));
+			viewReply.getChildren().add(replyToReply);
 		});
 		
-		viewReply.getChildren().addAll(
+		if (!reply.getHasReplies()) {
+			viewReply.getChildren().addAll(
 				author,
 				body,
 				button_Reply
 				);
+		}
+		else {
+			VBox childReplies = new VBox(5);
+			childReplies.setPadding(new Insets(15));
+			
+			for (Reply tempReply : ControllerDiscussionBoard.replyList.getAllReplies()) {
+				if (tempReply.getParentReplyID() == reply.getReplyID()) {
+					childReplies.getChildren().add(displayReplyToReply(tempReply));
+				}
+			}
+			
+			TitledPane childRepliesPane = new TitledPane(("View replies to " + reply.getAuthorUsername()
+			+ "  |  Number of replies: " + reply.getNumReplies()), childReplies);
+			childRepliesPane.setExpanded(false);
+			
+			viewReply.getChildren().addAll(
+				author,
+				body,
+				button_Reply,
+				childRepliesPane
+				);
+		}
 		return viewReply;
 	}
-
+	
+	/**********
+	 * <p> Method: displayReplyToReply() </p>
+	 * 
+	 * <p> Description: This method populates the post body Scroll Pane with the
+	 * replies to replies from the currently selected post. </p>
+	 * 
+	 */
+	protected static VBox displayReplyToReply(Reply reply) {
+		VBox viewReply = new VBox(5);
+		viewReply.setPadding(new Insets(15));
+		
+		Label author = new Label(reply.getAuthorUsername() + " says:");
+		author.setStyle("-fx-font-weight: bold;" + "-fx-font-size: 14px;");
+		
+		TextArea body = new TextArea(reply.getBody());
+		body.setPrefHeight(100);
+		body.setWrapText(true);
+		body.setEditable(false);
+			
+		viewReply.getChildren().addAll(
+			author,
+			body);
+		return viewReply;	
+	}
+		
 	/*-*******************************************************************************************
 
 	Helper methods used to minimizes the number of lines of code needed above
