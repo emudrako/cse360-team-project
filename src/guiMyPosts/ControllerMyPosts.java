@@ -4,13 +4,10 @@ import java.util.List;
 import database.Database;
 import entityClasses.Reply;
 import guiDiscussionBoard.ControllerDiscussionBoard;
-import guiDiscussionBoard.ViewDiscussionBoard;
 import javafx.geometry.Insets;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TitledPane;
-import javafx.scene.effect.ColorInput;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -19,9 +16,10 @@ import javafx.scene.text.Font;
 /*******
  * <p> Title: ControllerMyPosts Class. </p>
  * 
- * <p> Description: The Java/FX-based My Posts page.  This class provides the controller
- * actions for the My Posts page including ability for a student to view a list of all posts they have made, search through posts, and toggle
- * between read and unread replies.
+ * <p> Description: The Java/FX-based My Posts page. Supports Story 3 (View My Posts with togglet), Story 6(Delete
+ * My Posts with confirmation), and Story 8 (Search Replies by Key) This class provides the controller
+ * actions for the My Posts page including ability for a student to view a list of all posts they have made, 
+ * search through posts, and toggle between read and unread replies.
  * 
  * The class has been written assuming that the View or the Model are the only class methods that
  * can invoke these methods.  This is why each has been declared at "protected".  Do not change any
@@ -319,6 +317,17 @@ public class ControllerMyPosts {
 	    }
 	}
 	
+	/**********
+	 * <p> Method: createPostCard(Post post, int replyCount, int unreadCount) </p>
+	 *
+	 * <p> Description: Builds and returns a styled post card VBox showing the post
+	 * title, thread, author, timestamp, reply count and unread count. (Story 3) </p>
+	 *
+	 * @param post the Post object to display
+	 * @param replyCount total number of replies for this post
+	 * @param unreadCount number of unread replies for this post
+	 * @return a styled VBox post card
+	 */
 	private static javafx.scene.layout.VBox createPostCard(entityClasses.Post post, int replyCount, int unreadCount) {
 	    javafx.scene.layout.VBox card = new javafx.scene.layout.VBox(5);
 	    card.setPadding(new javafx.geometry.Insets(15, 10, 15, 15));
@@ -372,11 +381,15 @@ public class ControllerMyPosts {
 	    return card;
 	}
 /**********
+ * 
  * <p> Method: displayPostBody(Post post)</>
+ * 
  * <p> Description: Populates the post body and has a scroll ability, it shows the selected post's
  * title, thread, body and all of its associated replies, it also marks each reply as read for the current 
  * user upon display.</p>
+ * 
  * @param post the Post object whose full content and replies should be displayed.
+ * 
  */
 	private static void displayPostBody(entityClasses.Post post) {
 	    javafx.scene.layout.VBox fullPost = new javafx.scene.layout.VBox(5);
@@ -472,25 +485,6 @@ public class ControllerMyPosts {
 		}
 		return viewReply;
 	}
-		/*
-		VBox viewReply = new VBox(5);
-		viewReply.setPadding(new Insets(15));
-		
-		Label author = new Label(reply.getAuthorUsername() + " says:");
-		author.setStyle("-fx-font-weight: bold;" + "-fx-font-size: 12px;");
-		
-		TextArea body = new TextArea(reply.getBody());
-		body.setPrefHeight(100);
-		body.setWrapText(true);
-		body.setEditable(false);
-		
-		viewReply.getChildren().addAll(
-				author,
-				body
-				);
-		return viewReply;
-	}
-	*/
 	
 	/**********
 	 * <p> Method: displayReplyToReply() </p>
@@ -498,6 +492,8 @@ public class ControllerMyPosts {
 	 * <p> Description: This method populates the post body Scroll Pane with the
 	 * replies to replies from the currently selected post. </p>
 	 * 
+	 * @param reply the Reply object to display
+	 * @return a VBox containing the reply author and body
 	 */
 	protected static VBox displayReplyToReply(Reply reply) {
 		VBox viewReply = new VBox(5);
@@ -527,6 +523,12 @@ public class ControllerMyPosts {
 	    guiStudentHome.ViewStudentHome.displayStudentHome(ViewMyPosts.theStage, ViewMyPosts.theUser);
 	}
 	
+	/**********
+	 * <p> Method: performGoToDiscussionBoard() </p>
+	 *
+	 * <p> Description: Navigates the user to the Discussion Board page. </p>
+	 *
+	 */
 	protected static void performGoToDiscussionBoard() {
 	    guiDiscussionBoard.ViewDiscussionBoard.displayDiscussionBoard(ViewMyPosts.theStage, ViewMyPosts.theUser);
 	}
@@ -574,7 +576,15 @@ public class ControllerMyPosts {
 	    });
 	}
 
-
+	/**********
+	 * <p> Method: showAlert() </p>
+	 *
+	 * <p> Description: Displays an alert dialog with the title, message and type. </p>
+	 *
+	 * @param title the title of the alert
+	 * @param message the message to display
+	 * @param type the type of alert (ERROR, INFORMATION, etc.)
+	 */
 	private static void showAlert(String title, String message, javafx.scene.control.Alert.AlertType type) {
 	    javafx.scene.control.Alert alert = new javafx.scene.control.Alert(type);
 	    alert.setTitle(title);

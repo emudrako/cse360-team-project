@@ -5,23 +5,20 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
-import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import java.util.List;
 import database.Database;
 import entityClasses.User;
-import guiDiscussionBoard.ControllerDiscussionBoard;
 
 /*******
  * <p> Title: ViewMyPosts Class. </p>
  *
- * <p> Description: The Java/FX-based page for viewing the My Posts page.
- * Allows the student to view their submitted posts, filter for unread replies,
- * search replies by user or keyword, and select a specific post to view its full body.</p>
+ * <p> Description: The Java/FX-based page for viewing the My Posts page. Supports Story 3 (View my posts w/ toggle),
+ * Story 6 (Delete my posts with confirmation) and Story 8 (Search replies by key).
+ * Allows the student to view their submitted posts, filter for unread replies, filter by thread
+ * search replies by user or keyword, and select a specific post to view its full body, and delete their own post with confirmation</p>
  *
  * <p> Copyright: Maranda Martinez © 2026 </p>
  *
@@ -39,16 +36,18 @@ public class ViewMyPosts {
 	Attributes
 
 	 */
-	// Height and width for the window
-
+	
+	// Height and width for the window, consistent with team UI style standards
 	private static double width = 1000;
 	private static double height = 900;
 
 	// GUI Area 1
+	// Labels for page title and display name of logged in user
 	protected static Label label_PageTitle = new Label();
 	protected static Label label_UserDetails = new Label();
+	// Subtitle displayed to set context for the page
 	protected static Label label_Subtitle = new Label("Track your discussions and replies.");
-	// App navigation buttons
+	// App navigation buttons for going to discussion board, home, logging out, and quitting
 	protected static Button button_discussionBoard = new Button("Discussion Board");
 	protected static Button button_Home = new Button("Home");
 	protected static Button button_Logout = new Button("Logout");
@@ -57,39 +56,46 @@ public class ViewMyPosts {
 
 	// GUI Area 2
 	// Search by keyword, user and unread filters
-	protected static Label label_PostsHeader = new Label("");
 	protected static Label label_Filter = new Label("Filter:");
+	// Toggle button to filter posts by unread replies (Story 3)
 	protected static Button button_ToggleUnread = new Button("Unread");
+	// Dropdown to filter replies by a specific user (Story 8)
 	protected static ComboBox <String> combobox_SelectUser = new ComboBox <String>();
+	//  Search bar and its submit button for searchng replies by keyword (Story 8) 
 	protected static javafx.scene.control.TextField textfield_Search = new javafx.scene.control.TextField();
 	protected static Button button_Search = new Button("→");
 	
-	// Thread filter buttons
+	// Thread buttons filtering
 	protected static Button button_General = new Button ("General");
 	protected static Button button_Homework = new Button ("Homework");
 	protected static Button button_Quizzes = new Button("Quizzes");
 	protected static Button button_ViewAll = new Button ("View All");
+	// Tracks the currently selected thread filter; an empty string means all threads are shown (Story 3)
 	protected static String selectedThread = "";
 	
 	// Create post button for story 1
 	protected static Button button_CreatePost = new Button("Create a New Post +");
 	
 	// GUI Area 3 post cards and post body , including delete post button
+	// Delete button visible only when a post is selected, delete confirmation (Story 6)
 	protected static Button button_DeletePost = new Button("Delete");
 	protected static javafx.scene.layout.VBox postCardList = new javafx.scene.layout.VBox(10);
 	protected static javafx.scene.control.ScrollPane scrollPane_PostCards = new javafx.scene.control.ScrollPane(postCardList);
 	protected static javafx.scene.control.ScrollPane scrollPane_PostBody = new javafx.scene.control.ScrollPane();
+	// Tracks the currently selected post for body display and delete functionality
 	protected static entityClasses.Post currentPost = new entityClasses.Post();
 
-
+	// Singleton instance - null until first diplay call
 	private static ViewMyPosts theView;
+	// Reference for the in-memory database so this package has access
 	private static Database theDatabase = applicationMain.FoundationsMain.database;
 
-	protected static Stage theStage;
-	protected static Pane theRootPane;
-	protected static User theUser;
 
-	private static Scene theMyPostsScene;
+	protected static Stage theStage;  // The Stage that JavaFX has established for us
+	protected static Pane theRootPane; // The Pane that holds all the GUI widgets 
+	protected static User theUser;	// The current user of the application
+
+	private static Scene theMyPostsScene; // The Scene each invocation populates
 	/*-*******************************************************************************************
 
 	Constructors
@@ -144,40 +150,36 @@ public class ViewMyPosts {
 	    // GUI Area 1
 		label_UserDetails.setText("User: " + theUser.getUserName());
 		setupLabelUI(label_UserDetails, "Arial", 12, 200, Pos.BASELINE_LEFT, 20, 10);
+		label_UserDetails.setStyle("-fx-text-fill: #666666;");
+
 		// Title formatting and style
 	    label_PageTitle.setText("My Posts");
 		setupLabelUI(label_PageTitle, "Arial", 40, 400, Pos.BASELINE_LEFT, 20, 35);
+		label_PageTitle.setStyle("-fx-text-fill: #041E42; -fx-font-weight: bold;");;
+
 		// Subtitle
 		setupLabelUI(label_Subtitle, "Arial", 20, 400, Pos.BASELINE_LEFT, 20, 80);
 		label_Subtitle.setStyle("-fx-text-fill: #666666; -fx-font-style: italic;");
-	    
 		
 		// Buttons on the right hand side for app navigation
 		setupButtonUI(button_discussionBoard, "Dialog", 12, 70, Pos.CENTER, 732, 10);
 		button_discussionBoard.setOnAction((_) -> {ControllerMyPosts.performGoToDiscussionBoard(); });
+		button_discussionBoard.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
 		
 		setupButtonUI(button_Home, "Dialog", 12, 52, Pos.CENTER, 845, 10);
 		button_Home.setOnAction((_) -> {ControllerMyPosts.performHome(); });
-
+		button_Home.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
+		
 		setupButtonUI(button_Logout, "Dialog", 12, 57, Pos.CENTER, 900, 10);
 		button_Logout.setOnAction((_) -> {ControllerMyPosts.performLogout(); });
-    
+		button_Logout.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
+
 		setupButtonUI(button_Quit, "Dialog", 12, 30, Pos.CENTER, 960, 10);
 		button_Quit.setOnAction((_) -> {ControllerMyPosts.performQuit(); });
-	    
-		//Style for Page Title and User Details
-		label_PageTitle.setStyle("-fx-text-fill: #041E42; -fx-font-weight: bold;");;
-		label_UserDetails.setStyle("-fx-text-fill: #666666;");
-		
-		//Style for navigation buttons
-		button_discussionBoard.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
-		button_Home.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
-		button_Logout.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
 		button_Quit.setStyle("-fx-background-color: #BF0D3E; -fx-text-fill: white; -fx-background-radius: 5;");
+
 		
-	    // GUI Area 2
-	    setupLabelUI(label_PostsHeader, "Arial", 14, 200, Pos.BASELINE_LEFT, 20, 100);
-	    
+	    // GUI Area 2	    
 	    setupLabelUI(label_Filter, "Arial", 13, 40, Pos.BASELINE_LEFT, 20, 132);
 	    label_Filter.setStyle("-fx-text-fill: #041E42; -fx-font-weight: bold;");
 	    
@@ -254,7 +256,7 @@ public class ViewMyPosts {
 		
 	    theRootPane.getChildren().addAll(
 	    	label_PageTitle, label_UserDetails,
-	    	label_PostsHeader, scrollPane_PostCards, scrollPane_PostBody,
+	    	scrollPane_PostCards, scrollPane_PostBody,
 	    	button_ToggleUnread, combobox_SelectUser, textfield_Search, 
 	    	button_Search, button_Home, button_Logout, button_Quit, button_discussionBoard, label_Filter, button_General, 
 	    	button_Homework, button_ViewAll, button_Quizzes, button_CreatePost, label_Subtitle, button_DeletePost);
@@ -265,7 +267,18 @@ public class ViewMyPosts {
 	Helper methods to reduce code length
 
 	 */
-
+	
+	/**********
+	 * Private local method to initialize the standard fields for a label
+	 * 
+	 * @param l		The Label object to be initialized
+	 * @param ff	The font to be used
+	 * @param f		The size of the font to be used
+	 * @param w		The width of the Button
+	 * @param p		The alignment (e.g. left, centered, or right)
+	 * @param x		The location from the left edge (x axis)
+	 * @param y		The location from the top (y axis)
+	 */
 	private static void setupLabelUI(Label l, String ff, double f, double w, Pos p, double x,double y) {
 		l.setFont(Font.font(ff, f));
 		l.setMinWidth(w);
@@ -273,7 +286,18 @@ public class ViewMyPosts {
 		l.setLayoutX(x);
 		l.setLayoutY(y);
 	}
-
+	
+	/**********
+	 * Private local method to initialize the standard fields for a button
+	 * 
+	 * @param b		The Button object to be initialized
+	 * @param ff	The font to be used
+	 * @param f		The size of the font to be used
+	 * @param w		The width of the Button
+	 * @param p		The alignment (e.g. left, centered, or right)
+	 * @param x		The location from the left edge (x axis)
+	 * @param y		The location from the top (y axis)
+	 */
 	private static void setupButtonUI(Button b, String ff, double f, double w, Pos p, double x,double y) {
 		b.setFont(Font.font(ff, f));
 		b.setMinWidth(w);
