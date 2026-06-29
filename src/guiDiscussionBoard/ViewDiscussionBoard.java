@@ -354,6 +354,52 @@ public class ViewDiscussionBoard {
 		}
 	
 	/**********
+	 * <p> Method: replyToReplyForm() </p>
+	 * 
+	 * <p> Description: This method populates the reply to reply VBox in GUI Area 4. It
+	 * contains all necessary fields for the user to create a reply to an existing reply. </p>
+	 * 
+	 */
+	protected static VBox replyToReplyForm(Reply reply) {
+		VBox vBox_ReplyForm = new VBox(5);
+		vBox_ReplyForm.setPadding(new Insets(15));
+		
+		Label label_Title = new Label("New Reply");
+		label_Title.setFont(Font.font("Arial", 12));
+		label_Title.setStyle("-fx-font-weight: bold;");
+		
+		TextArea textArea_ReplyContent = new TextArea();
+		textArea_ReplyContent.setWrapText(true);
+		textArea_ReplyContent.setPrefRowCount(12);
+		
+		Button button_Submit = new Button("Submit");
+		Button button_Cancel = new Button("Cancel");
+		HBox hBox_Buttons = new HBox(10, button_Submit, button_Cancel);
+		
+		vBox_ReplyForm.getChildren().addAll(
+				label_Title,
+				textArea_ReplyContent,
+				hBox_Buttons);
+				
+		button_Submit.setOnAction((_) -> {
+			if (ControllerDiscussionBoard.newReply(currentPost.getPostID(),
+				textArea_ReplyContent.getText(), theUser.getUserName(),
+				reply.getReplyID(), false, 0)) {
+				theDatabase.updateHasReplies(reply.getReplyID(), true);
+				reply.setHasReplies(true);
+				theDatabase.updateNumReplies(reply.getReplyID(),
+						reply.getNumReplies()+1);
+				reply.setNumReplies(reply.getNumReplies()+1);
+				displayPost(currentPost);	
+			}
+			});
+		button_Cancel.setOnAction((_) ->
+			{displayPost(currentPost);
+			});
+		return vBox_ReplyForm;
+		}
+	
+	/**********
 	* <p> Method: displayPost() </p>
 	*
 	* <p> Description: This method populates the post body Scroll Pane with the
@@ -361,20 +407,6 @@ public class ViewDiscussionBoard {
 	*
 	*/
 	protected static void displayPost(Post post) {
-<<<<<<< HEAD
-		ViewDiscussionBoard.scrollPane_PostBody.setContent(null);
-		VBox fullPost = new VBox(5);
-		fullPost.setPadding(new Insets(10));
-		fullPost.setStyle(
-			    "-fx-background-color: white;" +
-			    "-fx-border-color: #E0E0E0;" +
-			    "-fx-border-radius: 8;" +
-			    "-fx-background-radius: 8;" +
-			    "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4, 0, 0, 2);"
-			);
-		
-		// soft deleted
-=======
 	    ViewDiscussionBoard.scrollPane_PostBody.setContent(null);
 	    VBox fullPost = new VBox(5);
 	    fullPost.setPadding(new Insets(10));
@@ -387,12 +419,10 @@ public class ViewDiscussionBoard {
 	    );
 
 	    // soft deleted
->>>>>>> 0b4f36e4a2b31ee287d92a89de51ef92454f4db4
 	    if (post.getIsDeleted()) {
 	        Label deletedMsg = new Label("Original post has been deleted");
 	        deletedMsg.setStyle("-fx-font-size: 16px; -fx-text-fill: #BF0D3E; -fx-font-weight: bold;");
 	        fullPost.getChildren().add(deletedMsg);
-<<<<<<< HEAD
 	    }
 	    else {
 	    	Label title = new Label(post.getTitle());
@@ -435,47 +465,8 @@ public class ViewDiscussionBoard {
 		}
 		
 		ViewDiscussionBoard.scrollPane_PostBody.setContent(fullPost);
-=======
-	    } 
-	    else {
-	        // Normal post display
-	        Label title = new Label(post.getTitle());
-	        title.setStyle("-fx-font-weight: bold;" + "-fx-font-size: 18px;");
-	        
-	        Label author = new Label("Author: " + post.getAuthorUsername());
-	        Label thread = new Label("Thread: " + post.getThread());
-	        
-	        TextArea body = new TextArea(post.getBody());
-	        body.setPrefHeight(100);
-	        body.setWrapText(true);
-	        body.setEditable(false);
+	} 
 
-	        Button button_Reply = new Button("Reply");
-	        button_Reply.setOnAction((_) -> {
-	            onReplyForm = true;
-	            displayPost(post);
-	        });
-
-	        fullPost.getChildren().addAll(title, author, thread, body, button_Reply);
-	    }
-
-	    // Always show replies (even if original post is deleted)
-	    if (onReplyForm) {
-	        VBox replyForm = newReplyForm();
-	        fullPost.getChildren().add(replyForm);
-	        onReplyForm = false;
-	    }
-
-	    List<Reply> replies = ControllerDiscussionBoard.replyList.getAllReplies();
-	    for (Reply reply : replies) {
-	        if (reply.getPostID() == post.getPostID()) {
-	            fullPost.getChildren().add(displayReply(reply));
-	        }
-	    }
-
-	    ViewDiscussionBoard.scrollPane_PostBody.setContent(fullPost);
->>>>>>> 0b4f36e4a2b31ee287d92a89de51ef92454f4db4
-	}
 	
 	/**********
 	 * <p> Method: displayReply() </p>
