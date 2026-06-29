@@ -385,7 +385,6 @@ public class ViewDiscussionBoard {
 		ViewDiscussionBoard.scrollPane_PostBody.setContent(null);
 		VBox fullPost = new VBox(5);
 		fullPost.setPadding(new Insets(10));
-		
 		fullPost.setStyle(
 			    "-fx-background-color: white;" +
 			    "-fx-border-color: #E0E0E0;" +
@@ -394,21 +393,28 @@ public class ViewDiscussionBoard {
 			    "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4, 0, 0, 2);"
 			);
 		
-		Label title = new Label(post.getTitle());
-		title.setStyle("-fx-font-weight: bold;" + "-fx-font-size: 18px;");
+		// soft deleted
+	    if (post.getIsDeleted()) {
+	        Label deletedMsg = new Label("Original post has been deleted");
+	        deletedMsg.setStyle("-fx-font-size: 16px; -fx-text-fill: #BF0D3E; -fx-font-weight: bold;");
+	        fullPost.getChildren().add(deletedMsg);
+	    }
+	    else {
+	    	Label title = new Label(post.getTitle());
+	    	title.setStyle("-fx-font-weight: bold;" + "-fx-font-size: 18px;");
 		
-		Label author = new Label("Author: " + post.getAuthorUsername());
-		Label thread = new Label("Thread: " + post.getThread());
+	    	Label author = new Label("Author: " + post.getAuthorUsername());
+	    	Label thread = new Label("Thread: " + post.getThread());
 		
-		TextArea body = new TextArea(post.getBody());
-		body.setPrefHeight(100);
-		body.setWrapText(true);
-		body.setEditable(false);
+	    	TextArea body = new TextArea(post.getBody());
+	    	body.setPrefHeight(100);
+			body.setWrapText(true);
+			body.setEditable(false);
 		
-		Button button_Reply = new Button("Reply");
-		button_Reply.setOnAction((_) ->
-			{onReplyForm = true;
-			displayPost(post);
+			Button button_Reply = new Button("Reply");
+			button_Reply.setOnAction((_) ->
+				{onReplyForm = true;
+				displayPost(post);
 			});
 		
 		fullPost.getChildren().addAll(
@@ -418,6 +424,7 @@ public class ViewDiscussionBoard {
 				body,
 				button_Reply
 				);
+	    }
 		
 		if (onReplyForm == true) {
 			VBox replyForm = newReplyForm();
