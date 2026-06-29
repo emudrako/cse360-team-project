@@ -4,17 +4,16 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
-import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import database.Database;
 import entityClasses.User;
-import guiUserLogin.ControllerUserLogin;
 
 /*******
  * <p> Title: ViewCreatePost Class. </p>
  *
- * <p> Description: The Java/FX-based page for viewing the Create Post page.
+ * <p> Description: The Java/FX-based page for viewing the Create Post page. Supports Story 1 (Create a Post) and 
+ * Story 5 (Post to a Specific Thread).
  * Allows the student to compose and submit a new discussion post by entering a title, body, and 
  * selecting a thread category</p>
  *
@@ -35,38 +34,43 @@ public class ViewCreatePost {
 
 	 */
 
-	// Height and width for the window
+	// Height and width for the window, consistent with team UI style standards
 	private static double width = 1000;
 	private static double height = 900;
 
 	// GUI Area 1
+	// Labels for page title and display name of logged in user
 	protected static Label label_PageTitle = new Label();
 	protected static Label label_UserDetails = new Label();
-
+	// Buttons to cancel if choose to not continue with creating a post, button to quit
+	protected static Button button_Cancel = new Button("Cancel");
+	protected static Button button_Quit = new Button("X");
 
 	// GUI Area 2 - ListView and Controls
-	protected static Label label_PostsHeader = new Label();
+	// Input fields for post title, body and thread selection (Stories 1 and 5)
 	protected static Label label_TitleHeader = new Label("Title:");
 	protected static javafx.scene.control.TextField textfield_Title = new javafx.scene.control.TextField();
 	protected static Label label_BodyHeader = new Label("Body:");
 	protected static javafx.scene.control.TextArea textarea_Body = new javafx.scene.control.TextArea();
 	protected static Label label_ThreadHeader = new Label("Thread:");
 	protected static javafx.scene.control.ComboBox<String> combobox_Thread = new javafx.scene.control.ComboBox<>();
+	// Submit button to create the post
 	protected static Button button_Submit = new Button("Submit");
+	// Displays validation error messags to the user
 	protected static Label label_ErrorMessage = new Label();
 
 	// GUI Area 3 
-	protected static Button button_Cancel = new Button("Cancel");
-	protected static Button button_Quit = new Button("X");
 	
+	// Singleton instance - null until first diplay call
 	private static ViewCreatePost theView;
+	// Database reference for post creation
 	private static Database theDatabase = applicationMain.FoundationsMain.database;
 
-	protected static Stage theStage;
-	protected static Pane theRootPane;
-	protected static User theUser;
+	protected static Stage theStage;  // The Stage that JavaFX has established for us
+	protected static Pane theRootPane; // The Pane that holds all the GUI widgets 
+	protected static User theUser;	// The current user of the application
 
-	private static Scene theCreatePost;
+	private static Scene theCreatePost; // The Scene each invocation populates
 	/*-*******************************************************************************************
 
 	Constructors
@@ -136,7 +140,7 @@ public class ViewCreatePost {
 		setupButtonUI(button_Cancel, "Dialog", 12, 70, Pos.CENTER, 880, 10);
 	    button_Cancel.setOnAction((_) -> { ControllerCreatePost.performReturn(); });
 		button_Cancel.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
-		// Quit Button		label_UserDetails.setStyle("-fx-text-fill: white;");
+		// Quit Button		
 		setupButtonUI(button_Quit, "Dialog", 12, 30, Pos.CENTER, 960, 10);
 	    button_Quit.setOnAction((_) -> { ControllerCreatePost.performQuit(); });
 		button_Quit.setStyle("-fx-background-color: #BF0D3E; -fx-text-fill: white; -fx-background-radius: 5;");
@@ -179,6 +183,7 @@ public class ViewCreatePost {
 	    button_Submit.setOnAction((_) -> { ControllerCreatePost.performCreatePost(); });
 	    button_Submit.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 10; -fx-font-weight: bold; -fx-font-size: 15px;");
 
+	    
 	    setupLabelUI(label_ErrorMessage, "Arial", 14, 500, Pos.BASELINE_LEFT, 120, 480);
 	    label_ErrorMessage.setStyle("-fx-text-fill: red;");
 	    
@@ -197,6 +202,17 @@ public class ViewCreatePost {
 
 	 */
 
+	/**********
+	 * Private local method to initialize the standard fields for a label
+	 * 
+	 * @param l		The Label object to be initialized
+	 * @param ff	The font to be used
+	 * @param f		The size of the font to be used
+	 * @param w		The width of the Button
+	 * @param p		The alignment (e.g. left, centered, or right)
+	 * @param x		The location from the left edge (x axis)
+	 * @param y		The location from the top (y axis)
+	 */
 	private static void setupLabelUI(Label l, String ff, double f, double w, Pos p, double x,double y) {
 		l.setFont(Font.font(ff, f));
 		l.setMinWidth(w);
@@ -204,7 +220,18 @@ public class ViewCreatePost {
 		l.setLayoutX(x);
 		l.setLayoutY(y);
 	}
-
+	
+	/**********
+	 * Private local method to initialize the standard fields for a button
+	 * 
+	 * @param b		The Button object to be initialized
+	 * @param ff	The font to be used
+	 * @param f		The size of the font to be used
+	 * @param w		The width of the Button
+	 * @param p		The alignment (e.g. left, centered, or right)
+	 * @param x		The location from the left edge (x axis)
+	 * @param y		The location from the top (y axis)
+	 */
 	private static void setupButtonUI(Button b, String ff, double f, double w, Pos p, double x,double y) {
 		b.setFont(Font.font(ff, f));
 		b.setMinWidth(w);

@@ -50,7 +50,7 @@ public class ViewStudentHome {
 
 
 	// GUI Area 2
-	protected static Button button_DiscussionBoard = new Button("Discussion Board\nSee Whats Happening!");
+	protected static Button button_DiscussionBoard = new Button("CSE 360 Discussion Board\nSee Whats Happening!");
 	
 	protected static Button button_MyPosts = new Button();
 
@@ -96,6 +96,7 @@ public class ViewStudentHome {
 		if (theView == null) theView = new ViewStudentHome();
 
 		theDatabase.getUserAccountDetails(user.getUserName());
+	    buildMyPostsGraphic();
 		updateMyPostsButtonText();
 		applicationMain.FoundationsMain.activeHomePage = theRole;
 
@@ -113,12 +114,12 @@ public class ViewStudentHome {
 	 * <p> Description: Have two sizes in my posts button. </p>
 	 *
 	 */
-	private static void buildMyPostsGraphic() {
-	    text_MyPostsTitle.setFont(Font.font("Dialog", 50));
+	protected static void buildMyPostsGraphic() {
+	    text_MyPostsTitle.setFont(Font.font("Dialog", 30));
 	    text_MyPostsTitle.setFill(javafx.scene.paint.Color.WHITE);
 	    text_MyPostsTitle.setTextAlignment(TextAlignment.CENTER);
 
-	    text_MyPostsUnread.setFont(Font.font("Dialog", 25));
+	    text_MyPostsUnread.setFont(Font.font("Dialog", 10));
 	    text_MyPostsUnread.setFill(javafx.scene.paint.Color.WHITE);
 	    text_MyPostsUnread.setTextAlignment(TextAlignment.CENTER);
 
@@ -139,7 +140,7 @@ public class ViewStudentHome {
 	    if (unread > 0) {
 	        text_MyPostsUnread.setText(unread + " unread repl" + (unread == 1 ? "y" : "ies"));
 	    } else {
-	        text_MyPostsUnread.setText("");
+	        text_MyPostsUnread.setText("0 unread replies");
 	    }
 	}
 	
@@ -189,30 +190,26 @@ public class ViewStudentHome {
         label_UserDetails.setStyle("-fx-text-fill: #666666;");
         
         label_UserWelcome.setText("Welcome Back, " + theUser.getUserName());
-        setupLabelUI(label_UserWelcome, "Arial", 50, 400, Pos.BASELINE_LEFT, 280, 170);
+        setupLabelUI(label_UserWelcome, "Arial", 45, 400, Pos.BASELINE_LEFT, 240, 170);
         label_UserWelcome.setStyle("-fx-text-fill: #666666;");
 
-        setupButtonUI(button_DiscussionBoard, "Dialog", 60, 200, Pos.CENTER, 160, 300);
+        setupButtonUI(button_DiscussionBoard, "Dialog", 50, 200, Pos.CENTER, 170, 300);
         button_DiscussionBoard.setAlignment(Pos.CENTER);
         button_DiscussionBoard.setTextAlignment(TextAlignment.CENTER);
         button_DiscussionBoard.setOnAction((_) -> ControllerStudentHome.displayDiscussionBoard());
         button_DiscussionBoard.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
         
-        setupButtonUI(button_MyPosts, "Dialog", 12, 290, Pos.CENTER, 160, 508);
-        button_MyPosts.setMinHeight(80);
+        setupButtonUI(button_MyPosts, "Dialog", 40, 290, Pos.CENTER, 190, 508);
+        button_MyPosts.setMinHeight(button_ContinueToCreate.getMinHeight());
         button_MyPosts.setAlignment(Pos.CENTER);
         buildMyPostsGraphic();
         updateMyPostsButtonText();
         button_MyPosts.setOnAction((_) -> guiMyPosts.ViewMyPosts.displayMyPosts(theStage, theUser));
-        button_MyPosts.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
+        button_MyPosts.setStyle("-fx-background-color: #041E42; -fx-text-fill: white; -fx-background-radius: 5;");
         
         setupButtonUI(button_Logout, "Dialog", 12, 70, Pos.CENTER, 769, 10);
         button_Logout.setOnAction((_) -> ControllerStudentHome.performLogout());
         button_Logout.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
-        updateMyPostsButtonText();
-        button_MyPosts.setOnAction((_) -> 
-        guiMyPosts.ViewMyPosts.displayMyPosts(theStage, theUser)
-        );
         
         setupButtonUI(button_Quit, "Dialog", 12, 30, Pos.CENTER, 960, 10);
         button_Quit.setOnAction((_) -> ControllerStudentHome.performQuit());
@@ -222,9 +219,9 @@ public class ViewStudentHome {
         button_UpdateThisUser.setOnAction((_) -> ViewUserUpdate.displayUserUpdate(theStage, theUser));
         button_UpdateThisUser.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
         
-        setupButtonUI(button_ContinueToCreate, "Dialog", 50, 200, Pos.CENTER, 485, 510);
+        setupButtonUI(button_ContinueToCreate, "Dialog", 40, 200, Pos.CENTER, 520, 510);
 		button_ContinueToCreate.setOnAction((_) -> {guiCreatePost.ViewCreatePost.displayCreatePost(theStage, theUser); });
-		button_ContinueToCreate.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
+		button_ContinueToCreate.setStyle("-fx-background-color: #041E42; -fx-text-fill: white; -fx-background-radius: 5;");
         
         
         theRootPane.getChildren().addAll(
