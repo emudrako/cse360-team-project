@@ -28,9 +28,12 @@ import entityClasses.User;
 /*******
  * <p> Title: guiDiscussionBoard Class. </p>
  * 
- * <p> Description: The Java/FX-based page for viewing the class discussion board.</p>
+ * <p> Description: The Java/FX-based page for viewing the class discussion board. Supports Story 7 (Search All Posts by
+ * Keyword) and Story 4 (Search other Posts by Keyword) Provides a serach bar, thread filter buttons,
+ * post card list, post body display and app navigation buttons.</p>
  * 
  * @author Pete Echavarria
+ * @author Maranda Martinez (redesign)
  * 
  * @version 1.00		2026-06-14 Initial version
  *  
@@ -45,7 +48,7 @@ public class ViewDiscussionBoard {
 	*/
 	
 	// These are the application values required by the user interface
-	
+	// Window dimensions consistent with the team's UI style standards
 	private static double width = 1000;
 	private static double height = 900;
 
@@ -54,15 +57,16 @@ public class ViewDiscussionBoard {
 	// These are the widget attributes for the GUI. There are 3 areas for this GUI.
 	
 	
-	// GUI Area 1
 	
-    //  Labels for title
+	// GUI Area 1
+
+    //  Labels for page title and user name 
 	protected static Label label_PageTitle = new Label();
 	protected static Label label_UserDetails = new Label();
+	// Subtitle displayed to set context for the discussion board
 	protected static Label label_Subtitle = new Label("Your class forum");
 
 	// Buttons for navigating, allowing going back home, logging out, viewing my posts, and quitting
-	protected static String selectedThread = "";
 	protected static Button button_Home = new Button("Home");
 	protected static Button button_Logout = new Button("Logout");
 	protected static Button button_Quit = new Button("X");
@@ -74,12 +78,14 @@ public class ViewDiscussionBoard {
 	
 	// GUI Area 2: 
 
-	
 	//  Search bar and its submit button
+	// Search bar and submit button , supports Story 7 (Search All Posts by Keyword)
 	protected static TextField textfield_Search = new TextField();
 	protected static Button button_Search = new Button("Search");
 	
-	// Buttons for thread filters
+	// Tracks the currently selected thread filter; an empty string means all threads are shown (Story 7)
+	protected static String selectedThread = "";
+	// Buttons for thread filtering (Story 7)
 	protected static Button button_General = new Button ("General");
 	protected static Button button_Homework = new Button ("Homework");
 	protected static Button button_Quizzes = new Button("Quizzes");
@@ -88,37 +94,37 @@ public class ViewDiscussionBoard {
 	// Create new post button
 	protected static Button button_CreatePost = new Button("Create a New Post +");
 	
-	// Area 3: This shows the student a list of the subject lines of each post in
-	// the selected thread
-	protected static VBox subjectList = new VBox(10);
-	protected static VBox postCardList = new VBox(10);
-	protected static ScrollPane scrollPane_PostCards = new ScrollPane(postCardList);
-	// Keeps track of the currently selected post for use in displayPost and
-	// newReplyForm methods
-	protected static Post currentPost = new Post();
-	// Area 4: This shows a list of the body of the selected post and all replies
-	protected static VBox newPost = new VBox();
-	protected static VBox userPosts = new VBox(10);
-	protected static ScrollPane scrollPane_PostBody = new ScrollPane();
-	// Keeps track of whether the user is creating a reply. This will change how
-	// Posts and Replies are displayed in the scroolPane_PostBody
-	protected static boolean onReplyForm = false;
-		
-	// This is a separator and it is used to partition the GUI for various tasks
-	protected static Line line_Separator4 = new Line(20, height-60, width-20, height-60);
 	
+	// GUI Area 3: 
+	
+	// VBox containing post cards populated by displayPostCards() (Used for Story 7 and 4)
+	protected static VBox postCardList = new VBox(10);
+	// Scroll pane that waraps postCardList to allow scrolling through post cards
+	protected static ScrollPane scrollPane_PostCards = new ScrollPane(postCardList);
+	// Tracks the currently selected post for use in displayPost() and newReplyForm()
+	protected static Post currentPost = new Post();
+	
+	
+	// GUI Area 4: 
+	
+	// Scroll pane that shows the full posdy of the current post and its replies
+	protected static ScrollPane scrollPane_PostBody = new ScrollPane();
+	// Tracks whether the reply form is currently shown, and changes the post body display
+	protected static boolean onReplyForm = false;
+	// Line separator to partition the post area from the buttom of the page
+	protected static Line line_Separator4 = new Line(20, height-60, width-20, height-60);
 
 	// This is the end of the GUI objects for the page.
 	
 	// These attributes are used to configure the page and populate it with user posts
-	private static ViewDiscussionBoard theView;	// Used to determine if instantiation of the class
-												// is needed
+	private static ViewDiscussionBoard theView;	// Singleton instance preventing re-initialization
+	
 	// Reference for the in-memory database so this package has access
 	private static Database theDatabase = applicationMain.FoundationsMain.database;		
 
-	protected static Stage theStage;						// The Stage that JavaFX has established for us
-	protected static Pane theRootPane;						// The Pane that holds all the GUI widgets 
-	protected static User theUser;							// The current user of the application
+	protected static Stage theStage;  // The Stage that JavaFX has established for us
+	protected static Pane theRootPane; // The Pane that holds all the GUI widgets 
+	protected static User theUser;	// The current user of the application
 		
 	public static Scene theDiscussionBoardScene = null;	// The Scene each invocation populates
 
@@ -185,37 +191,35 @@ public class ViewDiscussionBoard {
 		// Populate the window with the title and other common widgets and set their static state
 		
 		// GUI Area 1
+		
 		label_UserDetails.setText("User: " + theUser.getUserName());
 		setupLabelUI(label_UserDetails, "Arial", 12, 200, Pos.BASELINE_LEFT, 20, 10);
+		label_UserDetails.setStyle("-fx-text-fill: #666666;");
 		
 		label_PageTitle.setText("Discussion Board");
 		setupLabelUI(label_PageTitle, "Arial", 40, 400, Pos.BASELINE_LEFT, 20, 35);
+		label_PageTitle.setStyle("-fx-text-fill: #041E42; -fx-font-weight: bold;");
 		
 		setupLabelUI(label_Subtitle, "Arial", 20, 400, Pos.BASELINE_LEFT, 23, 80);
 		label_Subtitle.setStyle("-fx-text-fill: #666666; -fx-font-style: italic;");
 		
 		setupButtonUI(button_MyPosts, "Dialog", 12, 70, Pos.CENTER, 772, 10);
-		button_MyPosts.setOnAction((_) ->
-		    {guiMyPosts.ViewMyPosts.displayMyPosts(theStage, theUser);});
+		button_MyPosts.setOnAction((_) -> {guiMyPosts.ViewMyPosts.displayMyPosts(theStage, theUser);});
+		button_MyPosts.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
 		
 		setupButtonUI(button_Home, "Dialog", 12, 52, Pos.CENTER, 845, 10);
 		button_Home.setOnAction((_) -> {ControllerDiscussionBoard.performHome(); });
+		button_Home.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
 
 		setupButtonUI(button_Logout, "Dialog", 12, 57, Pos.CENTER, 900, 10);
 		button_Logout.setOnAction((_) -> {ControllerDiscussionBoard.performLogout(); });
+		button_Logout.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
     
 		setupButtonUI(button_Quit, "Dialog", 12, 30, Pos.CENTER, 960, 10);
 		button_Quit.setOnAction((_) -> {ControllerDiscussionBoard.performQuit(); });
+		button_Quit.setStyle("-fx-background-color: #BF0D3E; -fx-text-fill: white; -fx-background-radius: 5;");
 		
-		button_MyPosts.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
-		button_Home.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
-		button_Logout.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
-		button_Quit.setStyle("-fx-background-color: #BF0D3E; -fx-text-fill: white; -fx-background-radius: 5;");
-		button_MyPosts.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
-		button_Home.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
-		button_Logout.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
-		button_Quit.setStyle("-fx-background-color: #BF0D3E; -fx-text-fill: white; -fx-background-radius: 5;");
-
+		
 		
 		// GUI Area 2
 		
@@ -224,31 +228,28 @@ public class ViewDiscussionBoard {
 
 		setupButtonUI(button_Search, "Dialog", 14, 75, Pos.CENTER, 270, 128);
 		button_Search.setOnAction((_) -> { ControllerDiscussionBoard.performSearch(); });
+		button_Search.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
 
 		setupButtonUI(button_CreatePost, "Dialog", 12, 150, Pos.CENTER, 440, 160);
 		button_CreatePost.setOnAction((_) -> { guiRelatedPosts.ViewRelatedPosts.displayRelatedPosts(theStage, theUser); });
-		
-		// Buttons to filter posts by threads for story 3
+		button_CreatePost.setStyle("-fx-background-color: #041E42; -fx-text-fill: white; -fx-background-radius: 5;");
+
 		setupButtonUI(button_General, "Dialog", 13, 80, Pos.CENTER, 20, 160);
 		button_General.setOnAction((_) -> { selectedThread = "General"; displayPostCards(ControllerDiscussionBoard.postList.getAllPosts()); });
-
+		button_General.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
+		
 		setupButtonUI(button_Homework, "Dialog", 13, 80, Pos.CENTER, 110, 160);
 		button_Homework.setOnAction((_) -> { selectedThread = "Homework"; displayPostCards(ControllerDiscussionBoard.postList.getAllPosts()); });
+		button_Homework.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
 
 		setupButtonUI(button_Quizzes, "Dialog", 13, 80, Pos.CENTER, 200, 160);
 		button_Quizzes.setOnAction((_) -> { selectedThread = "Quizzes"; displayPostCards(ControllerDiscussionBoard.postList.getAllPosts()); });
+		button_Quizzes.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
 
 		setupButtonUI(button_ViewAll, "Dialog", 13, 80, Pos.CENTER, 290, 160);
 		button_ViewAll.setOnAction((_) -> { selectedThread = ""; displayPostCards(ControllerDiscussionBoard.postList.getAllPosts()); });
-		
-		// style for buttons
-		button_General.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
-		button_Homework.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
-		button_Quizzes.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
 		button_ViewAll.setStyle("-fx-background-color: #002D72; -fx-text-fill: white; -fx-background-radius: 5;");
 
-		button_Search.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
-		button_CreatePost.setStyle("-fx-background-color: #041E42; -fx-text-fill: white; -fx-background-radius: 5;");
 		
 		// GUI Area 3
 		setupScrollPane(scrollPane_PostCards, 10, 400, 600, 20, 193);
@@ -256,11 +257,7 @@ public class ViewDiscussionBoard {
 		// GUI Area 4
 		setupScrollPane(scrollPane_PostBody, 0, 550, 600, 435, 193);
 		
-		
-		label_PageTitle.setStyle("-fx-text-fill: #041E42; -fx-font-weight: bold;");
-		label_Subtitle.setStyle("-fx-text-fill: #666666; -fx-font-style: italic;");
-		label_UserDetails.setStyle("-fx-text-fill: #666666;");
-		
+
 		// This is the end of the GUI Widgets for the page
 	}	
 	
@@ -271,6 +268,8 @@ public class ViewDiscussionBoard {
 	 * a list of posts by subject line. The post cards visible is based on which thread has
 	 * been selected. If no thread has been selected, all post cards are visible. </p>
 	 * 
+	 * @param postObjects the list of Post objects to display as post cards
+	 *  
 	 */
 	protected static void displayPostCards(List<Post> postObjects) {
 	    List<Post> newPostList = new ArrayList<>();
@@ -320,6 +319,8 @@ public class ViewDiscussionBoard {
 	 * <p> Description: This method populates the new reply VBox in GUI Area 4. It
 	 * contains all necessary fields for the user to create a reply. </p>
 	 * 
+	 * @return a VBox containing the reply form with a text area and submit/cancel buttons
+	 *  
 	 */
 	protected static VBox newReplyForm() {
 		VBox vBox_ReplyForm = new VBox(5);
@@ -358,6 +359,10 @@ public class ViewDiscussionBoard {
 	 * 
 	 * <p> Description: This method populates the reply to reply VBox in GUI Area 4. It
 	 * contains all necessary fields for the user to create a reply to an existing reply. </p>
+	 * 
+	 * @param reply the Reply object that is being replied to
+	 * 
+	 * @return a VBox containing the reply-to-reply form with text area and submit/cancel buttons
 	 * 
 	 */
 	protected static VBox replyToReplyForm(Reply reply) {
@@ -404,6 +409,8 @@ public class ViewDiscussionBoard {
 	*
 	* <p> Description: This method populates the post body Scroll Pane with the
 	* full post details when the user clicks on a post card. </p>
+	*
+	* @param post the Post object to display in the post body scroll pane
 	*
 	*/
 	protected static void displayPost(Post post) {
@@ -474,6 +481,9 @@ public class ViewDiscussionBoard {
 	 * <p> Description: This method populates the post body Scroll Pane with the
 	 * replies from the currently selected post. </p>
 	 * 
+	 * @param reply the Reply object to display
+	 * @return a VBOX containing the reply author, body, and reply button
+	 * 
 	 */
 	protected static VBox displayReply(Reply reply) {
 		VBox viewReply = new VBox(5);
@@ -529,6 +539,9 @@ public class ViewDiscussionBoard {
 	 * 
 	 * <p> Description: This method populates the post body Scroll Pane with the
 	 * replies to replies from the currently selected post. </p>
+	 * 
+	 * @param reply the Reply object to display
+	 * @return a VBox containing the reply author and body
 	 * 
 	 */
 	protected static VBox displayReplyToReply(Reply reply) {
@@ -618,12 +631,14 @@ public class ViewDiscussionBoard {
 	/**********
 	 * Private local method to initialize the standard fields for a Text Field
 	 * 
-	 * @param c		The Text Field object to be initialized
-	 * @param ff	The font to be used
-	 * @param f		The size of the font to be used
-	 * @param w		The width of the Text Field
-	 * @param x		The location from the left edge (x axis)
-	 * @param y		The location from the top (y axis)
+	 * @param t     The Text Field object to be initialized
+	 * @param ff    The font to be used
+	 * @param f     The size of the font to be used
+	 * @param w     The width of the Text Field
+	 * @param p     The alignment of the text field
+	 * @param x     The location from the left edge (x axis)
+	 * @param y     The location from the top (y axis)
+	 * @param e     Whether the text field is editable
 	 */
 	protected static void setupTextUI(TextField t, String ff, double f, double w, Pos p, double x,
 			double y, boolean e) {

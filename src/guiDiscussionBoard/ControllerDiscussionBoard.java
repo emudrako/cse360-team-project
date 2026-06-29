@@ -33,6 +33,7 @@ import javafx.scene.layout.Region;
  * <p> Copyright: Pete Echavarria © 2026 </p>
  * 
  * @author Pete Echavarria
+ * @author Maranda Martinez
  * 
  * @version 1.00		2026-06-02 Initial version
  */
@@ -64,6 +65,14 @@ public class ControllerDiscussionBoard {
 	// Reference for the in-memory database so this package has access
 	private static Database theDatabase = applicationMain.FoundationsMain.database;		
 	
+	/**********
+	 * <p> Method: repaintTheWindow() </p>
+	 *
+	 * <p> Description: Clears and rebuilds the Discussion Board page, reloading
+	 * all posts and replies from the database to ensure newly created content
+	 * appears immediately. </p>
+	 *
+	 */
 	protected static void repaintTheWindow() {
 		// Clear what had been displayed
 		ViewDiscussionBoard.theRootPane.getChildren().clear();
@@ -231,6 +240,15 @@ public class ControllerDiscussionBoard {
 	 * 
 	 * <p> Description: This creates a Reply object and then passes that Rely object
 	 * to the createReply method in the database. </p>
+	 * 
+	 * @param postID the ID of the post being replied to
+	 * @param body the text content of the reply
+	 * @param authorUsername the username of the reply author
+	 * @param parentReplyID the ID of the parent reply if replying to a reply, 0 if top-level (Story 23)
+	 * @param hasReplies whether this reply has child replies
+	 * @param numReplies the number of child replies
+	 * 
+	 * @return true if reply was created successfully, false otherwise
 	 * 
 	 */
 	protected static boolean newReply(int postID, String body, String authorUsername, int parentReplyID, 
