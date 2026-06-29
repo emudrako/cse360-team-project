@@ -67,27 +67,31 @@ public class ControllerMyPosts {
 	protected static void loadMyPosts() {
 	    ViewMyPosts.postCardList.getChildren().clear();
 	    ViewMyPosts.scrollPane_PostBody.setContent(null);
-	    
+
 	    String currentUsername = ViewMyPosts.theUser.getUserName();
-	    
+
 	    try {
 	        List<entityClasses.Post> allPosts = theDatabase.getPostObjects();
 	        boolean hasPosts = false;
-	        
+
 	        for (entityClasses.Post post : allPosts) {
 	            if (post.getAuthorUsername().equals(currentUsername) && !post.getIsDeleted()) {
-	                int replyCount = theDatabase.getReplyCount(post.getPostID());
-	                int unreadCount = theDatabase.getUnreadReplyCount(post.getPostID(), currentUsername);
-	                ViewMyPosts.postCardList.getChildren().add(createPostCard(post, replyCount, unreadCount));
-	                hasPosts = true;
+	            	// Thread filtering
+	                if (ViewMyPosts.selectedThread.isEmpty() ||
+	                    post.getThread().equals(ViewMyPosts.selectedThread)) {
+	                    int replyCount = theDatabase.getReplyCount(post.getPostID());
+	                    int unreadCount = theDatabase.getUnreadReplyCount(post.getPostID(), currentUsername);
+	                    ViewMyPosts.postCardList.getChildren().add(createPostCard(post, replyCount, unreadCount));
+	                    hasPosts = true;
+	                }
 	            }
 	        }
-	        
+
 	        if (!hasPosts) {
 	            javafx.scene.control.Label empty = new javafx.scene.control.Label("No posts yet.");
 	            ViewMyPosts.postCardList.getChildren().add(empty);
 	        }
-	        
+
 	    } catch (Exception e) {
 	        javafx.scene.control.Label err = new javafx.scene.control.Label("Error loading posts: " + e.getMessage());
 	        ViewMyPosts.postCardList.getChildren().add(err);
@@ -145,6 +149,7 @@ public class ControllerMyPosts {
 	        displayPostBody(ViewMyPosts.currentPost);
 	    }
 	}
+	
 	
 	
 	/**********
@@ -316,13 +321,15 @@ public class ControllerMyPosts {
 	
 	private static javafx.scene.layout.VBox createPostCard(entityClasses.Post post, int replyCount, int unreadCount) {
 	    javafx.scene.layout.VBox card = new javafx.scene.layout.VBox(5);
-	    card.setPadding(new javafx.geometry.Insets(10));
-	    card.setMinWidth(330);
+	    card.setPadding(new javafx.geometry.Insets(15, 10, 15, 15));
+	    card.setMinWidth(ViewMyPosts.scrollPane_PostCards.getPrefWidth()-40);
+	    card.setMaxWidth(ViewMyPosts.scrollPane_PostCards.getPrefWidth()-40);
 	    card.setStyle(
-	        "-fx-border-color: lightgray;" +
-	        "-fx-border-radius: 5;" +
+	        "-fx-border-color: #E0E0E0;" +
+	        "-fx-border-radius: 8;" +
 	        "-fx-background-color: white;" +
-	        "-fx-background-radius: 5;"
+	        "-fx-background-radius: 8;" +
+	        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4, 0, 0, 2);"
 	    );
 	    
 	    // Title at top in bold
@@ -411,6 +418,10 @@ public class ControllerMyPosts {
 	    }
 	    
 	    ViewMyPosts.scrollPane_PostBody.setContent(fullPost);
+	 // Show delete button only for the current user's posts
+	    ViewMyPosts.button_DeletePost.setVisible(
+	        post.getAuthorUsername().equals(ViewMyPosts.theUser.getUserName())
+	    );
 	}
 	
 	/**********
@@ -520,6 +531,57 @@ public class ControllerMyPosts {
 	    guiDiscussionBoard.ViewDiscussionBoard.displayDiscussionBoard(ViewMyPosts.theStage, ViewMyPosts.theUser);
 	}
 	
+	/**********
+	 * <p> Method: performDeletePost() </p>
+	 * 
+	 * <p> Description: Shows confirmation dialog then soft deletes the currently viewed post
+	 * if the user confirms. Only the student's own posts can be deleted. </p>
+	 * 
+	 */
+	protected static void performDeletePost() {
+	    if (ViewMyPosts.currentPost == null || ViewMyPosts.currentPost.getPostID() == 0) {
+	        return;
+	    }
+
+	    if (!ViewMyPosts.currentPost.getAuthorUsername().equals(ViewMyPosts.theUser.getUserName())) {
+	        showAlert("Error", "You can only delete your own posts.", javafx.scene.control.Alert.AlertType.ERROR);
+	        return;
+	    }
+
+	    // Confirmation Dialog
+	    javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
+	    alert.setTitle("Delete Post");
+	    alert.setHeaderText("Are you sure?");
+	    alert.setContentText("This action cannot be undone.\n\nThe post will be removed from view, but any replies will remain.");
+
+	    alert.showAndWait().ifPresent(response -> {
+	        if (response == javafx.scene.control.ButtonType.OK) {
+	            try {
+	                theDatabase.deletePost(ViewMyPosts.currentPost.getPostID());
+	                
+	                // Refresh the view
+	                loadMyPosts();
+	                ViewMyPosts.scrollPane_PostBody.setContent(null);
+	                ViewMyPosts.button_DeletePost.setVisible(false);
+	                ViewMyPosts.currentPost = new entityClasses.Post(); // reset
+	                
+	                showAlert("Success", "Post has been deleted.", javafx.scene.control.Alert.AlertType.INFORMATION);
+	            } catch (Exception e) {
+	                showAlert("Error", "Failed to delete post: " + e.getMessage(), 
+	                         javafx.scene.control.Alert.AlertType.ERROR);
+	            }
+	        }
+	    });
+	}
+
+
+	private static void showAlert(String title, String message, javafx.scene.control.Alert.AlertType type) {
+	    javafx.scene.control.Alert alert = new javafx.scene.control.Alert(type);
+	    alert.setTitle(title);
+	    alert.setHeaderText(null);
+	    alert.setContentText(message);
+	    alert.showAndWait();
+	}
 	/**********
 	 * <p> Method: performLogout() </p>
 	 * 

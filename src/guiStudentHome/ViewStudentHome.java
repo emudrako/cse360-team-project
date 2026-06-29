@@ -1,6 +1,7 @@
 package guiStudentHome;
 
 import javafx.geometry.Pos;
+import javafx.scene.text.TextAlignment;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -8,8 +9,12 @@ import javafx.scene.layout.Pane;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+
+import java.util.List;
+
 import database.Database;
 import entityClasses.User;
+import guiUserUpdate.ViewUserUpdate;
 
 
 /*******
@@ -34,25 +39,27 @@ public class ViewStudentHome {
 
 	 */
 
-	private static double width = applicationMain.FoundationsMain.WINDOW_WIDTH;
-	private static double height = applicationMain.FoundationsMain.WINDOW_HEIGHT;
+	private static double width = 1000;
+	private static double height = 900;
 
 	// GUI Area 1
 	protected static Label label_PageTitle = new Label();
 	protected static Label label_UserDetails = new Label();
+	protected static Label label_UserWelcome = new Label();
 	protected static Button button_UpdateThisUser = new Button("Update Account");
 
-	private static Line line_Separator1 = new Line(20, 95, width-20, 95);
 
 	// GUI Area 2
-	protected static Button button_DiscussionBoard = new Button("Discussion Board");
-	protected static Button button_MyPosts = new Button("My Posts");
+	protected static Button button_DiscussionBoard = new Button("Discussion Board\nSee Whats Happening!");
 	
-	private static Line line_Separator4 = new Line(20, 525, width-20, 525);
+	protected static Button button_MyPosts = new Button();
+
 
 	// GUI Area 3
 	protected static Button button_Logout = new Button("Logout");
-	protected static Button button_Quit = new Button("Quit");
+	protected static Button button_Quit = new Button("X");
+	
+	protected static Button button_ContinueToCreate = new Button("Create a Post");
 
 	private static ViewStudentHome theView;
 	private static Database theDatabase = applicationMain.FoundationsMain.database;
@@ -60,6 +67,9 @@ public class ViewStudentHome {
 	protected static Stage theStage;
 	protected static Pane theRootPane;
 	protected static User theUser;
+	
+	private static javafx.scene.text.Text text_MyPostsTitle = new javafx.scene.text.Text("My Posts");
+	private static javafx.scene.text.Text text_MyPostsUnread = new javafx.scene.text.Text();
 
 	private static Scene theViewStudentHomeScene;
 	protected static final int theRole = 4;// Admin: 1; Role1: 2; Role2: 3; Student: 4
@@ -86,13 +96,77 @@ public class ViewStudentHome {
 		if (theView == null) theView = new ViewStudentHome();
 
 		theDatabase.getUserAccountDetails(user.getUserName());
+		updateMyPostsButtonText();
 		applicationMain.FoundationsMain.activeHomePage = theRole;
 
 		label_UserDetails.setText("User: " + theUser.getUserName());
 
-		theStage.setTitle("CSE 360 Foundations: Student Home Page");
+		theStage.setTitle("Student Home Page");
+		setupLabelUI(label_PageTitle, "Arial", 40, 400, Pos.BASELINE_LEFT, 20, 35);
 		theStage.setScene(theViewStudentHomeScene);
 		theStage.show();
+	}
+	
+	/**********
+	 * <p> Method: updateMyPostsButtonText() </p>
+	 *
+	 * <p> Description: Have two sizes in my posts button. </p>
+	 *
+	 */
+	private static void buildMyPostsGraphic() {
+	    text_MyPostsTitle.setFont(Font.font("Dialog", 50));
+	    text_MyPostsTitle.setFill(javafx.scene.paint.Color.WHITE);
+	    text_MyPostsTitle.setTextAlignment(TextAlignment.CENTER);
+
+	    text_MyPostsUnread.setFont(Font.font("Dialog", 25));
+	    text_MyPostsUnread.setFill(javafx.scene.paint.Color.WHITE);
+	    text_MyPostsUnread.setTextAlignment(TextAlignment.CENTER);
+
+	    javafx.scene.layout.VBox vbox = new javafx.scene.layout.VBox(4, text_MyPostsTitle, text_MyPostsUnread);
+	    vbox.setAlignment(Pos.CENTER);
+	    button_MyPosts.setGraphic(vbox);
+	}
+	
+	/**********
+	 * <p> Method: updateMyPostsButtonText() </p>
+	 *
+	 * <p> Description: Updates my posts button with unread replies. </p>
+	 *
+	 */
+	
+	private static void updateMyPostsButtonText() {
+	    int unread = getTotalUnreadReplies();
+	    if (unread > 0) {
+	        text_MyPostsUnread.setText(unread + " unread repl" + (unread == 1 ? "y" : "ies"));
+	    } else {
+	        text_MyPostsUnread.setText("");
+	    }
+	}
+	
+	/**********
+	 * <p> Method: getTotalUnreadReplies() </p>
+	 *
+	 * <p> Description: Gets unread reply count for current user. </p>
+	 *
+	 */
+	private static int getTotalUnreadReplies() {
+	    String currentUsername = theUser.getUserName();
+	    int totalUnread = 0;
+	    
+	    try {
+	        List<entityClasses.Post> allPosts = theDatabase.getPostObjects();
+	        
+	        for (entityClasses.Post post : allPosts) {
+	            if (post.getAuthorUsername().equals(currentUsername) && !post.getIsDeleted()) {
+	                int unreadCount = theDatabase.getUnreadReplyCount(post.getPostID(), currentUsername);
+	                totalUnread += unreadCount;
+	            }
+	        }
+	    } catch (Exception e) {
+	        System.err.println("Error calculating unread replies: " + e.getMessage());
+	    }
+	    
+	    return totalUnread;
 	}
 
 	/**********
@@ -104,41 +178,66 @@ public class ViewStudentHome {
 	private ViewStudentHome() {
 		theRootPane = new Pane();
 		theViewStudentHomeScene = new Scene(theRootPane, width, height);
+		theRootPane.setStyle("-fx-background-color: #FFFFFF;");
 
-		// GUI Area 1
 		label_PageTitle.setText("Student Home Page");
-		setupLabelUI(label_PageTitle, "Arial", 28, width, Pos.CENTER, 0, 5);
+        setupLabelUI(label_PageTitle, "Arial", 40, 400, Pos.BASELINE_LEFT, 20, 45);
+        label_PageTitle.setStyle("-fx-text-fill: #041E42; -fx-font-weight: bold;");
 
-		label_UserDetails.setText("User: " + theUser.getUserName());
-		setupLabelUI(label_UserDetails, "Arial", 20, width, Pos.BASELINE_LEFT, 20, 55);
+        label_UserDetails.setText("User: " + theUser.getUserName());
+        setupLabelUI(label_UserDetails, "Arial", 12, 200, Pos.BASELINE_LEFT, 20, 10);
+        label_UserDetails.setStyle("-fx-text-fill: #666666;");
+        
+        label_UserWelcome.setText("Welcome Back, " + theUser.getUserName());
+        setupLabelUI(label_UserWelcome, "Arial", 50, 400, Pos.BASELINE_LEFT, 280, 170);
+        label_UserWelcome.setStyle("-fx-text-fill: #666666;");
 
-		setupButtonUI(button_UpdateThisUser, "Dialog", 18, 170, Pos.CENTER, 610, 45);
-		button_UpdateThisUser.setOnAction((_) -> { ControllerStudentHome.performUpdate(); });
-
-		// GUI Area 2 — Student User Story 2: View Related Posts from Others.
-				// Provides a way for the student to browse posts from other students before they
-				// create their own, helping avoid duplicate questions.
-
-		// Button to take student to the Discussion Board page
-		setupButtonUI(button_DiscussionBoard, "Dialong", 14, 50, Pos.CENTER, 20, 100);
-		button_DiscussionBoard.setOnAction((_) ->
-	    { ControllerStudentHome.displayDiscussionBoard(); });
-		
-		// Button to take student to the My Posts page
-		setupButtonUI(button_MyPosts, "Dialog", 16, 150, Pos.CENTER, 400, 350);
-		button_MyPosts.setOnAction((_) -> { guiMyPosts.ViewMyPosts.displayMyPosts(theStage, theUser); });
-		
-		// GUI Area 3
-		setupButtonUI(button_Logout, "Dialog", 18, 250, Pos.CENTER, 20, 540);
-		button_Logout.setOnAction((_) -> { ControllerStudentHome.performLogout(); });
-
-		setupButtonUI(button_Quit, "Dialog", 18, 250, Pos.CENTER, 300, 540);
-		button_Quit.setOnAction((_) -> { ControllerStudentHome.performQuit(); });
-		
-
-		theRootPane.getChildren().addAll(
-			    label_PageTitle, label_UserDetails, button_UpdateThisUser, line_Separator1,
-			    button_DiscussionBoard, line_Separator4, button_Logout, button_Quit, button_MyPosts);
+        setupButtonUI(button_DiscussionBoard, "Dialog", 60, 200, Pos.CENTER, 160, 300);
+        button_DiscussionBoard.setAlignment(Pos.CENTER);
+        button_DiscussionBoard.setTextAlignment(TextAlignment.CENTER);
+        button_DiscussionBoard.setOnAction((_) -> ControllerStudentHome.displayDiscussionBoard());
+        button_DiscussionBoard.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
+        
+        setupButtonUI(button_MyPosts, "Dialog", 12, 290, Pos.CENTER, 160, 508);
+        button_MyPosts.setMinHeight(80);
+        button_MyPosts.setAlignment(Pos.CENTER);
+        buildMyPostsGraphic();
+        updateMyPostsButtonText();
+        button_MyPosts.setOnAction((_) -> guiMyPosts.ViewMyPosts.displayMyPosts(theStage, theUser));
+        button_MyPosts.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
+        
+        setupButtonUI(button_Logout, "Dialog", 12, 70, Pos.CENTER, 769, 10);
+        button_Logout.setOnAction((_) -> ControllerStudentHome.performLogout());
+        button_Logout.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
+        updateMyPostsButtonText();
+        button_MyPosts.setOnAction((_) -> 
+        guiMyPosts.ViewMyPosts.displayMyPosts(theStage, theUser)
+        );
+        
+        setupButtonUI(button_Quit, "Dialog", 12, 30, Pos.CENTER, 960, 10);
+        button_Quit.setOnAction((_) -> ControllerStudentHome.performQuit());
+        button_Quit.setStyle("-fx-background-color: #BF0D3E; -fx-text-fill: white; -fx-background-radius: 5;");
+        
+        setupButtonUI(button_UpdateThisUser, "Dialog", 12, 115, Pos.CENTER, 842, 10);
+        button_UpdateThisUser.setOnAction((_) -> ViewUserUpdate.displayUserUpdate(theStage, theUser));
+        button_UpdateThisUser.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
+        
+        setupButtonUI(button_ContinueToCreate, "Dialog", 50, 200, Pos.CENTER, 485, 510);
+		button_ContinueToCreate.setOnAction((_) -> {guiCreatePost.ViewCreatePost.displayCreatePost(theStage, theUser); });
+		button_ContinueToCreate.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
+        
+        
+        theRootPane.getChildren().addAll(
+                label_PageTitle,
+                label_UserDetails,
+                label_UserWelcome,
+                button_UpdateThisUser,
+                button_DiscussionBoard,
+                button_MyPosts,
+                button_Logout,
+                button_Quit,
+                button_ContinueToCreate
+                );
 
 	}
 
@@ -165,5 +264,7 @@ public class ViewStudentHome {
 		b.setAlignment(p);
 		b.setLayoutX(x);
 		b.setLayoutY(y);
+		
+		
 	}
 }
