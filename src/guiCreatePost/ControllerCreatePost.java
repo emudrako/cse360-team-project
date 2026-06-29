@@ -1,14 +1,13 @@
 package guiCreatePost;
 
 import database.Database;
-import guiCreatePost.ViewCreatePost;
 
 /*******
  * <p> Title: ControllerCreatePost Class. </p>
  * 
- * <p> Description: The Java/FX-based My Posts page.  This class provides the controller
- * actions for the Create Post page including ability for a student to compose a new post with a title,
- * body, and thread selection, validates input and submits it to the discussion board database.
+ * <p> Description: The Java/FX-based My Posts page.  Supports Story 1 (Create a Post) and Story 5 (Post to a Specific Thread). 
+ * This class provides the controller actions for the Create Post page including ability for a student
+ *  to compose a new post with a title, body, and thread selection, validates input and submits it to the discussion board database.
  * 
  * The class has been written assuming that the View or the Model are the only class methods that
  * can invoke these methods.  This is why each has been declared at "protected".  Do not change any
