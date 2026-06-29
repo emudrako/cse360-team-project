@@ -202,7 +202,6 @@ public class ViewDiscussionBoard {
 		
 		setupLabelUI(label_Subtitle, "Arial", 20, 400, Pos.BASELINE_LEFT, 23, 80);
 		label_Subtitle.setStyle("-fx-text-fill: #666666; -fx-font-style: italic;");
-		label_Subtitle.setStyle("-fx-text-fill: #666666; -fx-font-style: italic;");
 		
 		setupButtonUI(button_MyPosts, "Dialog", 12, 70, Pos.CENTER, 772, 10);
 		button_MyPosts.setOnAction((_) -> {guiMyPosts.ViewMyPosts.displayMyPosts(theStage, theUser);});
@@ -361,6 +360,10 @@ public class ViewDiscussionBoard {
 	 * <p> Description: This method populates the reply to reply VBox in GUI Area 4. It
 	 * contains all necessary fields for the user to create a reply to an existing reply. </p>
 	 * 
+	 * @param reply the Reply object that is being replied to
+	 * 
+	 * @return a VBox containing the reply-to-reply form with text area and submit/cancel buttons
+	 * 
 	 */
 	protected static VBox replyToReplyForm(Reply reply) {
 		VBox vBox_ReplyForm = new VBox(5);
@@ -406,6 +409,8 @@ public class ViewDiscussionBoard {
 	*
 	* <p> Description: This method populates the post body Scroll Pane with the
 	* full post details when the user clicks on a post card. </p>
+	*
+	* @param post the Post object to display in the post body scroll pane
 	*
 	*/
 	protected static void displayPost(Post post) {
@@ -534,6 +539,9 @@ public class ViewDiscussionBoard {
 	 * 
 	 * <p> Description: This method populates the post body Scroll Pane with the
 	 * replies to replies from the currently selected post. </p>
+	 * 
+	 * @param reply the Reply object to display
+	 * @return a VBox containing the reply author and body
 	 * 
 	 */
 	protected static VBox displayReplyToReply(Reply reply) {
