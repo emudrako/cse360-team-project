@@ -1,5 +1,6 @@
 package guiUserLogin;
 
+import guiMyPosts.ControllerMyPosts;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -35,30 +36,31 @@ public class ViewUserLogin {
 	 *********************************************************************************************/
 
 	// These are the application values required by the user interface
+	
+	private static double width = 1000;
+	private static double height = 900;
 
-	private static double width = applicationMain.FoundationsMain.WINDOW_WIDTH;
-	private static double height = applicationMain.FoundationsMain.WINDOW_HEIGHT;
-
-	private static Label label_ApplicationTitle = new Label("Foundation Application Startup Page");
+	private static Label label_ApplicationTitle = new Label("CSE 360 Discussion Board");
 
 	// This set is for all subsequent starts of the system
-	private static Label label_OperationalStartTitle = new Label("Log In or Invited User Account Setup ");
-	private static Label label_LogInInsrtuctions = new Label("Enter your user name and password and "+	
-			"then click on the LogIn button");
+	private static Label label_OperationalStartTitle = new Label("Welcome back ");
+	private static Label label_LogInInsrtuctions = new Label("Enter your login Information ");
 	protected static Alert alertUsernamePasswordError = new Alert(AlertType.INFORMATION);
 
 
 	//	private User user;
+	private static Label label_Username = new Label("Username");	
 	protected static TextField text_Username = new TextField();
+	private static Label label_Password = new Label("Password");	
 	protected static PasswordField text_Password = new PasswordField();
-	private static Button button_Login = new Button("Log In");	
+	private static Button button_Login = new Button("Continue");	
 
-	private static Label label_AccountSetupInsrtuctions = new Label("No account? "+	
-			"Enter your invitation code and click on the Account Setup button");
+	private static Label label_AccountSetupInsrtuctions = new Label("New here? "+	
+			"Enter your invitation code:");
 	private static TextField text_Invitation = new TextField();
-	private static Button button_SetupAccount = new Button("Setup Account");
+	private static Button button_SetupAccount = new Button("Create Account");
 
-	private static Button button_Quit = new Button("Quit");
+	private static Button button_Quit = new Button("X");
 
 	private static Stage theStage;	
 	private static Pane theRootPane;
@@ -121,60 +123,81 @@ public class ViewUserLogin {
 		// Create the Pane for the list of widgets and the Scene for the window
 		theRootPane = new Pane();
 		theUserLoginScene = new Scene(theRootPane, width, height);
+		theRootPane.setStyle("-fx-background-color: #041E42;"); // navy background
+		// create a card to hold all application details for adding navy background
 		
+		// Set up the Quit button  
+		setupButtonUI(button_Quit, "Dialog", 12, 30, Pos.CENTER, 960, 10);
+		button_Quit.setOnAction((_) -> {ControllerUserLogin.performQuit(); });
+		button_Quit.setStyle("-fx-background-color: #BF0D3E; -fx-text-fill: white; -fx-background-radius: 5;");
+		
+		javafx.scene.shape.Rectangle card = new javafx.scene.shape.Rectangle();
+		// White card in the center
+		card.setWidth(450);
+		card.setHeight(480);
+		card.setX(275);
+		card.setY(180);
+		card.setArcWidth(20);
+		card.setArcHeight(20);
+		card.setFill(javafx.scene.paint.Color.WHITE);
+		card.setEffect(new javafx.scene.effect.DropShadow(20, javafx.scene.paint.Color.rgb(0,0,0,0.3)));
+
 		// Populate the window with the title and other common widgets and set their static state
-		setupLabelUI(label_ApplicationTitle, "Arial", 32, width, Pos.CENTER, 0, 10);
+		setupLabelUI(label_ApplicationTitle, "Arial", 24, 450, Pos.CENTER, 275, 210);
+		label_ApplicationTitle.setStyle("-fx-text-fill: #041E42; -fx-font-weight: bold;");
 
-		setupLabelUI(label_OperationalStartTitle, "Arial", 24, width, Pos.CENTER, 0, 60);
 
+		setupLabelUI(label_OperationalStartTitle, "Arial", 16, 450, Pos.CENTER, 275, 260);
+		label_OperationalStartTitle.setStyle("-fx-text-fill: #666666; -fx-font-style: italic;");
 
 		// Existing user log in portion of the page
 
-		setupLabelUI(label_LogInInsrtuctions, "Arial", 18, width, Pos.BASELINE_LEFT, 20, 120);
+		setupLabelUI(label_LogInInsrtuctions, "Arial", 16, 450, Pos.CENTER, 275, 320);
 
 		// Establish the text input operand field for the username
-		setupTextUI(text_Username, "Arial", 18, 300, Pos.BASELINE_LEFT, 50, 160, true);
-		text_Username.setPromptText("Enter Username");
+		setupLabelUI(label_Username, "Arial", 13, width, Pos.BASELINE_LEFT, 400, 365);
+		setupTextUI(text_Username, "Arial", 20, 200, Pos.BASELINE_LEFT, 400, 385, true);
+		text_Username.setPromptText("");
 
 		// Establish the text input operand field for the password
-		setupTextUI(text_Password, "Arial", 18, 300, Pos.BASELINE_LEFT, 50, 210, true);
-		text_Password.setPromptText("Enter Password");
+		setupLabelUI(label_Password, "Arial", 13, width, Pos.BASELINE_LEFT, 400, 430);
+		setupTextUI(text_Password, "Arial", 20, 200, Pos.BASELINE_LEFT, 400, 450, true);
+		text_Password.setPromptText("");
 
 		// Set up the Log In button
-		setupButtonUI(button_Login, "Dialog", 18, 200, Pos.CENTER, 475, 180);
+		setupButtonUI(button_Login, "Dialog", 17, 200, Pos.CENTER, 400, 500);
 		button_Login.setOnAction((_) -> {ControllerUserLogin.doLogin(theStage); });
 
 		alertUsernamePasswordError.setTitle("Invalid username/password!");
 		alertUsernamePasswordError.setHeaderText(null);
 
+		// Style for login button and Setup Account button
+		button_Login.setStyle("-fx-background-color: #002D72; -fx-text-fill: white; -fx-background-radius: 16;");
 
 		// The invitation to setup an account portion of the page
 
-		setupLabelUI(label_AccountSetupInsrtuctions, "Arial", 18, width, Pos.BASELINE_LEFT, 20, 300);
+		setupLabelUI(label_AccountSetupInsrtuctions, "Arial", 14, width, Pos.BASELINE_LEFT, 382, 570);
 
 		// Establish the text input operand field for the password
-		setupTextUI(text_Invitation, "Arial", 18, 300, Pos.BASELINE_LEFT, 50, 340, true);
-		text_Invitation.setPromptText("Enter Invitation Code");
+		setupTextUI(text_Invitation, "Arial", 12, 100, Pos.CENTER, 393, 600, true);
+		text_Invitation.setPromptText("Invite Code");
 
 		// Set up the setup button
-		setupButtonUI(button_SetupAccount, "Dialog", 18, 200, Pos.CENTER, 475, 340);
+		setupButtonUI(button_SetupAccount, "Dialog", 14, 110, Pos.CENTER, 498, 599);
 		button_SetupAccount.setOnAction((_) -> {
 			System.out.println("**** Calling doSetupAccount");
 			ControllerUserLogin.doSetupAccount(theStage, text_Invitation.getText());
 		});
-
-		// Set up the Quit button  
-		setupButtonUI(button_Quit, "Dialog", 18, 250, Pos.CENTER, 300, 520);
-		button_Quit.setOnAction((_) -> {ControllerUserLogin.performQuit(); });
-
+		button_SetupAccount.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
 		//		theRootPane.getChildren().clear();
 
-		theRootPane.getChildren().addAll(
+
+		theRootPane.getChildren().addAll(card,
 				label_ApplicationTitle, 
 				label_OperationalStartTitle,
 				label_LogInInsrtuctions, label_AccountSetupInsrtuctions, text_Username,
 				button_Login, text_Password, text_Invitation, button_SetupAccount,
-				button_Quit);
+				button_Quit, label_Username, label_Password);
 	}
 
 

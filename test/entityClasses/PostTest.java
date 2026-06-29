@@ -14,16 +14,15 @@ import static org.junit.jupiter.api.Assertions.*;
 /*******
  * <p> Title: PostTest </p>
  *
- * <p> Description: Tests for the Post entity class covering the createdAt timestamp
- * field added for Story 10.  Pure entity tests verify the getter/setter in isolation;
- * persistence tests use a private in-memory H2 database so they never touch the
- * production file database and each test method starts with a clean schema. </p>
+ * <p> Description: Tests for the Post entity class. Persistence tests use a private
+ * in-memory H2 database so they never touch the production file database and each
+ * test method starts with a clean schema. </p>
  *
  * <p> Copyright: Elena Mudrakova © 2026 </p>
  *
  * @author Elena Mudrakova
  *
- * @version 1.00    2026-06-19 Initial version
+ * @version 1.00    2026-06-19 Initial version — createdAt tests
  *
  */
 class PostTest {
@@ -49,23 +48,23 @@ class PostTest {
     // Story 12: timestamp on posts and replies
     @Test
     void postTimestampIsNullByDefault() {
-        Post p = new Post(TITLE, BODY, AUTHOR_A, THREAD);
-        assertNull(p.getCreatedAt());
+        Post post = new Post(TITLE, BODY, AUTHOR_A, THREAD);
+        assertNull(post.getCreatedAt());
     }
 
     @Test
     void postTimestampCanBeSetAndRetrieved() {
-        Post p = new Post(TITLE, BODY, AUTHOR_A, THREAD);
+        Post post = new Post(TITLE, BODY, AUTHOR_A, THREAD);
         LocalDateTime now = LocalDateTime.now();
-        p.setCreatedAt(now);
-        assertEquals(now, p.getCreatedAt());
+        post.setCreatedAt(now);
+        assertEquals(now, post.getCreatedAt());
     }
 
     @Test
     void postTimestampIsSetAfterCreate() throws SQLException {
-        Post p = new Post(TITLE, BODY, AUTHOR_A, THREAD);
-        db.createPost(p);
-        assertNotNull(p.getCreatedAt());
+        Post post = new Post(TITLE, BODY, AUTHOR_A, THREAD);
+        db.createPost(post);
+        assertNotNull(post.getCreatedAt());
     }
 
     @Test

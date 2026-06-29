@@ -223,21 +223,17 @@ public class ControllerUserLogin {
 		guiNewAccount.ViewNewAccount.displayNewAccount(theStage, invitationCode);
 	}
 
-	
 	/**********
-	 * <p> Method: public performQuit() </p>
+	 * <p> Method: performQuit() </p>
 	 * 
-	 * <p> Description: This method is called when the user has clicked on the Quit button.  Doing
-	 * this terminates the execution of the application.  All important data must be stored in the
-	 * database, so there is no cleanup required.  (This is important so we can minimize the impact
-	 * of crashed.)
+	 * <p> Description: This method terminates the execution of the program.  It leaves the
+	 * database in a state where the normal login page will be displayed when the application is
+	 * restarted.</p>
 	 * 
-	 */	
+	 */
 	protected static void performQuit() {
-		System.out.println("Perform Quit");
 		System.exit(0);
-	}	
-	
+	}
 	/**********
 	 * <p> Method: public performSetPassword() </p>
 	 * 
