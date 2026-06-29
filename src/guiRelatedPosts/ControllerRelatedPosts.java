@@ -1,6 +1,7 @@
 package guiRelatedPosts;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import database.Database;
@@ -57,6 +58,9 @@ import javafx.scene.layout.VBox;
  * @version 2.10		2026-06-26 Renders matching posts as styled cards (matching the
  *						team's UI Style Guide) instead of plain ListView lines, so the
  *						page is visually consistent with Pete's Discussion Board.
+ * @version 2.20		2026-06-28 Extracted the pure filtering logic into the static
+ *						helper filterPosts so it can be exercised by RelatedPostsTest
+ *						without launching JavaFX or connecting to a live database.
  *
  */
 
@@ -115,7 +119,6 @@ public class ControllerRelatedPosts {
 		ViewRelatedPosts.postCardList.getChildren().clear();
 
 		String currentUsername = ViewRelatedPosts.theUser.getUserName();
-		String normalizedKeyword = keyword == null ? "" : keyword.trim().toLowerCase();
 
 		List<Post> allPosts;
 		try {
@@ -130,43 +133,96 @@ public class ControllerRelatedPosts {
 			return;
 		}
 
-		int matchCount = 0;
-		for (Post post : allPosts) {
+		// Apply the pure filtering logic. This is the same code path exercised by
+		// RelatedPostsTest, so any test passing in JUnit means this runtime path
+		// behaves the same way.
+		List<Post> matchingPosts = filterPosts(allPosts, currentUsername, keyword);
 
-			// Skip posts authored by the current student — Story 2 is specifically
-			// about surfacing posts "from others," not the student's own posts.
-			if (post.getAuthorUsername().equals(currentUsername)) continue;
-
-			// Skip soft-deleted posts (Story 6) — a deleted post should not appear
-			// to a student browsing for related content, even though it is preserved
-			// in the database so existing replies to it can still show the "original
-			// post has been deleted" message.
-			if (post.getIsDeleted()) continue;
-
-			// If a keyword was given, narrow to posts whose title or body contains
-			// that keyword (case-insensitive). This is the Story 4 behavior. An
-			// empty keyword skips this filter so the student sees all related posts.
-			if (!normalizedKeyword.isEmpty()) {
-				String title = post.getTitle() == null ? "" : post.getTitle().toLowerCase();
-				String body  = post.getBody()  == null ? "" : post.getBody().toLowerCase();
-				if (!title.contains(normalizedKeyword) && !body.contains(normalizedKeyword)) {
-					continue;
-				}
-			}
-
+		for (Post post : matchingPosts) {
 			VBox card = buildCardForPost(post);
 			ViewRelatedPosts.postCardList.getChildren().add(card);
-			matchCount++;
 		}
 
 		// If nothing matched, show the empty-state label inside the card area so
 		// the screen renders cleanly with zero results.
-		if (matchCount == 0) {
+		if (matchingPosts.isEmpty()) {
 			ViewRelatedPosts.postCardList.getChildren()
 					.add(ViewRelatedPosts.label_NoRelatedPosts);
 		}
 
 		repaintTheWindow();
+	}
+
+
+	/**********
+	 * <p> Method: List&lt;Post&gt; filterPosts(List&lt;Post&gt; allPosts,
+	 *  String currentUsername, String keyword) </p>
+	 *
+	 * <p> Description: This is the pure filtering logic used by loadRelatedPosts.
+	 * It takes a raw list of Post objects (typically straight from the database) and
+	 * returns the subset that should appear on this screen given the current student
+	 * and an optional search keyword.
+	 *
+	 * The filter applies, in order:
+	 *   (1) Drop posts authored by the current student. Story 2 is specifically
+	 *       about surfacing posts "from others," not the student's own.
+	 *   (2) Drop soft-deleted posts (isDeleted == true). A deleted post should not
+	 *       surface here even though it remains in the database for reply-anchoring.
+	 *   (3) If a non-empty keyword is given, drop any post whose title and body
+	 *       both fail to contain the keyword (case-insensitive). This is the
+	 *       Story 4 behavior. An empty keyword skips this filter.
+	 *
+	 * This logic is in its own method (rather than inlined into loadRelatedPosts)
+	 * so it can be exercised by RelatedPostsTest without needing to launch JavaFX
+	 * or connect to a live H2 database. Both the Controller and the test class
+	 * call this method, so the test exercises the same code path that runs at
+	 * runtime. </p>
+	 *
+	 * @param allPosts the full list of Post objects to filter, typically from
+	 *  Database.getPostObjects(). May be null, in which case an empty list is
+	 *  returned.
+	 * @param currentUsername the username of the currently logged-in student;
+	 *  posts authored by this username are excluded
+	 * @param keyword the search keyword. May be null or empty (no keyword filter
+	 *  applied); will be trimmed and lowercased internally for case-insensitive
+	 *  matching.
+	 *
+	 * @return a new List of Post objects that survive the filter, in the same
+	 *  relative order as the input. Never null.
+	 *
+	 */
+	public static List<Post> filterPosts(List<Post> allPosts,
+			String currentUsername, String keyword) {
+
+		List<Post> result = new ArrayList<Post>();
+		if (allPosts == null) return result;
+
+		String normalized = keyword == null ? "" : keyword.trim().toLowerCase();
+
+		for (Post post : allPosts) {
+
+			// (1) Skip posts authored by the current student
+			if (currentUsername != null
+					&& currentUsername.equals(post.getAuthorUsername())) {
+				continue;
+			}
+
+			// (2) Skip soft-deleted posts
+			if (post.getIsDeleted()) continue;
+
+			// (3) Skip posts that don't match the keyword (if any)
+			if (!normalized.isEmpty()) {
+				String title = post.getTitle() == null ? "" : post.getTitle().toLowerCase();
+				String body  = post.getBody()  == null ? "" : post.getBody().toLowerCase();
+				if (!title.contains(normalized) && !body.contains(normalized)) {
+					continue;
+				}
+			}
+
+			result.add(post);
+		}
+
+		return result;
 	}
 
 
