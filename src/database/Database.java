@@ -91,8 +91,7 @@ public class Database {
 			connection = DriverManager.getConnection(DB_URL, USER, PASS);
 			statement = connection.createStatement();
 			// You can use this command to clear the database and restart from fresh.
-//	statement.execute("DROP ALL OBJECTS");
-
+//			statement.execute("DROP ALL OBJECTS");
 			createTables();  // Create the necessary tables if they don't exist
 		} catch (ClassNotFoundException e) {
 			System.err.println("JDBC Driver not found: " + e.getMessage());
@@ -182,6 +181,12 @@ public class Database {
 	    // Add parentReplyID to existing tables if upgrading from an older schema
 	    statement.execute("ALTER TABLE RepliesDB ADD COLUMN IF NOT EXISTS "
 	    		+ "parentReplyID INT");
+	    // Add hasReplies to existing tables if upgrading from an older schema
+	    statement.execute("ALTER TABLE RepliesDB ADD COLUMN IF NOT EXISTS "		
+	    		+ "hasReplies BOOL DEFAULT FALSE");
+	    // Add numReplies to existing tables if upgrading from an older schema
+	    statement.execute("ALTER TABLE RepliesDB ADD COLUMN IF NOT EXISTS "		
+	    		+ "numReplies INT");
 
 	    // Tracks which replies each user has already read (for unreadCount)
 	    String replyReadStatusTable = "CREATE TABLE IF NOT EXISTS ReplyReadStatusDB ("
@@ -1619,16 +1624,18 @@ public class Database {
 			if (!errMsg.isEmpty()) {
 				throw new IllegalArgumentException(errMsg);
 			}
-
 			LocalDateTime now = LocalDateTime.now();
-			String insertReply = "INSERT INTO RepliesDB (postID, body, authorUsername, createdAt) "
-				+ "VALUES (?, ?, ?, ?)";
+			String insertReply = "INSERT INTO RepliesDB (postID, body, authorUsername, createdAt, parentReplyID, hasReplies, numReplies) "
+				+ "VALUES (?, ?, ?, ?, ?, ?, ?)";
 			try (PreparedStatement pstmt = connection.prepareStatement(insertReply,
 				Statement.RETURN_GENERATED_KEYS)) {
 					pstmt.setInt(1, reply.getPostID());
 					pstmt.setString(2, reply.getBody());
 					pstmt.setString(3, reply.getAuthorUsername());
 					pstmt.setTimestamp(4, Timestamp.valueOf(now));
+					pstmt.setInt(5,  reply.getParentReplyID());
+					pstmt.setBoolean(6,  reply.getHasReplies());
+					pstmt.setInt(7,  reply.getNumReplies());
 					pstmt.executeUpdate();
 
 			try (ResultSet rs = pstmt.getGeneratedKeys()) {
@@ -1666,12 +1673,18 @@ public class Database {
 				else {
 					while (rs.next()) {
 						int replyID = rs.getInt("replyID");
+						int parentReplyID = rs.getInt("parentReplyID");
+						boolean hasReplies = rs.getBoolean("hasReplies");
+						int numReplies = rs.getInt("numReplies");
 						Reply reply = new Reply(
 							rs.getInt("postID"),
 							rs.getString("body"),
 							rs.getString("authorUsername")
 							);
 						reply.setReplyID(replyID);
+						reply.setparentReplyID(parentReplyID);
+						reply.setHasReplies(hasReplies);
+						reply.setNumReplies(numReplies);
 						replyObjects.add(reply);
 					}
 				}
@@ -1743,6 +1756,51 @@ public class Database {
 				+ e.getMessage());
 						}
 		}
+		
+		/*******
+		 * <p> Method: updateHasReplies </p>
+		 * 
+		 * <p> Description: Updates the boolean value for hasReplies </p>
+		 * 
+		 * @param replyID specifies the ID of the reply to update.
+		 * 
+		 * @param hasReplies specifies the boolean value to set hasReplies to.
+		 * 
+		 */
+		public void updateHasReplies(int replyID, boolean hasReplies) {
+			String query = "UPDATE RepliesDB SET hasReplies = ? WHERE replyID = ?";
+				try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+					pstmt.setBoolean(1, hasReplies);
+					pstmt.setInt(2, replyID);
+					pstmt.executeUpdate();
+				} catch (SQLException e) {
+						System.err.println("*** ERROR *** Database error while updating reply: " 
+				+ e.getMessage());
+					}
+		}
+		
+		/*******
+		* <p> Method: updateNumReplies </p>
+		* 
+		* <p> Description: Updates the int value for numReplies </p>
+		* 
+		* @param replyID specifies the ID of the reply to update.
+		* 
+		* @param numReplies specifies the int value to set numReplies to.
+		* 
+		*/
+		public void updateNumReplies(int replyID, int numReplies) {
+			String query = "UPDATE RepliesDB SET numReplies = ? WHERE replyID = ?";
+				try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+					pstmt.setInt(1, numReplies);
+					pstmt.setInt(2, replyID);
+					pstmt.executeUpdate();
+				} catch (SQLException e) {
+						System.err.println("*** ERROR *** Database error while updating reply: " 
+				+ e.getMessage());
+					}
+				}
+	
 	/*******
 	* <p> Method: deleteReply </p>
 	* 

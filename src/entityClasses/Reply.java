@@ -21,9 +21,12 @@ public class Reply {
 	 */
 	private int replyID;
 	private int postID;
+	private int parentReplyID;
 	private String body;
 	private String authorUsername;
 	private LocalDateTime createdAt;
+	private boolean hasReplies;
+	private int numReplies;
 	
 	/*****
 	 * <p> Method: Reply() </p>
@@ -52,6 +55,7 @@ public class Reply {
     	this.postID = postID;
     	this.body = body;
     	this.authorUsername = authorUsername;
+    	this.hasReplies = false;
     }
     
     
@@ -101,6 +105,29 @@ public class Reply {
 	 */
 	// Sets the PostID.
 	public void setPostID(int id) { postID = id; }
+	
+	/*****
+	 * <p> Method: int getParentReplyID() </p>
+	 * 
+	 * <p> Description: This getter returns the parentReplyID. </p>
+	 * 
+	 * @return an int of the parentReplyID this reply is responding to
+	 * 
+	 */
+	// Gets the current value of the PostID.
+	public int getParentReplyID() { return parentReplyID; }
+
+	
+	/*****
+	 * <p> Method: void setParentReplyID(int id) </p>
+	 * 
+	 * <p> Description: This setter defines the parentReplyID attribute. </p>
+	 * 
+	 * @param id specifies which reply this reply is responding to
+	 * 
+	 */
+	// Sets the parentReplyID.
+	public void setparentReplyID(int id) { parentReplyID = id; }
 
 	
 	/*****
@@ -171,5 +198,53 @@ public class Reply {
 	 *
 	 */
 	public void setCreatedAt(LocalDateTime time) { createdAt = time; }
+	
+	
+	/*****
+	 * <p> Method: int getNumReplies() </p>
+	 *
+	 * <p> Description: This getter defines returns the int value
+	 * for numReplies </p>
+	 *
+	 * @return the int value for numReplies
+	 *
+	 */
+	public int getNumReplies() { return numReplies; }
+	
+	
+	/*****
+	 * <p> Method: void setNumReplies(int replyNum) </p>
+	 *
+	 * <p> Description: This setter defines the int value
+	 * for numReplies </p>
+	 *
+	 * @param the int value for numReplies
+	 *
+	 */
+	public void setNumReplies(int replyNum) { this.numReplies = replyNum; }
+	
+	
+	/*****
+	 * <p> Method: boolean getHasReplies() </p>
+	 *
+	 * <p> Description: This getter defines returns the boolean value
+	 * for hasReplies </p>
+	 *
+	 * @return the boolean value for hasReplies
+	 *
+	 */
+	public boolean getHasReplies() { return hasReplies; }
+	
+	
+	/*****
+	 * <p> Method: void setHasReplies(boolean replyStatus) </p>
+	 *
+	 * <p> Description: This setter defines the boolean hasReplies value. </p>
+	 *
+	 * @param replyStatus will be true to indicate that the Reply has replies
+	 * or false to indicate that the Reply has no replies.
+	 *
+	 */
+	public void setHasReplies(boolean replyStatus) { this.hasReplies = replyStatus; }
 
 }

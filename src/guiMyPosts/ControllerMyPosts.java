@@ -3,11 +3,13 @@ import java.sql.SQLException;
 import java.util.List;
 import database.Database;
 import entityClasses.Reply;
+import guiDiscussionBoard.ControllerDiscussionBoard;
 import guiDiscussionBoard.ViewDiscussionBoard;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TitledPane;
 import javafx.scene.effect.ColorInput;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -239,7 +241,8 @@ public class ControllerMyPosts {
 			javafx.scene.control.Label err = new javafx.scene.control.Label("Error: " + e.getMessage());
 	        ViewMyPosts.postCardList.getChildren().add(err);
 		}
-	    
+	    // for loop searches the myReplies list to find the specified username and/or keyword. If found, the Reply 
+	    // is added to the searchedReplies list and the foundReplies int is incremented.
 	    for (entityClasses.Reply reply : myReplies) {
 	    	if (!username.equals("<User>") && !keyword.isEmpty()) {
 	    		if (reply.getAuthorUsername().equals(username) && reply.getBody().toLowerCase().contains(keyword)) {
@@ -260,8 +263,8 @@ public class ControllerMyPosts {
 	    		}
 	    	}
 	    }
-	    
-	    
+	    // If no replies are found matching the specified username and/or keyword, the current user is
+	    // shown the appropriate error message
 	    if (foundReplies == 0) {
 	    	if (!username.equals("<User>") && !keyword.isEmpty()) {	    	
 	    		javafx.scene.control.Label empty = new javafx.scene.control.Label("No replies from user: " +
@@ -279,10 +282,13 @@ public class ControllerMyPosts {
 	    	    ViewMyPosts.postCardList.getChildren().add(empty);
 	    	}
 	    }
+	    // The searchedReplies list is searched to find each Reply's parent post. If the post is not deleted,
+	    // the user will see the title of the parent post with the reply displayed underneath. If the parent
+	    // post is deleted, the user will see a message saying the original post was deleted.
 	    else {
 	    	ViewMyPosts.scrollPane_PostBody.setContent(null);
 	    	VBox replyList = new VBox();
-	    	for (entityClasses.Reply reply : myReplies) {
+	    	for (entityClasses.Reply reply : searchedReplies) {
 	    		for (entityClasses.Post post : myPosts) {
 	    			if (post.getPostID() == reply.getPostID() && !post.getIsDeleted()) {
 	    				int replyCount = theDatabase.getReplyCount(post.getPostID());
@@ -420,6 +426,46 @@ public class ControllerMyPosts {
 		viewReply.setPadding(new Insets(15));
 		
 		Label author = new Label(reply.getAuthorUsername() + " says:");
+		author.setStyle("-fx-font-weight: bold;" + "-fx-font-size: 14px;");
+		
+		TextArea body = new TextArea(reply.getBody());
+		body.setPrefHeight(100);
+		body.setWrapText(true);
+		body.setEditable(false);
+		
+		if (!reply.getHasReplies()) {
+			viewReply.getChildren().addAll(
+				author,
+				body
+				);
+		}
+		else {
+			VBox childReplies = new VBox(5);
+			childReplies.setPadding(new Insets(15));
+			
+			for (Reply tempReply : ControllerDiscussionBoard.replyList.getAllReplies()) {
+				if (tempReply.getParentReplyID() == reply.getReplyID()) {
+					childReplies.getChildren().add(displayReplyToReply(tempReply));
+				}
+			}
+			
+			TitledPane childRepliesPane = new TitledPane(("View replies to " + reply.getAuthorUsername()
+			+ "  |  Number of replies: " + reply.getNumReplies()), childReplies);
+			childRepliesPane.setExpanded(false);
+			
+			viewReply.getChildren().addAll(
+				author,
+				body,
+				childRepliesPane
+				);
+		}
+		return viewReply;
+	}
+		/*
+		VBox viewReply = new VBox(5);
+		viewReply.setPadding(new Insets(15));
+		
+		Label author = new Label(reply.getAuthorUsername() + " says:");
 		author.setStyle("-fx-font-weight: bold;" + "-fx-font-size: 12px;");
 		
 		TextArea body = new TextArea(reply.getBody());
@@ -427,16 +473,37 @@ public class ControllerMyPosts {
 		body.setWrapText(true);
 		body.setEditable(false);
 		
-		Button button_Reply = new Button("Reply");
-		button_Reply.setFont(Font.font("Dialog", 14));
-		button_Reply.setMinWidth(50);
-		
 		viewReply.getChildren().addAll(
 				author,
-				body,
-				button_Reply
+				body
 				);
 		return viewReply;
+	}
+	*/
+	
+	/**********
+	 * <p> Method: displayReplyToReply() </p>
+	 * 
+	 * <p> Description: This method populates the post body Scroll Pane with the
+	 * replies to replies from the currently selected post. </p>
+	 * 
+	 */
+	protected static VBox displayReplyToReply(Reply reply) {
+		VBox viewReply = new VBox(5);
+		viewReply.setPadding(new Insets(15));
+		
+		Label author = new Label(reply.getAuthorUsername() + " says:");
+		author.setStyle("-fx-font-weight: bold;" + "-fx-font-size: 14px;");
+		
+		TextArea body = new TextArea(reply.getBody());
+		body.setPrefHeight(100);
+		body.setWrapText(true);
+		body.setEditable(false);
+			
+		viewReply.getChildren().addAll(
+			author,
+			body);
+		return viewReply;	
 	}
 	
 	/**********

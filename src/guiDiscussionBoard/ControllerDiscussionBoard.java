@@ -229,22 +229,34 @@ public class ControllerDiscussionBoard {
 	 * to the createReply method in the database. </p>
 	 * 
 	 */
-	protected static void newReply(int postID, String body, String authorUsername) {
+	protected static boolean newReply(int postID, String body, String authorUsername, int parentReplyID, 
+			boolean hasReplies, int numReplies) {
 	    String errMsg = recognizers.PostReplyValidator.checkForValidReply(body);
 	    if (!errMsg.isEmpty()) {
 	        Alert alertError = new Alert(Alert.AlertType.INFORMATION);
 	        alertError.setTitle("Error");
 	        alertError.setHeaderText(errMsg);
 	        alertError.showAndWait();
-	        return;
+	        return false;
 	    }
 	    
 	    Reply reply = new Reply(postID, body, authorUsername);
+	    reply.setparentReplyID(parentReplyID);
+	    reply.setHasReplies(hasReplies);
+	    reply.setNumReplies(numReplies);
 	    
 	    try {
 	        theDatabase.createReply(reply);
 	    } catch (SQLException e) {
-	        e.printStackTrace();
+	        reply = null;
+	    	e.printStackTrace();
+	        String error = e.toString();
+	        Alert alertError = new Alert(Alert.AlertType.INFORMATION);
+	        alertError.setTitle("Error");
+	        alertError.setHeaderText("Error creating the reply in the database.");
+	        alertError.setContentText(error);
+	        alertError.showAndWait();
+	        return false;
 	    }
 	    
 	    replyList.addReply(reply);
@@ -253,6 +265,7 @@ public class ControllerDiscussionBoard {
 	    alertSuccess.showAndWait();
 	    ViewDiscussionBoard.scrollPane_PostBody.setContent(null);
 	    repaintTheWindow();
+	    return true;
 	}
 	
 	/**********
