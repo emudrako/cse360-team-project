@@ -52,6 +52,10 @@ public class ControllerCreatePost {
 	    String body = ViewCreatePost.textarea_Body.getText();
 	    String thread = ViewCreatePost.combobox_Thread.getValue();
 	    
+	    // If no thread is selected, the thread defaults to General
+	    if(thread.isEmpty()) {
+	    	thread = "General";
+	    }
 	    // Validate input using PostReplyValidator
 	    String errMsg = recognizers.PostReplyValidator.checkForValidPost(title, body);
 	    if (!errMsg.isEmpty()) {

@@ -1630,6 +1630,25 @@ public class Database {
 			}
 		}
 	/*******
+	* <p> Method: permanentDeletePost </p>
+	* 
+	* <p> Description: Permanently deletes a post from the database. Used for semi-automated
+	* test cases so the database does not become full of test posts </p>
+	* 
+	* @param postID specifies the ID of the post to delete.
+	   * 
+	*/
+		public void permanentDeletePost(int postID) {
+			String query = "DELETE FROM PostsDB WHERE postID = ?";
+			try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+				pstmt.setInt(1, postID);
+				pstmt.executeUpdate();
+			} catch (SQLException e) {
+				System.err.println("*** ERROR *** Database error while deleting post: " 
+						+ e.getMessage());
+			}
+		}
+	/*******
 	* <p> Method: createReply </p>
 	* 
 	* <p> Description: Validates the reply's body, then creates a new row in the database
@@ -1985,6 +2004,32 @@ public class Database {
 		return replies;
 	}
 
+	/*******
+	 * <p> Method: String getThread() </p>
+	 *
+	 * <p> Description: Gets the thread of the post specified by the postID. </p>
+	 *
+	 * @throws SQLException when there is an issue creating the SQL command or executing it.
+	 *
+	 * @returns a String containing the name of the thread the post is assigned to.
+	 *
+	 */
+	public String getThread(int postID) throws SQLException {
+		String query = "SELECT thread FROM PostsDB WHERE postID = ?";
+		
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setInt(1, postID);
+			try (ResultSet rs = pstmt.executeQuery()) {
+				if (rs.next()) {
+					return rs.getString("thread");
+				}
+			}
+		} catch (SQLException e) {
+			System.err.println("*** ERROR *** Database error in getThread: " + e.getMessage());
+		}
+		return null;
+	}
+	
 	/*******
 	 * <p> Method: createThread(Thread thread) </p>
 	 *
