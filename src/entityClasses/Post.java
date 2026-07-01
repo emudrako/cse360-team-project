@@ -281,11 +281,16 @@ public class Post {
      *                       no thread is selected by the student
      */
     public Post(String title, String body, String authorUsername, String thread) {
-        this.title = title;
+    	this.title = title;
         this.body = body;
         this.authorUsername = authorUsername;
-        this.thread = thread;
         this.isDeleted = false; // a new post is never deleted; explicit to document the invariant
+        if (thread.isBlank()) {
+        	this.thread = "General";
+        }
+        else {
+        	this.thread = thread;
+        }
     }
 
 
