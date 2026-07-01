@@ -57,7 +57,12 @@ public class PostToThreadTests {
 	 * if either the getThread method for the Post object or the getThread method for the database return
 	 * the incorrect thread name. </p>
 	 * 
-	 * @throws SQLException 
+	 * @param title  Specifies the title of the post that will be passed as an argument to construct a Post object
+	 * 
+	 * @param body  Specifies the body of the post that will be passed as an argument to construct a Post object
+	 * 
+	 * @param thread  Specifies the thread that will be passed as an argument to construct a Post object
+	 * 
 	 */
 	public static void testPostToThread(String title, String body, String thread) {
 		System.out.println("Test Case " + testCaseNum + ":\n\n"
