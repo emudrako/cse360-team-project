@@ -59,7 +59,12 @@ public class CreatePostTests {
 	 * prints if the post title and body failed the input validation checks or the Post data was not successfully
 	 * saved to the database. </p>
 	 * 
-	 * @throws SQLException 
+	 * @param title  Specifies the title of the post that will be passed as an argument to construct a Post object
+	 * 
+	 * @param body  Specifies the body of the post that will be passed as an argument to construct a Post object
+	 * 
+	 * @param thread  Specifies the thread that will be passed as an argument to construct a Post object
+	 * 
 	 */
 	private static void testCreatePost(String title, String body, String thread) {
 		System.out.println("Test Case " + testCaseNum + ":\n\n"
@@ -137,12 +142,22 @@ public class CreatePostTests {
 	// Negative test case 4 - body exceeds maximum allowed length so an error is printed
 	private static void testCase4() {
 		String title = "Mid-term study guide";
-		String body = "fqefiuhakdfjnaklrjtgnakljfhadkfjgalkjfadlkgnakljdhfakjdghakljfaskdfjngakjsfakljthgfakljfnakldjthakljfnakljtnfakljfncaklrtjgaklwhefaskrtjlnaakjaklejhfalkrdjhalksfjhsdaskdhfaskedjfalksjfhaksjdhl"
-				+ "asfkljhaskejlrhaklejfaklhjfaklhsjefdklhjsadfklhjafkljdhfklahjfkljsdhafkljshadfkljhafkljhaefkljnafkljansfkljhafklhjsaflkjnafkljsafnklajhfakdnsjfakljfnakljfdklsnjfdkljsdafnkljsnfakljrafhakldjsnakljfna"
-				+ "alkfjhakljfnakldjfaskjfalkerjfalkdjfnakljhfalkjsefakljsnfaklnjsfglkajfehakletjfkldjsnfaklejnfkljsfklaenjrfakldfnkalejnrfkldjsfnklajfnskjdafakljnfklsjnaflkjsnaflkjsadnflkjnaflkjnsadfkljaneflkjnsdaflkaj"
-				+ "asdflkjnsaflkjnasfdkljnakejsfnskdjanakljfnlkjsdnaflkjsnafkljhewqatlkahdglkanjfkaljsnvcalkienmfa;oliegnalkdjsngfeawq;lrnasdk;lgnalkenjfgaldkjfngalkenjgalkrgjnaskdfnvlgaleknjfalkdgsnalknjfaskgnjalkngfas"
-				+ "askdjflnasktgnjalkdnsalkengfalkdngjalkdgsjalkngaldkghna;lkengalkergnas;kgdjnaelkgjnag;lkjnsaedglakergnaKDgsjlnalkejngasdfglkjnafeglkahnral;kdgjnaerlgkjunagalkegnaskdgfljnaeglkjnsadglkjnaglkandgflkejjn"
-				+ "askfjlhaskjtlgaskfjlnakletjaelkfjnaetkljahsfdlknjatgakljfnalkrtjnaskjfdlakltjhakljsfnakldrtnaklfjshakljyhtewq;atjfaporqjo[pajfpoiagnaoiklgnwsgniakdlghqapoeitjqeporighadfk;ga;seilhjtoawpiejfa;lfikja;lo";
+		String body = "fqefiuhakdfjnaklrjtgnakljfhadkfjgalkjfadlkgnakljdhfakjdghakljfaskdfjngakjs"
+				+ "fakljthgfakljfnakldjthakljfnakljtnfakljfncaklrtjgaklwhefaskrtjlnaakjaklejhfalk"
+				+ "rdjhalksfjhsdaskdhfaskedjfalksjfhaksjdhlasfkljhaskejlrhaklejfaklhjfaklhsjefdkl"
+				+ "hjsadfklhjafkljdhfklahjfkljsdhafkljshadfkljhafkljhaefkljnafkljansfkljhafklhjsa"
+				+ "flkjnafkljsafnklajhfakdnsjfakljfnakljfdklsnjfdkljsdafnkljsnfakljrafhakldjsnakl"
+				+ "jfnaalkfjhakljfnakldjfaskjfalkerjfalkdjfnakljhfalkjsefakljsnfaklnjsfglkajfehakl"
+				+ "etjfkldjsnfaklejnfkljsfklaenjrfakldfnkalejnrfkldjsfnklajfnskjdafakljnfklsjnaflk"
+				+ "jsnaflkjsadnflkjnaflkjnsadfkljaneflkjnsdaflkajasdflkjnsaflkjnasfdkljnakejsfnsk"
+				+ "djanakljfnlkjsdnaflkjsnafkljhewqatlkahdglkanjfkaljsnvcalkienmfa;oliegnalkdjsng"
+				+ "feawq;lrnasdk;lgnalkenjfgaldkjfngalkenjgalkrgjnaskdfnvlgaleknjfalkdgsnalknjfas"
+				+ "kgnjalkngfasaskdjflnasktgnjalkdnsalkengfalkdngjalkdgsjalkngaldkghna;lkengalker"
+				+ "gnas;kgdjnaelkgjnag;lkjnsaedglakergnaKDgsjlnalkejngasdfglkjnafeglkahnral;kdgjn"
+				+ "aerlgkjunagalkegnaskdgfljnaeglkjnsadglkjnaglkandgflkejjnaskfjlhaskjtlgaskfjlna"
+				+ "kletjaelkfjnaetkljahsfdlknjatgakljfnalkrtjnaskjfdlakltjhakljsfnakldrtnaklfjsha"
+				+ "kljyhtewq;atjfaporqjo[pajfpoiagnaoiklgnwsgniakdlghqapoeitjqeporighadfk;ga;seil"
+				+ "hjtoawpiejfa;lfikja;lo";
 		String thread = "Quizzes";
 			    
 		testCaseNum++;
