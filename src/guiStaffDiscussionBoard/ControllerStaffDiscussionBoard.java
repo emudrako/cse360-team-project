@@ -21,7 +21,7 @@ import entityClasses.User;
 public class ControllerStaffDiscussionBoard {
 
 	/**********
-	 * <p> Method: performMETHOD_NAME_HERE(Stage ps, User user) </p>
+	 * <p> Method: performControllerStaffFeedback(Stage ps, User user) </p>
 	 *
 	 * <p> Description: Called when the staff user navigates to this screen
 	 * (e.g., from a button on Staff Home). Displays the corresponding View. </p>
@@ -33,5 +33,29 @@ public class ControllerStaffDiscussionBoard {
 	 */
 	public static void performStaffDiscussionBoard(Stage ps, User user) {
 		ViewStaffDiscussionBoard.displayStaffDiscussionBoard(ps, user);
+	}
+	
+
+	/**********
+	 * <p> Method: performReturn() </p>
+	 * 
+	 * <p> Description: This method returns the user to the staff homepage </p>
+	 * 
+	 */
+	protected static void performReturn() {
+	    guiStaffHome.ViewStaffHome.displayStaffHome(ViewStaffDiscussionBoard.theStage, ViewStaffDiscussionBoard.theUser);
+	}
+	
+
+	/**********
+	 * <p> Method: performQuit() </p>
+	 * 
+	 * <p> Description: This method terminates the execution of the program.  It leaves the
+	 * database in a state where the normal login page will be displayed when the application is
+	 * restarted.</p>
+	 * 
+	 */
+	protected static void performQuit() {
+		System.exit(0);
 	}
 }

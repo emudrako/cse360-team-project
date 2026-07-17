@@ -10,23 +10,22 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import database.Database;
 import entityClasses.User;
+import guiStaffReview.ControllerStaffReview;
+
 
 /*******
- * <p> Title: ViewStaffReview Class. </p>
+ * <p> Title:  </p>
  *
- * <p> Description: The Java/FX-based Staff Review Page. Allows staff to review posts and
- * replies, flag inappropriate content, and add private staff notes. This page is a
- * placeholder; functional widgets will be added in a future phase.</p>
+ * <p> Description:  </p>
  *
- * <p> Copyright: Elena Mudrakova © 2026 </p>
+ * <p> Copyright:  © 2026 </p>
  *
- * @author Elena Mudrakova
+ * @author 
  *
- * @version 1.00		2026-06-27 Initial placeholder version
+ * @version 1.00		2026-07-15 Initial version
  *
  */
-
-public class ViewStaffReview {
+public class ViewStaffReview{
 
 	/*-*******************************************************************************************
 
@@ -34,23 +33,20 @@ public class ViewStaffReview {
 
 	 */
 
-	private static double width = applicationMain.FoundationsMain.WINDOW_WIDTH;
-	private static double height = applicationMain.FoundationsMain.WINDOW_HEIGHT;
-
+	// These are the application values required by the user interface
+	// Window dimensions consistent with the team's UI style standards
+	private static double width = 1000;
+	private static double height = 900;
+	
 	// GUI Area 1
+	// Labels for page title and display name of logged in user
 	protected static Label label_PageTitle = new Label();
 	protected static Label label_UserDetails = new Label();
-
-	private static Line line_Separator1 = new Line(20, 95, width-20, 95);
-
-	// GUI Area 2 - placeholder, no widgets yet
-
-	private static Line line_Separator4 = new Line(20, 525, width-20, 525);
-
-	// GUI Area 3
-	protected static Button button_Logout = new Button("Logout");
-	protected static Button button_Quit = new Button("Quit");
-
+	// Buttons to return to staff home, button to quit
+	protected static Button button_Return = new Button("Home");
+	protected static Button button_Quit = new Button("X");
+	
+	
 	private static ViewStaffReview theView;
 	private static Database theDatabase = applicationMain.FoundationsMain.database;
 
@@ -60,6 +56,7 @@ public class ViewStaffReview {
 
 	private static Scene theViewStaffReviewScene;
 
+
 	/*-*******************************************************************************************
 
 	Constructors
@@ -67,9 +64,9 @@ public class ViewStaffReview {
 	 */
 
 	/**********
-	 * <p> Method: displayStaffReview(Stage ps, User user) </p>
+	 * <p> Method:  </p>
 	 *
-	 * <p> Description: Single entry point to display the Staff Review page. </p>
+	 * <p> Description:  </p>
 	 *
 	 * @param ps specifies the JavaFX Stage to be used for this GUI
 	 *
@@ -86,13 +83,13 @@ public class ViewStaffReview {
 
 		label_UserDetails.setText("User: " + theUser.getUserName());
 
-		theStage.setTitle("CSE 360 Foundations: Staff Review Page");
+		theStage.setTitle("CSE 360 Foundations: Staff Review");
 		theStage.setScene(theViewStaffReviewScene);
 		theStage.show();
 	}
 
 	/**********
-	 * <p> Method: ViewStaffReview() </p>
+	 * <p> Method:  </p>
 	 *
 	 * <p> Description: Initializes all GUI elements. Singleton — runs once. </p>
 	 *
@@ -100,50 +97,65 @@ public class ViewStaffReview {
 	private ViewStaffReview() {
 		theRootPane = new Pane();
 		theViewStaffReviewScene = new Scene(theRootPane, width, height);
+		
+		// Gui area i
+		label_UserDetails.setText("User: " + theUser.getUserName());
+		setupLabelUI(label_UserDetails, "Arial", 12, 200, Pos.BASELINE_LEFT, 20, 10);
+		label_UserDetails.setStyle("-fx-text-fill: white;");
+		// Return button, returns user to the staff home page
+		setupButtonUI(button_Return, "Dialog", 12, 70, Pos.CENTER, 880, 10);
+	    button_Return.setOnAction((_) -> { ControllerStaffReview.performReturn(); });
+		button_Return.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
+		// Quit Button		
+		setupButtonUI(button_Quit, "Dialog", 12, 30, Pos.CENTER, 960, 10);
+	    button_Quit.setOnAction((_) -> { ControllerStaffReview.performQuit(); });
+		button_Quit.setStyle("-fx-background-color: #BF0D3E; -fx-text-fill: white; -fx-background-radius: 5;");
 
-		// GUI Area 1
-		label_PageTitle.setText("Staff Review Page");
-		setupLabelUI(label_PageTitle, "Arial", 28, width, Pos.CENTER, 0, 5);
-
-		label_UserDetails.setText("User: ");
-		setupLabelUI(label_UserDetails, "Arial", 20, width, Pos.BASELINE_LEFT, 20, 55);
-
-		// GUI Area 2 - placeholder
-
-		// GUI Area 3
-		setupButtonUI(button_Logout, "Dialog", 18, 250, Pos.CENTER, 20, 540);
-		button_Logout.setOnAction((_) -> { ControllerStaffReview.performLogout(); });
-
-		setupButtonUI(button_Quit, "Dialog", 18, 250, Pos.CENTER, 300, 540);
-		button_Quit.setOnAction((_) -> { ControllerStaffReview.performQuit(); });
-
-		theRootPane.getChildren().addAll(
-			label_PageTitle, label_UserDetails, line_Separator1,
-			line_Separator4, button_Logout, button_Quit);
+		theRootPane.getChildren().addAll(label_UserDetails, label_PageTitle, button_Return, button_Quit);
 	}
-
-
+	
 	/*-********************************************************************************************
 
 	Helper methods to reduce code length
 
 	 */
 
-	private static void setupLabelUI(Label l, String ff, double f, double w, Pos p, double x,
-			double y) {
+	/**********
+	 * Private local method to initialize the standard fields for a label
+	 * 
+	 * @param l		The Label object to be initialized
+	 * @param ff	The font to be used
+	 * @param f		The size of the font to be used
+	 * @param w		The width of the Button
+	 * @param p		The alignment (e.g. left, centered, or right)
+	 * @param x		The location from the left edge (x axis)
+	 * @param y		The location from the top (y axis)
+	 */
+	private static void setupLabelUI(Label l, String ff, double f, double w, Pos p, double x,double y) {
 		l.setFont(Font.font(ff, f));
 		l.setMinWidth(w);
 		l.setAlignment(p);
 		l.setLayoutX(x);
 		l.setLayoutY(y);
 	}
-
-	private static void setupButtonUI(Button b, String ff, double f, double w, Pos p, double x,
-			double y) {
+	
+	/**********
+	 * Private local method to initialize the standard fields for a button
+	 * 
+	 * @param b		The Button object to be initialized
+	 * @param ff	The font to be used
+	 * @param f		The size of the font to be used
+	 * @param w		The width of the Button
+	 * @param p		The alignment (e.g. left, centered, or right)
+	 * @param x		The location from the left edge (x axis)
+	 * @param y		The location from the top (y axis)
+	 */
+	private static void setupButtonUI(Button b, String ff, double f, double w, Pos p, double x,double y) {
 		b.setFont(Font.font(ff, f));
 		b.setMinWidth(w);
 		b.setAlignment(p);
 		b.setLayoutX(x);
 		b.setLayoutY(y);
 	}
+
 }
