@@ -33,9 +33,10 @@ public class ViewStaffHome {
 	Attributes
 
 	 */
-
-	private static double width = applicationMain.FoundationsMain.WINDOW_WIDTH;
-	private static double height = applicationMain.FoundationsMain.WINDOW_HEIGHT;
+	// These are the application values required by the user interface
+	// Window dimensions consistent with the team's UI style standards
+	private static double width = 1000;
+	private static double height = 900;
 
 	// GUI Area 1
 	protected static Label label_PageTitle = new Label();
