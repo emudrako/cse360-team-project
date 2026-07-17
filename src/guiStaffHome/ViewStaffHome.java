@@ -48,6 +48,12 @@ public class ViewStaffHome {
 	// GUI Area 2 - placeholder, no widgets yet
 
 	private static Line line_Separator4 = new Line(20, 525, width-20, 525);
+	protected static Button button_DiscussionBoard = new Button("Discussion Board");
+	protected static Button button_Parameters = new Button("Manage Parameters");
+	protected static Button button_Threads = new Button("Manage Threads");
+	protected static Button button_Requests = new Button("View Requests");
+	protected static Button button_Review = new Button("Review & Feedback");
+	protected static Button button_Coverage = new Button("Student Coverage");
 
 	// GUI Area 3
 	protected static Button button_Logout = new Button("Logout");
@@ -115,7 +121,24 @@ public class ViewStaffHome {
 		setupButtonUI(button_UpdateThisUser, "Dialog", 18, 170, Pos.CENTER, 610, 45);
 		button_UpdateThisUser.setOnAction((_) -> { ControllerStaffHome.performUpdate(); });
 
-		// GUI Area 2 - placeholder
+		// GUI Area 2 - Staff feature navigation
+		setupButtonUI(button_DiscussionBoard, "Dialog", 18, 300, Pos.CENTER, 20, 150);
+		button_DiscussionBoard.setOnAction((_) -> { ControllerStaffHome.performDiscussionBoard(); });
+
+		setupButtonUI(button_Parameters, "Dialog", 18, 300, Pos.CENTER, 340, 150);
+		button_Parameters.setOnAction((_) -> { ControllerStaffHome.performParameters(); });
+
+		setupButtonUI(button_Threads, "Dialog", 18, 300, Pos.CENTER, 660, 150);
+		button_Threads.setOnAction((_) -> { ControllerStaffHome.performThreads(); });
+
+		setupButtonUI(button_Requests, "Dialog", 18, 300, Pos.CENTER, 20, 210);
+		button_Requests.setOnAction((_) -> { ControllerStaffHome.performRequests(); });
+
+		setupButtonUI(button_Review, "Dialog", 18, 300, Pos.CENTER, 340, 210);
+		button_Review.setOnAction((_) -> { ControllerStaffHome.performReview(); });
+
+		setupButtonUI(button_Coverage, "Dialog", 18, 300, Pos.CENTER, 660, 210);
+		button_Coverage.setOnAction((_) -> { ControllerStaffHome.performCoverage(); });
 
 		// GUI Area 3
 		setupButtonUI(button_Logout, "Dialog", 18, 250, Pos.CENTER, 20, 540);
@@ -126,7 +149,8 @@ public class ViewStaffHome {
 
 		theRootPane.getChildren().addAll(
 			label_PageTitle, label_UserDetails, button_UpdateThisUser, line_Separator1,
-			line_Separator4, button_Logout, button_Quit);
+			button_DiscussionBoard, button_Parameters, button_Threads,
+			button_Requests, button_Review, button_Coverage);
 	}
 
 

@@ -42,10 +42,71 @@ public class ControllerStaffHome {
 	 * <p> Description: Directs the user to the User Update Page. </p>
 	 *
 	 */
+
 	protected static void performUpdate() {
 		guiUserUpdate.ViewUserUpdate.displayUserUpdate(ViewStaffHome.theStage, ViewStaffHome.theUser);
 	}
 
+	/**********
+	 * <p> Method: performDiscussionBoard() </p>
+	 *
+	 * <p> Description: Directs the staff user to the Staff Discussion Board page. </p>
+	 *
+	 */
+	protected static void performDiscussionBoard() {
+		guiStaffDiscussionBoard.ViewStaffDiscussionBoard.displayStaffDiscussionBoard(ViewStaffHome.theStage, ViewStaffHome.theUser);
+	}
+
+	/**********
+	 * <p> Method: performParameters() </p>
+	 *
+	 * <p> Description: Directs the staff user to the Manage Parameters page. </p>
+	 *
+	 */
+	protected static void performParameters() {
+		guiStaffParameters.ViewStaffParameters.displayStaffParameters(ViewStaffHome.theStage, ViewStaffHome.theUser);
+	}
+
+	/**********
+	 * <p> Method: performThreads() </p>
+	 *
+	 * <p> Description: Directs the staff user to the Manage Threads page. </p>
+	 *
+	 */
+	protected static void performThreads() {
+		guiStaffThreads.ViewStaffThreads.displayStaffThreads(ViewStaffHome.theStage, ViewStaffHome.theUser);
+	}
+
+	/**********
+	 * <p> Method: performRequests() </p>
+	 *
+	 * <p> Description: Directs the staff user to the View Requests page. </p>
+	 *
+	 */
+	protected static void performRequests() {
+		guiStaffRequests.ViewStaffRequests.displayStaffRequests(ViewStaffHome.theStage, ViewStaffHome.theUser);
+	}
+
+	/**********
+	 * <p> Method: performFeedback() </p>
+	 *
+	 * <p> Description: Directs the staff user to the Review & Feedback page. </p>
+	 *
+	 */
+	protected static void performReview() {
+		guiStaffReview.ViewStaffReview.displayStaffReview(ViewStaffHome.theStage, ViewStaffHome.theUser);
+	}
+
+	/**********
+	 * <p> Method: performCoverage() </p>
+	 *
+	 * <p> Description: Directs the staff user to the Student Coverage page. </p>
+	 *
+	 */
+	protected static void performCoverage() {
+		guiStaffCoverage.ViewStaffCoverage.displayStaffCoverage(ViewStaffHome.theStage, ViewStaffHome.theUser);
+	}
+	
 	/**********
 	 * <p> Method: performLogout() </p>
 	 *
