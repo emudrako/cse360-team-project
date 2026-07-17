@@ -78,7 +78,7 @@ public class ViewStaffDiscussionBoard {
 
 		label_UserDetails.setText("User: " + theUser.getUserName());
 
-		theStage.setTitle("CSE 360 Foundations: Staff Coverage Page");
+		theStage.setTitle("CSE 360 Foundations: Staff Discussion Board Page");
 		theStage.setScene(theViewStaffDiscussionBoardScene);
 		theStage.show();
 	}
