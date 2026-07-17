@@ -5,9 +5,9 @@ import entityClasses.User;
 
 
 /*******
- * <p> Title: CONTROLLER_NAME_HERE Class. </p>
+ * <p> Title: ControllerStaffRequests Class. </p>
  *
- * <p> Description: Stub controller for the SCREEN_DESCRIPTION_HERE screen.
+ * <p> Description: Stub controller for the Staff requests screen.
  * Currently just handles navigation into this screen from Staff Home; will be
  * expanded with real event handlers as this feature is built out. </p>
  *
@@ -21,7 +21,7 @@ import entityClasses.User;
 public class ControllerStaffRequests {
 
 	/**********
-	 * <p> Method: performMETHOD_NAME_HERE(Stage ps, User user) </p>
+	 * <p> Method: performControllerStaffRequestsStage ps, User user) </p>
 	 *
 	 * <p> Description: Called when the staff user navigates to this screen
 	 * (e.g., from a button on Staff Home). Displays the corresponding View. </p>
@@ -33,5 +33,29 @@ public class ControllerStaffRequests {
 	 */
 	public static void performStaffRequests(Stage ps, User user) {
 		ViewStaffRequests.displayStaffRequests(ps, user);
+	}
+	
+
+	/**********
+	 * <p> Method: performReturn() </p>
+	 * 
+	 * <p> Description: This method returns the user to the staff homepage </p>
+	 * 
+	 */
+	protected static void performReturn() {
+	    guiStaffHome.ViewStaffHome.displayStaffHome(ViewStaffRequests.theStage, ViewStaffRequests.theUser);
+	}
+	
+	
+	/**********
+	 * <p> Method: performQuit() </p>
+	 * 
+	 * <p> Description: This method terminates the execution of the program.  It leaves the
+	 * database in a state where the normal login page will be displayed when the application is
+	 * restarted.</p>
+	 * 
+	 */
+	protected static void performQuit() {
+		System.exit(0);
 	}
 }
