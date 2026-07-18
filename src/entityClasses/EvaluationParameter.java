@@ -23,11 +23,10 @@ public class EvaluationParameter {
 	private String description;
 	private double maxScore;
 	private double weight;     // relative weight, 1-10
-	private String createdBy;
 
 	/*****
 	 * <p> Method: EvaluationParameter(String name, String description, double maxScore,
-	 *  double weight, String createdBy) </p>
+	 *  double weight) </p>
 	 *
 	 * <p> Description: This constructor is used to establish EvaluationParameter entity
 	 *  objects. Handles validation of parameters. </p>
@@ -39,15 +38,13 @@ public class EvaluationParameter {
 	 * @param maxScore specifies the maximum score achievable for this parameter (1-100)
 	 *
 	 * @param weight specifies the relative weight of this parameter (1-10)
-	 *
-	 * @param createdBy specifies the username of the staff member who created this parameter
 	 * 
 	 * @throws IllegalArgumentException if name is empty, maxScore is out of range, weight is out of range,
 	 * or description is too short.
 	 *
 	 */
 	public EvaluationParameter(String name, String description, double maxScore,
-			double weight, String createdBy) {
+			double weight) {
 		if (name == null || name.trim().isEmpty()) {
 			throw new IllegalArgumentException("Parameter name must not be empty.");
 		}
@@ -65,7 +62,6 @@ public class EvaluationParameter {
 		this.description = description;
 		this.maxScore = maxScore;
 		this.weight = weight;
-		this.createdBy = createdBy;
 	}
 
 
@@ -196,13 +192,4 @@ public class EvaluationParameter {
 		this.weight = weight; 
 	}	
 
-	/*****
-	 * <p> Method: String getCreatedBy() </p>
-	 *
-	 * <p> Description: This getter returns the CreatedBy username. </p>
-	 *
-	 * @return a String of the username who created this evaluation parameter
-	 *
-	 */
-	public String getCreatedBy() { return createdBy; }
 }

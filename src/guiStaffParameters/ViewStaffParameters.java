@@ -48,13 +48,14 @@ public class ViewStaffParameters{
 	
 	
 	private static ViewStaffParameters theView;
-	private static Database theDatabase = applicationMain.FoundationsMain.database;
+	protected static Database theDatabase = applicationMain.FoundationsMain.database;
 
 	protected static Stage theStage;
 	protected static Pane theRootPane;
 	protected static User theUser;
 
 	private static Scene theViewStaffParametersScene;
+	public static Label label_ErrorMessage = new Label(); // error handling for create new parameter (Story 2)
 
 
 	/*-*******************************************************************************************

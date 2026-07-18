@@ -207,6 +207,17 @@ public class Database {
 	    		+ "createdBy   VARCHAR(255), "
 	    		+ "createdAt   TIMESTAMP DEFAULT CURRENT_TIMESTAMP)";
 	    statement.execute(threadsTable);
+	    
+	    // Create the EvaluationParameters table for STORY 2: Implement CRUD for Evaluation Parameters.
+	    // Supports requirement for staff can create, read, update and delete grading parameterss used to evaluate
+	    // student discussion performance.
+	    String EvaluationParametersTable = "CREATE TABLE IF NOT EXISTS EvaluationParametersDB ("
+	    		+ "parameterID		INT AUTO_INCREMENT PRIMARY KEY, "
+	    		+ "name				VARCHAR(255), "
+	    		+ "description		VARCHAR(1000),"
+	    		+ "maxScore			DOUBLE,"
+	    		+ "weight			DOUBLE)";
+	    statement.execute(EvaluationParametersTable);
 
 	    // Create the requests table
 	    String requestsTable = "CREATE TABLE IF NOT EXISTS RequestsDB ("
@@ -2113,7 +2124,28 @@ public class Database {
 	 * @param param specifies the EvaluationParameter object to be added to the database.
 	 *
 	 */
+	
 	public void createEvaluationParameter(EvaluationParameter param) throws SQLException {
+		String insertEvaluationParameter = "INSERT INTO EvaluationParametersDB (name, description, maxScore, weight) "
+			+ "VALUES (?, ?, ?, ?, ?)";
+		try (PreparedStatement pstmt = connection.prepareStatement(insertEvaluationParameter,
+				Statement.RETURN_GENERATED_KEYS)) {
+			pstmt.setString(1, param.getName());
+			pstmt.setString(2, param.getDescription());
+			pstmt.setDouble(3, param.getMaxScore());
+			pstmt.setDouble(4, param.getWeight());
+			pstmt.executeUpdate();
+
+			try (ResultSet rs = pstmt.getGeneratedKeys()) {
+				if (rs.next()) {
+					param.setParamID(rs.getInt(1));
+				}
+			}
+		} catch (SQLException e) {
+					System.err.println("*** ERROR *** Database error while creating evaluation parameter: "
+							+ e.getMessage());
+					throw e;
+				}
 	}
 
 	/*******
