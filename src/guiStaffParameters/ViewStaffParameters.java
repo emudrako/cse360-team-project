@@ -8,7 +8,11 @@ import javafx.scene.layout.Pane;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+
+import java.util.List;
+
 import database.Database;
+import entityClasses.EvaluationParameter;
 import entityClasses.User;
 import guiStaffParameters.ControllerStaffParameters;
 
@@ -58,12 +62,13 @@ public class ViewStaffParameters{
 	public static Label label_ErrorMessage = new Label(); // error handling for create new parameter (Story 2)
 
 
+	
 	/*-*******************************************************************************************
 
-	Constructors
+	Entry Point
 
-	 */
-
+	*/
+	
 	/**********
 	 * <p> Method:  </p>
 	 *
@@ -86,9 +91,19 @@ public class ViewStaffParameters{
 
 		theStage.setTitle("CSE 360 Foundations: Staff Parameters");
 		theStage.setScene(theViewStaffParametersScene);
+		
+		// Refresh the list of all staff parameters for later display
+		List<EvaluationParameter> allParams = ControllerStaffParameters.performReadAllStaffParameters();
+		
 		theStage.show();
 	}
+	
+	/*-*******************************************************************************************
 
+	Constructors
+
+	 */
+	
 	/**********
 	 * <p> Method:  </p>
 	 *

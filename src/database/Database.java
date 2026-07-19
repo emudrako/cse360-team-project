@@ -2168,14 +2168,44 @@ public class Database {
 	/*******
 	 * <p> Method: readAllEvaluationParameters() </p>
 	 *
-	 * <p> Description: Retrieves all EvaluationParameter objects from
-	 *  EvaluationParametersDB. </p>
+	 * <p> Description: Retrieves all EvaluationParameter objects stored in the EvaluationParametersDB table. This
+	 * satisfies the Read portion of STORY 2: Implementation of CRUD for Evaluation Parameters. Each database row
+	 * is converted into an EvaluationParameter object via the constructor, with the database parameter ID set afterward </p>
 	 *
-	 * @return a List of all EvaluationParameter objects currently stored.
+	 * @return a List of all EvaluationParameter objects currently stored. An empty list returned if no
+	 * parameters exist.
+	 * 
+	 * @throws SQLException when there is an issue creating the SQL command or executing it.
 	 *
 	 */
-	public List<EvaluationParameter> readAllEvaluationParameters() {
-		return new ArrayList<EvaluationParameter>();
+	public List<EvaluationParameter> readAllEvaluationParameters() throws SQLException {
+		List<EvaluationParameter> allParams = new ArrayList<>();
+		
+		String query = "SELECT * FROM EvaluationParametersDB";
+		
+		PreparedStatement stmt = connection.prepareStatement(query);
+		ResultSet rs = stmt.executeQuery();
+		
+		while (rs.next()) {
+			int paramID = rs.getInt("parameterID");
+			String name = rs.getString("name");
+			String description = rs.getString("description");
+			double maxScore = rs.getDouble("maxScore");
+			double weight = rs.getDouble("weight");
+
+			EvaluationParameter newParam  = new EvaluationParameter(
+						name,
+						description,
+						maxScore,
+						weight
+					);
+			
+			newParam.setParamID(paramID);
+
+			allParams.add(newParam);
+		}
+		
+		return allParams;		
 	}
 
 	/*******

@@ -3,6 +3,8 @@ package guiStaffParameters;
 import javafx.stage.Stage;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import entityClasses.EvaluationParameter;
 import entityClasses.User;
@@ -39,6 +41,8 @@ public class ControllerStaffParameters {
 	public static void performStaffParameters(Stage ps, User user) {
 		ViewStaffParameters.displayStaffParameters(ps, user);
 	}
+	
+	
 	
 	/**********
 	 * <p> Method: performCreateStaffParameter(String name, String description, double maxScore, double weight) </p>
@@ -78,6 +82,75 @@ public class ControllerStaffParameters {
 
 	}
 
+	/**********
+	 * <p> Method: performReadAllStaffParameters() </p>
+	 *
+	 * <p> Description: Retrieves and returns a list of all staff parameters. Satisfies STORY 2: Implement CRUD for Evaluation Parameters
+	 * Each time the screen is displayed, displayStaffParameter() calls this method, which calls the database's readAllEvaluationParameters()
+	 * to fetch the current list. If that attempt fails, an exeption is thrown and caught here, an error message is shown, and an
+	 * empty list is returned instead. </p>
+	 * 
+	 * @return the list of all evaluation parameters, or an empty list if the database call fails
+	 * 
+	 */
+	public static List<EvaluationParameter> performReadAllStaffParameters() {
+		try {
+			// grab EvaluationParameter list from the database and return
+			return ViewStaffParameters.theDatabase.readAllEvaluationParameters();
+		} catch (SQLException e){
+			// If the database call throws an exception, alert with error message and return empty list
+			ViewStaffParameters.label_ErrorMessage.setText("*** ERROR *** Could not load parameters.");
+			return new ArrayList<EvaluationParameter>();
+		}
+
+	}
+
+	
+	/**********
+	 * <p> Method: performReadStaffParameter(String name) </p>
+	 *
+	 * <p> Description: TODO: EDIT THIS Method to read a staff parameter. It creates an EvaluationParameter object for the CREATE portion
+	 * of the CRUD for Evaluation Parameters satisfying STORY 2: Implementation of Evaluation Parameters. Validation occurs inside the 
+	 * EvaluationParameter constructor; if validation fails or the database insert fails, the resulting error message is displayed to the user 
+	 * via label_ErrorMessage rather than being thrown back to the caller. On success, a confirmation message is displayed instead. </p>
+	 *
+	 * @param name
+	 * 
+	 */
+	public static void performReadStaffParameter() {
+		//  the EvaluationParameter object
+	}
+	
+	/**********
+	 * <p> Method: TODO: EDIT THIS performUpdateStaffParameter(String name, String description, double maxScore, double weight) </p>
+	 *
+	 * <p> Description: TODO: EDIT THIS Method to create a staff parameter. It creates an EvaluationParameter object for the CREATE portion
+	 * of the CRUD for Evaluation Parameters satisfying STORY 2: Implementation of Evaluation Parameters. Validation occurs inside the 
+	 * EvaluationParameter constructor; if validation fails or the database insert fails, the resulting error message is displayed to the user 
+	 * via label_ErrorMessage rather than being thrown back to the caller. On success, a confirmation message is displayed instead. </p>
+	 *
+	 * @param
+	 * 
+	 */
+	public static void performUpdateStaffParameter() {
+		//  the EvaluationParameter object
+	}
+	
+	/**********
+	 * <p> Method: TODO: EDIT THIS performDeleteStaffParameter(String name, String description, double maxScore, double weight) </p>
+	 *
+	 * <p> Description: TODO: EDIT THIS Method to create a staff parameter. It creates an EvaluationParameter object for the CREATE portion
+	 * of the CRUD for Evaluation Parameters satisfying STORY 2: Implementation of Evaluation Parameters. Validation occurs inside the 
+	 * EvaluationParameter constructor; if validation fails or the database insert fails, the resulting error message is displayed to the user 
+	 * via label_ErrorMessage rather than being thrown back to the caller. On success, a confirmation message is displayed instead. </p>
+	 *
+	 * @param
+	 * 
+	 */
+	public static void performDeleteStaffParameter() {
+		//  the EvaluationParameter object
+	}
+	
 	/**********
 	 * <p> Method: performReturn() </p>
 	 * 
