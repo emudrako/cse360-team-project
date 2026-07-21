@@ -16,9 +16,11 @@ import javafx.scene.control.Label;
 /*******
  * <p> Title: ControllerStaffParameters Class. </p>
  *
- * <p> Description: Stub controller for the Staff Parameters screen.
- * Currently just handles navigation into this screen from Staff Home; will be
- * expanded with real event handlers as this feature is built out. </p>
+ * <p> Description: Controller for the Review-Parameter CRUD screen, satisfying
+ *  STORY 2: Implement CRUD for Evaluation Parameters. Handles navigation into
+ *  this screen, creation and validation of EvaluationParameter objects, reading
+ *  all parameters from the database, and building the display card for each
+ *  parameter. </p>. 
  *
  * <p> Copyright: Maranda Martinez © 2026 </p>
  *
@@ -30,7 +32,7 @@ import javafx.scene.control.Label;
 public class ControllerStaffParameters {
 
 	/**********
-	 * <p> Method: performControllerStaffParameters(Stage ps, User user) </p>
+	 * <p> Method: performStaffParameters(Stage ps, User user) </p>
 	 *
 	 * <p> Description: Called when the staff user navigates to this screen
 	 * (e.g., from a button on Staff Home). Displays the corresponding View. </p>
@@ -112,10 +114,7 @@ public class ControllerStaffParameters {
 	/**********
 	 * <p> Method: performReadStaffParameter(String name) </p>
 	 *
-	 * <p> Description: TODO: EDIT THIS Method to read a staff parameter. It creates an EvaluationParameter object for the CREATE portion
-	 * of the CRUD for Evaluation Parameters satisfying STORY 2: Implementation of Evaluation Parameters. Validation occurs inside the 
-	 * EvaluationParameter constructor; if validation fails or the database insert fails, the resulting error message is displayed to the user 
-	 * via label_ErrorMessage rather than being thrown back to the caller. On success, a confirmation message is displayed instead. </p>
+	 * <p> Description: TODO </p>
 	 *
 	 * @param name
 	 * 
@@ -125,12 +124,9 @@ public class ControllerStaffParameters {
 	}
 	
 	/**********
-	 * <p> Method: TODO: EDIT THIS performUpdateStaffParameter(String name, String description, double maxScore, double weight) </p>
+	 * <p> Method: TODO </p>
 	 *
-	 * <p> Description: TODO: EDIT THIS Method to create a staff parameter. It creates an EvaluationParameter object for the CREATE portion
-	 * of the CRUD for Evaluation Parameters satisfying STORY 2: Implementation of Evaluation Parameters. Validation occurs inside the 
-	 * EvaluationParameter constructor; if validation fails or the database insert fails, the resulting error message is displayed to the user 
-	 * via label_ErrorMessage rather than being thrown back to the caller. On success, a confirmation message is displayed instead. </p>
+	 * <p> Description: TODO </p>
 	 *
 	 * @param
 	 * 
@@ -140,27 +136,28 @@ public class ControllerStaffParameters {
 	}
 	
 	/**********
-	 * <p> Method: TODO: EDIT THIS performUpdateStaffParameter(String name, String description, double maxScore, double weight) </p>
+	 * <p> Method: createParameterCard(EvaluationParameter param) </p>
 	 *
-	 * <p> Description: TODO: EDIT THIS Method to create a staff parameter. It creates an EvaluationParameter object for the CREATE portion
-	 * of the CRUD for Evaluation Parameters satisfying STORY 2: Implementation of Evaluation Parameters. Validation occurs inside the 
-	 * EvaluationParameter constructor; if validation fails or the database insert fails, the resulting error message is displayed to the user 
-	 * via label_ErrorMessage rather than being thrown back to the caller. On success, a confirmation message is displayed instead. </p>
+	 * <p> Description: Builds a single styled, clickable card displaying one
+	 *  EvaluationParameter's name, satisfying the display portion of STORY 2:
+	 *  Implement CRUD for Evaluation Parameters. Called once per parameter by
+	 *  ViewStaffParameters.displayParamCards() to populate the horizontal
+	 *  parameter list. </p>
 	 *
-	 * @param
-	 * 
-	 */	
+	 * @param param specifies the EvaluationParameter to build a card for
+	 *
+	 * @return an HBox containing the styled card for this parameter
+	 *
+	 */
 	protected static HBox createParameterCard(EvaluationParameter param) {
 		// Remove deleted parameters
 	    //if (param.getIsDeleted()) {
 	    //   return null;
 	    //}
 	    HBox paramCard = new HBox(5);
-	    paramCard.setPadding(new Insets(10));
-	    paramCard.setMinWidth(120);
-	    paramCard.setMaxWidth(120);
+	    paramCard.setPadding(new Insets(5, 10, 5, 10));
+	    paramCard.setMaxHeight(40);
 	    paramCard.setStyle(
-	    	    "-fx-border-color: #0062A3;" +
 	    	    "-fx-background-color: #0062A3;" +
 	    	    "-fx-background-radius: 8;" +
 	    	    "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4, 0, 0, 2);"
@@ -182,12 +179,9 @@ public class ControllerStaffParameters {
 	}
 	
 	/**********
-	 * <p> Method: TODO: EDIT THIS performDeleteStaffParameter(String name, String description, double maxScore, double weight) </p>
+	 * <p> Method: TODO:  </p>
 	 *
-	 * <p> Description: TODO: EDIT THIS Method to create a staff parameter. It creates an EvaluationParameter object for the CREATE portion
-	 * of the CRUD for Evaluation Parameters satisfying STORY 2: Implementation of Evaluation Parameters. Validation occurs inside the 
-	 * EvaluationParameter constructor; if validation fails or the database insert fails, the resulting error message is displayed to the user 
-	 * via label_ErrorMessage rather than being thrown back to the caller. On success, a confirmation message is displayed instead. </p>
+	 * <p> Description: TODO: </p>
 	 *
 	 * @param
 	 * 

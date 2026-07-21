@@ -1,5 +1,6 @@
 package guiStaffParameters;
 
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -7,26 +8,25 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
-
 import java.util.List;
-
 import database.Database;
 import entityClasses.EvaluationParameter;
 import entityClasses.User;
-import guiStaffParameters.ControllerStaffParameters;
 
 
 /*******
- * <p> Title:  </p>
+ * <p> Title: ViewStaffParameters Class. </p>
  *
- * <p> Description:  </p>
+ * <p> Description:  GUI for the Staff Parameteres CRUD screen, satisfying STORY 2: 
+ * Implement CRUD for Evaluation Parameters. Displays existing parameteres as a 
+ * horizontal scrollable card list, and provides and inline for for creating new
+ * parameters. </p>
  *
- * <p> Copyright:  © 2026 </p>
+ * <p> Copyright: Maranda Martinez  © 2026 </p>
  *
- * @author 
+ * @author Maranda Martinez
  *
  * @version 1.00		2026-07-15 Initial version
  *
@@ -92,9 +92,13 @@ public class ViewStaffParameters{
 	*/
 	
 	/**********
-	 * <p> Method:  </p>
+	 * <p> Method: displayStaffParameters(Stage ps, User user) </p>
 	 *
-	 * <p> Description:  </p>
+	 * <p> Description: Single entry point to display the Staff Parameters screen,
+	 *  satisfying STORY 2: Implement CRUD for Evaluation Parameters. Creates the
+	 *  singleton view instance on first use, refreshes the list of existing
+	 *  parameters from the database, and populates the horizontal parameter card
+	 *  list each time the screen is shown. </p>
 	 *
 	 * @param ps specifies the JavaFX Stage to be used for this GUI
 	 *
@@ -128,7 +132,7 @@ public class ViewStaffParameters{
 	 */
 	
 	/**********
-	 * <p> Method:  </p>
+	 * <p> Method: ViewStaffParameters() </p>
 	 *
 	 * <p> Description: Initializes all GUI elements. Singleton — runs once. </p>
 	 *
@@ -166,43 +170,43 @@ public class ViewStaffParameters{
 		setupLabelUI(label_PageTitle, "Arial", 28, 400, Pos.CENTER, 300, 140);
 		// GUI Area II
 		// Position and size the scroll pane so it sits inside the white card
+		paramCardList.setPadding(new Insets(5));
 		scrollPane_ParamCards.setLayoutX(220);
 		scrollPane_ParamCards.setLayoutY(190);
 		scrollPane_ParamCards.setPrefWidth(560);
-		scrollPane_ParamCards.setPrefHeight(120);
+		scrollPane_ParamCards.setPrefHeight(42);
 		scrollPane_ParamCards.setStyle("-fx-background-color: transparent;");
 		
-		// GUI Area III
 		// GUI Area III — Create Parameter form setup
-		setupButtonUI(button_OpenCreateForm, "Dialog", 14, 200, Pos.CENTER, 400, 330);
+		setupButtonUI(button_OpenCreateForm, "Dialog", 14, 200, Pos.CENTER, 400, 250);
 		button_OpenCreateForm.setOnAction((_) -> { showCreateForm(); });
 		button_OpenCreateForm.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
 
-		setupLabelUI(label_Name, "Arial", 13, 200, Pos.BASELINE_LEFT, 240, 390);
+		setupLabelUI(label_Name, "Arial", 13, 200, Pos.BASELINE_LEFT, 240, 270);
 		field_Name.setLayoutX(240);
-		field_Name.setLayoutY(410);
+		field_Name.setLayoutY(290);
 		field_Name.setPrefWidth(300);
 
-		setupLabelUI(label_Description, "Arial", 13, 320, Pos.BASELINE_LEFT, 240, 440);
+		setupLabelUI(label_Description, "Arial", 13, 320, Pos.BASELINE_LEFT, 240, 320);
 		field_Description.setLayoutX(240);
-		field_Description.setLayoutY(460);
-		field_Description.setPrefSize(400, 70);
+		field_Description.setLayoutY(340);
+		field_Description.setPrefSize(400, 200);
 
-		setupLabelUI(label_MaxScore, "Arial", 13, 200, Pos.BASELINE_LEFT, 240, 545);
+		setupLabelUI(label_MaxScore, "Arial", 13, 100, Pos.BASELINE_LEFT, 240, 545);
 		field_MaxScore.setLayoutX(240);
 		field_MaxScore.setLayoutY(565);
-		field_MaxScore.setPrefWidth(140);
+		field_MaxScore.setPrefWidth(120);
 
-		setupLabelUI(label_Weight, "Arial", 13, 200, Pos.BASELINE_LEFT, 420, 545);
-		field_Weight.setLayoutX(420);
+		setupLabelUI(label_Weight, "Arial", 13, 100, Pos.BASELINE_LEFT, 380, 545);
+		field_Weight.setLayoutX(380);
 		field_Weight.setLayoutY(565);
-		field_Weight.setPrefWidth(140);
+		field_Weight.setPrefWidth(120);
 
-		setupButtonUI(button_Submit, "Dialog", 13, 120, Pos.CENTER, 240, 605);
+		setupButtonUI(button_Submit, "Dialog", 13, 120, Pos.CENTER, 510, 655);
 		button_Submit.setOnAction((_) -> { handleSubmit(); });
 		button_Submit.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
 
-		setupButtonUI(button_Cancel, "Dialog", 13, 120, Pos.CENTER, 380, 605);
+		setupButtonUI(button_Cancel, "Dialog", 13, 120, Pos.CENTER, 650, 655);
 		button_Cancel.setOnAction((_) -> { hideCreateForm(); });
 		button_Cancel.setStyle("-fx-background-color: #BF0D3E; -fx-text-fill: white; -fx-background-radius: 5;");
 
@@ -230,14 +234,11 @@ public class ViewStaffParameters{
 	 *
 	 */
 	protected static void displayParamCards(List<EvaluationParameter> paramObjects) {
-	    System.out.println("DEBUG: displayParamCards called with " + paramObjects.size() + " parameters");
 	    paramCardList.getChildren().clear();
 	    for (EvaluationParameter param : paramObjects) {
-	        System.out.println("DEBUG: Building card for " + param.getName());
 	        HBox card = ControllerStaffParameters.createParameterCard(param);
 	        if (card != null) {
 	            paramCardList.getChildren().add(card);
-	            System.out.println("DEBUG: Card added. paramCardList now has " + paramCardList.getChildren().size() + " children");
 	        }
 	    }
 	}
