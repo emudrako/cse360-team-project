@@ -52,14 +52,13 @@ public class ViewUserUpdate {
 	// These are the widget attributes for the GUI. There are 3 areas for this GUI.
 	
 	// Unlike may of the other pages, the GUI on this page is not organized into areas and the user
-	// is not able to logout, return, or quit from this page
+	// is not able to logout from this page
 	private static Button button_Quit = new Button("X");
 	
 	private static Label label_UserDetails = new Label("Username:");
 	
 	// These widgets display the purpose of the page and guide the user.
 	private static Label label_ApplicationTitle = new Label("Update Account");
-
     
     // These are static output labels and do not change during execution
 	private static Label label_Username = new Label("Username:");

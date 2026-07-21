@@ -196,7 +196,7 @@ public class ViewUserLogin {
 				label_ApplicationTitle, 
 				label_OperationalStartTitle,
 				label_LogInInsrtuctions, label_AccountSetupInsrtuctions, text_Username,
-				button_Login, text_Password, text_Invitation, button_SetupAccount,
+				 text_Password, button_Login, text_Invitation, button_SetupAccount,
 				button_Quit, label_Username, label_Password);
 	}
 
