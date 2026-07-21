@@ -2127,7 +2127,7 @@ public class Database {
 	
 	public void createEvaluationParameter(EvaluationParameter param) throws SQLException {
 		String insertEvaluationParameter = "INSERT INTO EvaluationParametersDB (name, description, maxScore, weight) "
-			+ "VALUES (?, ?, ?, ?, ?)";
+			+ "VALUES (?, ?, ?, ?)";
 		try (PreparedStatement pstmt = connection.prepareStatement(insertEvaluationParameter,
 				Statement.RETURN_GENERATED_KEYS)) {
 			pstmt.setString(1, param.getName());
