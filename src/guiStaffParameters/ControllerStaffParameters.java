@@ -1,13 +1,16 @@
 package guiStaffParameters;
 
 import javafx.stage.Stage;
-
+import javafx.geometry.Insets;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
+import javafx.scene.Cursor;
+import javafx.scene.control.Alert;
+import javafx.scene.layout.HBox;
 import entityClasses.EvaluationParameter;
 import entityClasses.User;
+import javafx.scene.control.Label;
 
 // TODO fix the description for this 
 /*******
@@ -134,6 +137,48 @@ public class ControllerStaffParameters {
 	 */
 	public static void performUpdateStaffParameter() {
 		//  the EvaluationParameter object
+	}
+	
+	/**********
+	 * <p> Method: TODO: EDIT THIS performUpdateStaffParameter(String name, String description, double maxScore, double weight) </p>
+	 *
+	 * <p> Description: TODO: EDIT THIS Method to create a staff parameter. It creates an EvaluationParameter object for the CREATE portion
+	 * of the CRUD for Evaluation Parameters satisfying STORY 2: Implementation of Evaluation Parameters. Validation occurs inside the 
+	 * EvaluationParameter constructor; if validation fails or the database insert fails, the resulting error message is displayed to the user 
+	 * via label_ErrorMessage rather than being thrown back to the caller. On success, a confirmation message is displayed instead. </p>
+	 *
+	 * @param
+	 * 
+	 */	
+	protected static HBox createParameterCard(EvaluationParameter param) {
+		// Remove deleted parameters
+	    //if (param.getIsDeleted()) {
+	    //   return null;
+	    //}
+	    HBox paramCard = new HBox(5);
+	    paramCard.setPadding(new Insets(10));
+	    paramCard.setMinWidth(120);
+	    paramCard.setMaxWidth(120);
+	    paramCard.setStyle(
+	    	    "-fx-border-color: #0062A3;" +
+	    	    "-fx-background-color: #0062A3;" +
+	    	    "-fx-background-radius: 8;" +
+	    	    "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4, 0, 0, 2);"
+	    	);
+
+	    
+	    // Title in bold
+	    Label title = new Label(param.getName());
+    	title.setStyle("-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: white;");
+	    	    
+	    paramCard.getChildren().addAll(title);
+	    paramCard.setCursor(Cursor.HAND);
+	    paramCard.setOnMouseClicked((_) -> {
+	        //ViewStaffParameters.currentParam = param;
+	       //ViewStaffParameters.displayParam(param);
+	    });
+	    
+	    return paramCard;
 	}
 	
 	/**********
