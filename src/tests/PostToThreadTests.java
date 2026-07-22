@@ -4,6 +4,7 @@ import java.sql.SQLException;
 
 import database.Database;
 import entityClasses.Post;
+import entityClasses.Thread;
 
 /*******
  * <p> Title: PostToThreadTests. </p>
@@ -106,15 +107,31 @@ public class PostToThreadTests {
 		 db.permanentDeletePost(post.getPostID());
 	}
 	
-	// Positive test case 1 - Specified thread is "Homework" which is a valid thread
-	public static void testCase1() {
+	// Positive test case 1 - Specified thread is "Homework" which is a valid thread.
+	// "Homework" is created here because thread validation is now dynamic — threads
+	// must exist in the database (not a hardcoded list) before a post can use them.
+	public static void testCase1() throws SQLException {
 		String title = "Homework help";
 	    String body = "Has anyone started the homework and would be willing"
 	    		+ "to help me?";
 	    String thread = "Homework";
-	    
+
+	    Thread homework = null;
+	    boolean threadCreatedHere = false;
+	    try {
+	        homework = new Thread("Homework", "Homework discussion", "system");
+	        db.createThread(homework);
+	        threadCreatedHere = true;
+	    } catch (IllegalArgumentException e) {
+	        // Thread already exists in the production DB — that is fine
+	    }
+
 	    testCaseNum++;
 	    testPostToThread(title, body, thread);
+
+	    if (threadCreatedHere && homework != null) {
+	        db.deleteThread(homework.getThreadID());
+	    }
 	}
 	
 	// Positive test case 2 - Specified thread is blank, therefore it will default to

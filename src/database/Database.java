@@ -219,6 +219,11 @@ public class Database {
 	    		+ "weight			DOUBLE)";
 	    statement.execute(EvaluationParametersTable);
 
+	    // Seed the "General" thread on first run; idempotent on subsequent starts
+	    statement.execute("INSERT INTO ThreadsDB (name, description, isDefault, createdBy) "
+	    		+ "SELECT 'General', 'Default fallback thread', TRUE, 'system' "
+	    		+ "WHERE NOT EXISTS (SELECT 1 FROM ThreadsDB WHERE name = 'General')");
+
 	    // Create the requests table
 	    String requestsTable = "CREATE TABLE IF NOT EXISTS RequestsDB ("
 	    		+ "requestID         INT AUTO_INCREMENT PRIMARY KEY, "
@@ -1480,11 +1485,9 @@ public class Database {
 				throw new IllegalArgumentException(errMsg);
 			}
 			
-			// Validate the thread exists before touching the database
-			String threadErrMsg = recognizers.PostReplyValidator.checkForValidThread(post.getThread());
-			if (!threadErrMsg.isEmpty()) {
-				throw new IllegalArgumentException(threadErrMsg);
-			}
+			// Validate the thread exists in the database (dynamic — not hardcoded names)
+			if (!threadExistsInDB(post.getThread()))
+				throw new IllegalArgumentException("*** Error *** The specified thread does not exist.");
 
 			LocalDateTime now = LocalDateTime.now();
 			String insertPost = "INSERT INTO PostsDB (title, body, authorUsername, thread, isDeleted, createdAt) "
@@ -2053,6 +2056,37 @@ public class Database {
 	 *
 	 */
 	public void createThread(Thread thread) throws SQLException {
+		String nameErr = recognizers.PostReplyValidator.checkForValidThreadName(thread.getName());
+		if (!nameErr.isEmpty())
+			throw new IllegalArgumentException(nameErr);
+
+		String descErr = recognizers.PostReplyValidator.checkForValidThreadDescription(thread.getDescription());
+		if (!descErr.isEmpty())
+			throw new IllegalArgumentException(descErr);
+
+		if (threadExistsInDB(thread.getName()))
+			throw new IllegalArgumentException("Error: A thread with that name already exists.");
+
+		String insert = "INSERT INTO ThreadsDB (name, description, isDefault, createdBy, createdAt) "
+				+ "VALUES (?, ?, ?, ?, ?)";
+		try (PreparedStatement pstmt = connection.prepareStatement(insert, Statement.RETURN_GENERATED_KEYS)) {
+			LocalDateTime now = LocalDateTime.now();
+			pstmt.setString(1, thread.getName());
+			pstmt.setString(2, thread.getDescription());
+			pstmt.setBoolean(3, thread.getIsDefault());
+			pstmt.setString(4, thread.getCreatedBy());
+			pstmt.setTimestamp(5, Timestamp.valueOf(now));
+			pstmt.executeUpdate();
+
+			try (ResultSet rs = pstmt.getGeneratedKeys()) {
+				if (rs.next())
+					thread.setThreadID(rs.getInt(1));
+			}
+			thread.setCreatedAt(now);
+		} catch (SQLException e) {
+			System.err.println("Error: Database error while creating thread: " + e.getMessage());
+			throw e;
+		}
 	}
 
 	/*******
@@ -2067,6 +2101,16 @@ public class Database {
 	 *
 	 */
 	public Thread readThread(int threadID) {
+		String query = "SELECT * FROM ThreadsDB WHERE threadID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setInt(1, threadID);
+			try (ResultSet rs = pstmt.executeQuery()) {
+				if (rs.next())
+					return mapRowToThread(rs);
+			}
+		} catch (SQLException e) {
+			System.err.println("Error: Database error in readThread: " + e.getMessage());
+		}
 		return null;
 	}
 
@@ -2079,7 +2123,16 @@ public class Database {
 	 *
 	 */
 	public List<Thread> readAllThreads() {
-		return new ArrayList<Thread>();
+		List<Thread> list = new ArrayList<>();
+		String query = "SELECT * FROM ThreadsDB";
+		try (PreparedStatement pstmt = connection.prepareStatement(query);
+			 ResultSet rs = pstmt.executeQuery()) {
+			while (rs.next())
+				list.add(mapRowToThread(rs));
+		} catch (SQLException e) {
+			System.err.println("Error: Database error in readAllThreads: " + e.getMessage());
+		}
+		return list;
 	}
 
 	/*******
@@ -2094,8 +2147,49 @@ public class Database {
 	 *
 	 * @param newDescription specifies the new description for the thread.
 	 *
+	 * @throws IllegalArgumentException when the thread is General, the name is invalid,
+	 *  or the new name is already taken by another thread.
+	 *
+	 * @throws SQLException when there is an issue executing the SQL command.
+	 *
 	 */
-	public void updateThread(int threadID, String newName, String newDescription) {
+	public void updateThread(int threadID, String newName, String newDescription) throws SQLException {
+		Thread existing = readThread(threadID);
+		if (existing == null)
+			throw new IllegalArgumentException("*** Error *** Thread not found.");
+
+		if (existing.getIsDefault())
+			throw new IllegalArgumentException("*** Error *** The 'General' thread cannot be updated.");
+
+		String nameErr = recognizers.PostReplyValidator.checkForValidThreadName(newName);
+		if (!nameErr.isEmpty())
+			throw new IllegalArgumentException(nameErr);
+
+		String descErr = recognizers.PostReplyValidator.checkForValidThreadDescription(newDescription);
+		if (!descErr.isEmpty())
+			throw new IllegalArgumentException(descErr);
+
+		// Reject if the new name is already taken by a different thread
+		String checkQuery = "SELECT COUNT(*) FROM ThreadsDB WHERE name = ? AND threadID <> ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(checkQuery)) {
+			pstmt.setString(1, newName);
+			pstmt.setInt(2, threadID);
+			try (ResultSet rs = pstmt.executeQuery()) {
+				if (rs.next() && rs.getInt(1) > 0)
+					throw new IllegalArgumentException("*** Error *** A thread with that name already exists.");
+			}
+		}
+
+		String update = "UPDATE ThreadsDB SET name = ?, description = ? WHERE threadID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(update)) {
+			pstmt.setString(1, newName);
+			pstmt.setString(2, newDescription);
+			pstmt.setInt(3, threadID);
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			System.err.println("Error: Database error while updating thread: " + e.getMessage());
+			throw e;
+		}
 	}
 
 	/*******
@@ -2107,8 +2201,81 @@ public class Database {
 	 *
 	 * @param threadID specifies the ID of the thread to delete.
 	 *
+	 * @throws IllegalArgumentException when the thread is General or not found.
+	 *
+	 * @throws SQLException when there is an issue executing the SQL command.
+	 *
 	 */
-	public void deleteThread(int threadID) {
+	public void deleteThread(int threadID) throws SQLException {
+		Thread existing = readThread(threadID);
+		if (existing == null)
+			throw new IllegalArgumentException("Error: Thread not found.");
+
+		if (existing.getIsDefault())
+			throw new IllegalArgumentException("Error: The 'General' thread cannot be deleted.");
+
+		// Migrate all posts in this thread to "General" before removing the thread
+		String migrate = "UPDATE PostsDB SET thread = 'General' WHERE thread = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(migrate)) {
+			pstmt.setString(1, existing.getName());
+			pstmt.executeUpdate();
+		}
+
+		String delete = "DELETE FROM ThreadsDB WHERE threadID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(delete)) {
+			pstmt.setInt(1, threadID);
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			System.err.println("Error: Database error while deleting thread: " + e.getMessage());
+			throw e;
+		}
+	}
+
+	/*******
+	 * <p> Method: threadExistsInDB(String name) </p>
+	 *
+	 * <p> Description: Returns true if a thread with the given name exists in ThreadsDB.
+	 *  Used by createPost and createThread for validation. </p>
+	 *
+	 * @param name specifies the thread name to look up
+	 *
+	 * @return true if the thread exists, false otherwise
+	 *
+	 */
+	private boolean threadExistsInDB(String name) {
+		if (name == null) return false;
+		String query = "SELECT COUNT(*) FROM ThreadsDB WHERE name = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setString(1, name);
+			try (ResultSet rs = pstmt.executeQuery()) {
+				return rs.next() && rs.getInt(1) > 0;
+			}
+		} catch (SQLException e) {
+			return false;
+		}
+	}
+
+	/*******
+	 * <p> Method: mapRowToThread(ResultSet rs) </p>
+	 *
+	 * <p> Description: Maps the current row of a ResultSet from ThreadsDB to a Thread
+	 *  object. Caller is responsible for advancing the ResultSet cursor. </p>
+	 *
+	 * @param rs specifies the ResultSet positioned on the row to map
+	 *
+	 * @return a Thread object populated from the row
+	 *
+	 * @throws SQLException when a column cannot be read
+	 *
+	 */
+	private Thread mapRowToThread(ResultSet rs) throws SQLException {
+		Thread t = new Thread(rs.getString("name"), rs.getString("description"), rs.getString("createdBy"));
+		t.setThreadID(rs.getInt("threadID"));
+		t.setIsDefault(rs.getBoolean("isDefault"));
+		Timestamp ts = rs.getTimestamp("createdAt");
+		if (ts != null)
+			t.setCreatedAt(ts.toLocalDateTime());
+		return t;
 	}
 
 
