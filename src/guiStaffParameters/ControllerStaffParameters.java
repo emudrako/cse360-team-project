@@ -112,27 +112,56 @@ public class ControllerStaffParameters {
 
 	
 	/**********
-	 * <p> Method: performReadStaffParameter(String name) </p>
+	 * <p> Method: performReadStaffParameter(int paramID) </p>
 	 *
-	 * <p> Description: TODO </p>
+	 * <p> Description: Retrieves a single EvaluationParameter by its ID, satisfying
+	 *  STORY 2: Implement CRUD for Evaluation Parameters. Delegates directly to the
+	 *  database's readEvaluationParameter(), which already returns null if no
+	 *  matching parameter is found or if the database read fails. </p>
 	 *
-	 * @param name
-	 * 
+	 * @param paramID specifies the ID of the parameter to retrieve
+	 *
+	 * @return the EvaluationParameter matching the given ID, or null if not found
+	 *
 	 */
-	public static void performReadStaffParameter() {
-		//  the EvaluationParameter object
+	public static EvaluationParameter performReadStaffParameter(int paramID) {
+	    return ViewStaffParameters.theDatabase.readEvaluationParameter(paramID);
 	}
 	
 	/**********
-	 * <p> Method: TODO </p>
+	 * <p> Method: performUpdateStaffParameter(int paramID, String name, String description,
+	 *  double maxScore, double weight) </p>
 	 *
-	 * <p> Description: TODO </p>
+	 * <p> Description: Updates an existing EvaluationParameter's fields, satisfying
+	 *  STORY 2: Implement CRUD for Evaluation Parameters. Constructs a temporary
+	 *  EvaluationParameter to reuse the constructor's validation before persisting
+	 *  the change, so an invalid update is rejected the same way an invalid create
+	 *  would be. </p>
 	 *
-	 * @param
-	 * 
+	 * @param paramID specifies the ID of the parameter to update
+	 * @param name specifies the new name; must not be empty
+	 * @param description specifies the new description; must be at least 40 characters
+	 * @param maxScore specifies the new max score; must be 1-100
+	 * @param weight specifies the new weight; must be 1-10
+	 *
 	 */
-	public static void performUpdateStaffParameter() {
-		//  the EvaluationParameter object
+	public static void performUpdateStaffParameter(int paramID, String name, String description,
+	        double maxScore, double weight) {
+	    try {
+	        // Reuse the constructor purely for its validation; the object itself is discarded
+	        new EvaluationParameter(name, description, maxScore, weight);
+
+	        boolean wasUpdated = ViewStaffParameters.theDatabase.updateEvaluationParameter(
+	            paramID, name, description, maxScore, weight);
+
+	        if (wasUpdated) {
+	            ViewStaffParameters.label_ErrorMessage.setText("Parameter updated successfully");
+	        } else {
+	            ViewStaffParameters.label_ErrorMessage.setText("*** ERROR *** Could not update parameter.");
+	        }
+	    } catch (IllegalArgumentException e) {
+	        ViewStaffParameters.label_ErrorMessage.setText(e.getMessage());
+	    }
 	}
 	
 	/**********
@@ -169,25 +198,34 @@ public class ControllerStaffParameters {
     	title.setStyle("-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: white;");
 	    	    
 	    paramCard.getChildren().addAll(title);
+	    // Click on current parameter
 	    paramCard.setCursor(Cursor.HAND);
 	    paramCard.setOnMouseClicked((_) -> {
-	        //ViewStaffParameters.currentParam = param;
-	       //ViewStaffParameters.displayParam(param);
+	        ViewStaffParameters.showParamDetails(param); 
 	    });
 	    
 	    return paramCard;
 	}
 	
 	/**********
-	 * <p> Method: TODO:  </p>
+	 * <p> Method: performDeleteStaffParameter(int paramID) </p>
 	 *
-	 * <p> Description: TODO: </p>
+	 * <p> Description: Deletes an EvaluationParameter by its ID, satisfying STORY 2:
+	 *  Implement CRUD for Evaluation Parameters. Delegates to the database's
+	 *  deleteEvaluationParameter(), and displays a success or failure message to
+	 *  the user based on the result. </p>
 	 *
-	 * @param
-	 * 
+	 * @param paramID specifies the ID of the parameter to delete
+	 *
 	 */
-	public static void performDeleteStaffParameter() {
-		//  the EvaluationParameter object
+	public static void performDeleteStaffParameter(int paramID) {
+	    boolean wasDeleted = ViewStaffParameters.theDatabase.deleteEvaluationParameter(paramID);
+
+	    if (wasDeleted) {
+	        ViewStaffParameters.label_ErrorMessage.setText("Parameter deleted successfully");
+	    } else {
+	        ViewStaffParameters.label_ErrorMessage.setText("*** ERROR *** Could not delete parameter.");
+	    }
 	}
 	
 	/**********
