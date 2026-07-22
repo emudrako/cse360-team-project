@@ -56,7 +56,7 @@ public class ViewStaffParameters{
 	protected static HBox paramCardList = new HBox(10);
 	protected static ScrollPane scrollPane_ParamCards = new ScrollPane(paramCardList); // Scroll pane for parameter view
 	
-	// GUI Area III — Create Parameter form
+	// GUI Area III — Create Parameter form some labels are burrowed for parameter details
 	protected static Button button_OpenCreateForm = new Button("Create New Parameter");
 
 	protected static Label label_Name = new Label("Name:");
@@ -64,6 +64,7 @@ public class ViewStaffParameters{
 
 	protected static Label label_Description = new Label("Description (min 40 characters):");
 	protected static javafx.scene.control.TextArea field_Description = new javafx.scene.control.TextArea();
+	
 
 	protected static Label label_MaxScore = new Label("Max Score (1-100):");
 	protected static javafx.scene.control.TextField field_MaxScore = new javafx.scene.control.TextField();
@@ -73,6 +74,15 @@ public class ViewStaffParameters{
 
 	protected static Button button_Submit = new Button("Submit");
 	protected static Button button_Cancel = new Button("Cancel");
+	
+	// GUI Area III Parameter Details hide button
+	protected static Button button_Done = new Button("Done");
+	protected static EvaluationParameter currentParam;
+	protected static Button button_Update = new Button("Save Updates");
+	protected static Button button_Edit = new Button("Edit");
+
+	
+	
 	private static ViewStaffParameters theView;
 	protected static Database theDatabase = applicationMain.FoundationsMain.database;
 
@@ -142,6 +152,8 @@ public class ViewStaffParameters{
 		theRootPane = new Pane();
 		theViewStaffParametersScene = new Scene(theRootPane, width, height);
 		theRootPane.setStyle("-fx-background-color: #041E42;");
+		hideCreateForm();
+		hideParamDetails();
 		// Gui area I
 		// setup a card to have all the fields inside
 		javafx.scene.shape.Rectangle card = new javafx.scene.shape.Rectangle();
@@ -191,6 +203,7 @@ public class ViewStaffParameters{
 		field_Description.setLayoutX(240);
 		field_Description.setLayoutY(340);
 		field_Description.setPrefSize(400, 200);
+		field_Description.setWrapText(true);
 
 		setupLabelUI(label_MaxScore, "Arial", 13, 100, Pos.BASELINE_LEFT, 240, 545);
 		field_MaxScore.setLayoutX(240);
@@ -210,6 +223,48 @@ public class ViewStaffParameters{
 		button_Cancel.setOnAction((_) -> { hideCreateForm(); });
 		button_Cancel.setStyle("-fx-background-color: #BF0D3E; -fx-text-fill: white; -fx-background-radius: 5;");
 
+		// Button to edit parameter fields setting the parameters as editable and hiding the edit button itself when clicked
+		setupButtonUI(button_Edit, "Dialog", 13, 120, Pos.CENTER, 650, 275);
+		button_Edit.setOnAction((_) -> { 
+			field_Name.setEditable(true); 
+			field_MaxScore.setEditable(true); 
+			field_Weight.setEditable(true); 
+			field_Description.setEditable(true);
+			button_Edit.setVisible(false);
+			button_Update.setVisible(true);
+			});
+		button_Edit.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
+		// Button to submit updates to parameter fields
+		setupButtonUI(button_Update, "Dialog", 13, 120, Pos.CENTER, 510, 655);
+		button_Update.setOnAction((_) -> { 
+		    try {
+		    	double maxScore = Double.parseDouble(field_MaxScore.getText());
+		    	double weight = Double.parseDouble(field_Weight.getText());
+		    	// Call the Controller update methods and pass the ID from currentParam and new fields
+		    	ControllerStaffParameters.performUpdateStaffParameter(
+		    		    currentParam.getParamID(), field_Name.getText(), field_Description.getText(), maxScore, weight);
+		    	// Lock the fields to not be editable
+		    	field_Name.setEditable(false);
+		    	field_Description.setEditable(false);
+		    	field_MaxScore.setEditable(false);
+		    	field_Weight.setEditable(false);
+		    	// Change button visibility
+		    	button_Update.setVisible(false);
+		    	button_Edit.setVisible(true);
+		    	// Refresh the card list
+		    	List<EvaluationParameter> allParams = ControllerStaffParameters.performReadAllStaffParameters();
+		    	displayParamCards(allParams);
+		    	
+		    } catch (NumberFormatException e) {
+		        label_ErrorMessage.setText("Max Score and Weight must be valid numbers.");
+		    }
+			});
+		button_Update.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
+		// Button to clear the Parameter Details and hide the window
+		setupButtonUI(button_Done, "Dialog", 13, 120, Pos.CENTER, 650, 655);
+		button_Done.setOnAction((_) -> { hideParamDetails(); });
+		button_Done.setStyle("-fx-background-color: #BF0D3E; -fx-text-fill: white; -fx-background-radius: 5;");
+
 		setupLabelUI(label_ErrorMessage, "Arial", 12, 400, Pos.BASELINE_LEFT, 240, 650);
 		label_ErrorMessage.setStyle("-fx-text-fill: #BF0D3E;");
 
@@ -221,7 +276,7 @@ public class ViewStaffParameters{
 			    scrollPane_ParamCards, button_OpenCreateForm,
 			    label_Name, field_Name, label_Description, field_Description,
 			    label_MaxScore, field_MaxScore, label_Weight, field_Weight,
-			    button_Submit, button_Cancel, label_ErrorMessage);
+			    button_Submit, button_Cancel, button_Edit, button_Update, button_Done, label_ErrorMessage);
 	}
 	
 	/**********
@@ -259,6 +314,9 @@ public class ViewStaffParameters{
 	    field_MaxScore.setVisible(true);
 	    label_Weight.setVisible(true);
 	    field_Weight.setVisible(true);
+	    button_Edit.setVisible(false);
+	    button_Update.setVisible(false);
+	    button_Done.setVisible(false);
 	    button_Submit.setVisible(true);
 	    button_Cancel.setVisible(true);
 	    label_ErrorMessage.setVisible(true);
@@ -292,6 +350,71 @@ public class ViewStaffParameters{
 	    label_ErrorMessage.setText("");
 	}
 
+	/**********
+	 * <p> Method: showParamDetails) </p>
+	 *
+	 * <p> Description: Reveals the Parameter details and hides the
+	 * "Create New Parameter" button, so only one mode is visible at a time. </p>
+	 *
+	 */
+	protected static void showParamDetails(EvaluationParameter param) {
+		currentParam = param;
+		
+	    button_OpenCreateForm.setVisible(false);
+	    button_Submit.setVisible(false);
+	    button_Cancel.setVisible(false);
+	    label_Name.setVisible(true);
+	    field_Name.setVisible(true);
+	    field_Name.setText(param.getName());
+	    field_Name.setEditable(false);
+	    
+	    label_Description.setVisible(true);
+	    field_Description.setVisible(true);
+	    field_Description.setText(param.getDescription());
+	    field_Description.setEditable(false);
+
+	    label_MaxScore.setVisible(true);
+	    field_MaxScore.setVisible(true);
+	    field_MaxScore.setText(String.valueOf(param.getMaxScore()));
+	    field_MaxScore.setEditable(false);
+
+	    label_Weight.setVisible(true);
+	    field_Weight.setVisible(true);
+	    field_Weight.setText(String.valueOf(param.getWeight()));
+	    field_Weight.setEditable(false);
+
+	    button_Done.setVisible(true);
+	    button_Edit.setVisible(true);
+	    button_Update.setVisible(false);
+	    label_ErrorMessage.setVisible(true);
+	}
+
+	/**********
+	 * <p> Method: hideParamDetails() </p>
+	 *
+	 * <p> Description: Hides the Parameter details, and returns to the default
+	 * view with just the "Create New Parameter" button visible. </p>
+	 *
+	 */
+	private static void hideParamDetails() {
+	    button_OpenCreateForm.setVisible(true);
+	    label_Name.setVisible(false);
+	    field_Name.setVisible(false);
+	    label_Description.setVisible(false);
+	    field_Description.setVisible(false);
+	    label_MaxScore.setVisible(false);
+	    field_MaxScore.setVisible(false);
+	    label_Weight.setVisible(false);
+	    field_Weight.setVisible(false);
+	    button_Done.setVisible(false);
+	    button_Edit.setVisible(false);
+	    button_Update.setVisible(false);
+	    button_Submit.setVisible(false);
+	    button_Cancel.setVisible(false);
+	    label_ErrorMessage.setVisible(false);
+	    label_ErrorMessage.setText("");  
+
+	}
 	/**********
 	 * <p> Method: handleSubmit() </p>
 	 *

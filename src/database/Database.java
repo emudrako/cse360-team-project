@@ -2318,7 +2318,8 @@ public class Database {
 	/*******
 	 * <p> Method: readEvaluationParameter(int paramID) </p>
 	 *
-	 * <p> Description: Retrieves a single EvaluationParameter object from
+	 * <p> Description: Satisfies Read portion of Story 2: Implement CRUD for Staff
+	 *  Parameters. Retrieves a single EvaluationParameter object from
 	 *  EvaluationParametersDB matching the specified paramID, or null if no such
 	 *  parameter exists. </p>
 	 *
@@ -2329,7 +2330,26 @@ public class Database {
 	 *
 	 */
 	public EvaluationParameter readEvaluationParameter(int paramID) {
-		return null;
+	    String query = "SELECT * FROM EvaluationParametersDB WHERE parameterID = ?";
+	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+	        pstmt.setInt(1, paramID);
+	        try (ResultSet rs = pstmt.executeQuery()) {
+	            if (rs.next()) {
+	                EvaluationParameter param = new EvaluationParameter(
+	                    rs.getString("name"),
+	                    rs.getString("description"),
+	                    rs.getDouble("maxScore"),
+	                    rs.getDouble("weight")
+	                );
+	                param.setParamID(paramID);
+	                return param;
+	            }
+	        }
+	    } catch (SQLException e) {
+	        System.err.println("*** ERROR *** Database error while reading parameter: "
+	                + e.getMessage());
+	    }
+	    return null;
 	}
 
 	/*******
@@ -2390,11 +2410,27 @@ public class Database {
 	 *
 	 * @param maxScore specifies the new maximum score for the parameter.
 	 *
-	 * @param weight specifies the new weight for the parameter (0.0-1.0).
+	 * @param weight specifies the new weight for the parameter (1-10).
 	 *
 	 */
-	public void updateEvaluationParameter(int paramID, String newName,
-			String newDescription, double maxScore, double weight) {
+	public boolean updateEvaluationParameter(int paramID, String newName, String newDescription,
+	        double newMaxScore, double newWeight) {
+	    if (paramID <= 0) return false;
+
+	    String query = "UPDATE EvaluationParametersDB SET name = ?, description = ?, maxScore = ?, weight = ? "
+	            + "WHERE parameterID = ?";
+	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+	        pstmt.setString(1, newName);
+	        pstmt.setString(2, newDescription);
+	        pstmt.setDouble(3, newMaxScore);
+	        pstmt.setDouble(4, newWeight);
+	        pstmt.setInt(5, paramID);
+	        int rowsUpdated = pstmt.executeUpdate();
+	        return rowsUpdated > 0;
+	    } catch (SQLException e) {
+	        System.err.println("*** ERROR *** Database error while updating parameter: " + e.getMessage());
+	        return false;
+	    }
 	}
 
 	/*******
@@ -2406,9 +2442,19 @@ public class Database {
 	 * @param paramID specifies the ID of the parameter to delete.
 	 *
 	 */
-	public void deleteEvaluationParameter(int paramID) {
-	}
+	public boolean deleteEvaluationParameter(int paramID) {
+	    if (paramID <= 0) return false;
 
+	    String query = "DELETE FROM EvaluationParametersDB WHERE parameterID = ?";
+	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+	        pstmt.setInt(1, paramID);
+	        int rowsDeleted = pstmt.executeUpdate();
+	        return rowsDeleted > 0;
+	    } catch (SQLException e) {
+	        System.err.println("*** ERROR *** Database error while deleting parameter: " + e.getMessage());
+	        return false;
+	    }
+	}
 
 	/*******
 	 * <p> Method: createRequest(Request request) </p>
