@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"All Classes and Interfaces","u":"allclasses-index.html","k":"18"},{"p":"guiStaffParameters","l":"ControllerStaffParameters"},{"p":"database","l":"Database"},{"p":"guiStaffParameters","l":"ModelStaffParameters"},{"p":"guiStaffParameters","l":"ViewStaffParameters"}];updateSearchResults();
