@@ -2290,6 +2290,8 @@ public class Database {
 	 *
 	 * @param param specifies the EvaluationParameter object to be added to the database.
 	 *
+	 * @see EvaluationParameterCrudTest testCreateValidParameter , testUniqueIDs
+	 * 
 	 */
 	
 	public void createEvaluationParameter(EvaluationParameter param) throws SQLException {
@@ -2328,6 +2330,8 @@ public class Database {
 	 * @return an EvaluationParameter object matching the specified paramID, or null if
 	 *  not found.
 	 *
+	 * @see EvaluationParameterCrudTest testReadParameter, testRaedNonexistentID
+	 * 
 	 */
 	public EvaluationParameter readEvaluationParameter(int paramID) {
 	    String query = "SELECT * FROM EvaluationParametersDB WHERE parameterID = ?";
@@ -2411,6 +2415,9 @@ public class Database {
 	 * @param maxScore specifies the new maximum score for the parameter.
 	 *
 	 * @param weight specifies the new weight for the parameter (1-10).
+	 * 
+	 * @see EvaluationParameterCrudTest testUpdateParameter, testUpdateNonexistentID, 
+	 * testUpdateRejectsInvalidData
 	 *
 	 */
 	public boolean updateEvaluationParameter(int paramID, String newName, String newDescription,
@@ -2440,6 +2447,9 @@ public class Database {
 	 *  EvaluationParametersDB. </p>
 	 *
 	 * @param paramID specifies the ID of the parameter to delete.
+	 *
+	 * @see EvaluationParameterCrudTest testDeleteParameter, testDeleteNonexistentID, 
+	 * testDeleteDoesNotAffectOtherRows
 	 *
 	 */
 	public boolean deleteEvaluationParameter(int paramID) {

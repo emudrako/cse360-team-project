@@ -10,6 +10,8 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import database.Database;
 import entityClasses.User;
+import guiStudentHome.ControllerStudentHome;
+import guiUserUpdate.ViewUserUpdate;
 
 
 /*******
@@ -42,6 +44,8 @@ public class ViewStaffHome {
 	protected static Label label_PageTitle = new Label();
 	protected static Label label_UserDetails = new Label();
 	protected static Button button_UpdateThisUser = new Button("Account Update");
+	protected static Button button_Logout = new Button("Logout");
+	protected static Button button_Quit = new Button("X");
 
 	private static Line line_Separator1 = new Line(20, 95, width-20, 95);
 
@@ -56,9 +60,6 @@ public class ViewStaffHome {
 	protected static Button button_Coverage = new Button("Student Coverage");
 
 	// GUI Area 3
-	protected static Button button_Logout = new Button("Logout");
-	protected static Button button_Quit = new Button("Quit");
-
 	private static ViewStaffHome theView;
 	private static Database theDatabase = applicationMain.FoundationsMain.database;
 
@@ -110,16 +111,29 @@ public class ViewStaffHome {
 	private ViewStaffHome() {
 		theRootPane = new Pane();
 		theViewStaffHomeScene = new Scene(theRootPane, width, height);
+		theRootPane.setStyle("-fx-background-color: #FFFFFF;");
 
 		// GUI Area 1
 		label_PageTitle.setText("Staff Home Page");
 		setupLabelUI(label_PageTitle, "Arial", 28, width, Pos.CENTER, 0, 5);
 
 		label_UserDetails.setText("User: " + theUser.getUserName());
-		setupLabelUI(label_UserDetails, "Arial", 20, width, Pos.BASELINE_LEFT, 20, 55);
+        setupLabelUI(label_UserDetails, "Arial", 12, 200, Pos.BASELINE_LEFT, 20, 10);
+        label_UserDetails.setStyle("-fx-text-fill: #666666;");		
 
-		setupButtonUI(button_UpdateThisUser, "Dialog", 18, 170, Pos.CENTER, 610, 45);
+		//Button to logout of application as current user. 
+        setupButtonUI(button_Logout, "Dialog", 12, 70, Pos.CENTER, 769, 10);
+        button_Logout.setOnAction((_) -> ControllerStaffHome.performLogout());
+        button_Logout.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
+        //Button for updating user details
+        setupButtonUI(button_UpdateThisUser, "Dialog", 12, 115, Pos.CENTER, 842, 10);
 		button_UpdateThisUser.setOnAction((_) -> { ControllerStaffHome.performUpdate(); });
+        button_UpdateThisUser.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
+        // Button to exit the application
+        setupButtonUI(button_Quit, "Dialog", 12, 30, Pos.CENTER, 960, 10);
+        button_Quit.setOnAction((_) -> ControllerStaffHome.performQuit());
+        button_Quit.setStyle("-fx-background-color: #BF0D3E; -fx-text-fill: white; -fx-background-radius: 5;");
+
 
 		// GUI Area 2 - Staff feature navigation
 		setupButtonUI(button_DiscussionBoard, "Dialog", 18, 300, Pos.CENTER, 20, 150);
@@ -141,14 +155,8 @@ public class ViewStaffHome {
 		button_Coverage.setOnAction((_) -> { ControllerStaffHome.performCoverage(); });
 
 		// GUI Area 3
-		setupButtonUI(button_Logout, "Dialog", 18, 250, Pos.CENTER, 20, 540);
-		button_Logout.setOnAction((_) -> { ControllerStaffHome.performLogout(); });
-
-		setupButtonUI(button_Quit, "Dialog", 18, 250, Pos.CENTER, 300, 540);
-		button_Quit.setOnAction((_) -> { ControllerStaffHome.performQuit(); });
-
 		theRootPane.getChildren().addAll(
-			label_PageTitle, label_UserDetails, button_UpdateThisUser, line_Separator1,
+			label_PageTitle, label_UserDetails, button_Logout, button_Quit, button_UpdateThisUser, line_Separator1,
 			button_DiscussionBoard, button_Parameters, button_Threads,
 			button_Requests, button_Review, button_Coverage);
 	}
