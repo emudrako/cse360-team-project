@@ -41,23 +41,21 @@ public class ViewStaffHome {
 	private static double height = 900;
 
 	// GUI Area 1
-	protected static Label label_PageTitle = new Label();
+	protected static Label label_ApplicationTitle = new Label("CSE 360 Discussion Board");
 	protected static Label label_UserDetails = new Label();
-	protected static Button button_UpdateThisUser = new Button("Account Update");
-	protected static Button button_Logout = new Button("Logout");
+
 	protected static Button button_Quit = new Button("X");
 
-	private static Line line_Separator1 = new Line(20, 95, width-20, 95);
-
 	// GUI Area 2 - placeholder, no widgets yet
-
-	private static Line line_Separator4 = new Line(20, 525, width-20, 525);
+	protected static Label label_UserHome = new Label();
 	protected static Button button_DiscussionBoard = new Button("Discussion Board");
 	protected static Button button_Parameters = new Button("Manage Parameters");
 	protected static Button button_Threads = new Button("Manage Threads");
 	protected static Button button_Requests = new Button("View Requests");
 	protected static Button button_Review = new Button("Review & Feedback");
-	protected static Button button_Coverage = new Button("Student Coverage");
+	protected static Button button_Coverage = new Button("Student Coverage");	
+	protected static Button button_UpdateThisUser = new Button("Update Account");
+	protected static Button button_Logout = new Button("Logout");
 
 	// GUI Area 3
 	private static ViewStaffHome theView;
@@ -111,24 +109,29 @@ public class ViewStaffHome {
 	private ViewStaffHome() {
 		theRootPane = new Pane();
 		theViewStaffHomeScene = new Scene(theRootPane, width, height);
-		theRootPane.setStyle("-fx-background-color: #FFFFFF;");
+		theRootPane.setStyle("-fx-background-color: #041E42;");
+
+		// Gui area I
+		// setup a card to have all the fields inside
+		javafx.scene.shape.Rectangle card = new javafx.scene.shape.Rectangle();
+		card.setWidth(600);
+		card.setHeight(620);
+		card.setX(200);
+		card.setY(80);
+		card.setArcWidth(20);
+		card.setArcHeight(20);
+		card.setFill(javafx.scene.paint.Color.WHITE);
+		card.setEffect(new javafx.scene.effect.DropShadow(20, javafx.scene.paint.Color.rgb(0,0,0,0.3)));
 
 		// GUI Area 1
-		label_PageTitle.setText("Staff Home Page");
-		setupLabelUI(label_PageTitle, "Arial", 28, width, Pos.CENTER, 0, 5);
+		setupLabelUI(label_ApplicationTitle, "Arial", 24, 450, Pos.CENTER, 300, 30);
+		label_ApplicationTitle.setStyle("-fx-text-fill: WHITE; -fx-font-weight: bold;");
+
 
 		label_UserDetails.setText("User: " + theUser.getUserName());
         setupLabelUI(label_UserDetails, "Arial", 12, 200, Pos.BASELINE_LEFT, 20, 10);
-        label_UserDetails.setStyle("-fx-text-fill: #666666;");		
+        label_UserDetails.setStyle("-fx-text-fill: WHITE;");		
 
-		//Button to logout of application as current user. 
-        setupButtonUI(button_Logout, "Dialog", 12, 70, Pos.CENTER, 769, 10);
-        button_Logout.setOnAction((_) -> ControllerStaffHome.performLogout());
-        button_Logout.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
-        //Button for updating user details
-        setupButtonUI(button_UpdateThisUser, "Dialog", 12, 115, Pos.CENTER, 842, 10);
-		button_UpdateThisUser.setOnAction((_) -> { ControllerStaffHome.performUpdate(); });
-        button_UpdateThisUser.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
         // Button to exit the application
         setupButtonUI(button_Quit, "Dialog", 12, 30, Pos.CENTER, 960, 10);
         button_Quit.setOnAction((_) -> ControllerStaffHome.performQuit());
@@ -136,27 +139,49 @@ public class ViewStaffHome {
 
 
 		// GUI Area 2 - Staff feature navigation
-		setupButtonUI(button_DiscussionBoard, "Dialog", 18, 300, Pos.CENTER, 20, 150);
+		label_UserHome.setText("Welcome, " + theUser.getUserName());
+        setupLabelUI(label_UserHome, "Arial", 16, 450, Pos.CENTER, 270, 130);	
+		label_UserHome.setStyle("-fx-text-fill: #041E42; -fx-font-style: italic;");
+
+        
+		setupButtonUI(button_DiscussionBoard, "Dialog", 16, 300, Pos.CENTER, 350, 200);
 		button_DiscussionBoard.setOnAction((_) -> { ControllerStaffHome.performDiscussionBoard(); });
+		button_DiscussionBoard.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
 
-		setupButtonUI(button_Parameters, "Dialog", 18, 300, Pos.CENTER, 340, 150);
+		setupButtonUI(button_Parameters, "Dialog", 16, 300, Pos.CENTER, 350, 260);
 		button_Parameters.setOnAction((_) -> { ControllerStaffHome.performParameters(); });
+		button_Parameters.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
 
-		setupButtonUI(button_Threads, "Dialog", 18, 300, Pos.CENTER, 660, 150);
+		setupButtonUI(button_Threads, "Dialog", 16, 300, Pos.CENTER, 350, 320);
 		button_Threads.setOnAction((_) -> { ControllerStaffHome.performThreads(); });
+		button_Threads.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
 
-		setupButtonUI(button_Requests, "Dialog", 18, 300, Pos.CENTER, 20, 210);
+		setupButtonUI(button_Requests, "Dialog", 16, 300, Pos.CENTER, 350, 380);
 		button_Requests.setOnAction((_) -> { ControllerStaffHome.performRequests(); });
+		button_Requests.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
 
-		setupButtonUI(button_Review, "Dialog", 18, 300, Pos.CENTER, 340, 210);
+		setupButtonUI(button_Review, "Dialog", 16, 300, Pos.CENTER, 350, 440);
 		button_Review.setOnAction((_) -> { ControllerStaffHome.performReview(); });
-
-		setupButtonUI(button_Coverage, "Dialog", 18, 300, Pos.CENTER, 660, 210);
+		button_Review.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
+		
+		setupButtonUI(button_Coverage, "Dialog", 16, 300, Pos.CENTER, 350, 500);
 		button_Coverage.setOnAction((_) -> { ControllerStaffHome.performCoverage(); });
+		button_Coverage.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
+		
+        //Button for updating user details
+        setupButtonUI(button_UpdateThisUser, "Dialog", 16, 300, Pos.CENTER, 350, 560);
+		button_UpdateThisUser.setOnAction((_) -> { ControllerStaffHome.performUpdate(); });
+        button_UpdateThisUser.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
+        
+		//Button to logout of application as current user. 
+        setupButtonUI(button_Logout, "Dialog", 16, 300, Pos.CENTER, 350, 620);
+        button_Logout.setOnAction((_) -> ControllerStaffHome.performLogout());
+        button_Logout.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
+
 
 		// GUI Area 3
 		theRootPane.getChildren().addAll(
-			label_PageTitle, label_UserDetails, button_Logout, button_Quit, button_UpdateThisUser, line_Separator1,
+			label_UserDetails, button_Quit, label_ApplicationTitle, card, label_UserHome, button_Logout, button_UpdateThisUser,
 			button_DiscussionBoard, button_Parameters, button_Threads,
 			button_Requests, button_Review, button_Coverage);
 	}
