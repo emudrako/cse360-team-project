@@ -176,10 +176,29 @@ public class PostReplyValidator {
 	}
 
 	/*****
+	 * <p> Method: checkForValidRequestSubject(String subject) </p>
+	 *
+	 * <p> Description: Validates a request subject before a create or update
+	 *  operation. The subject must be non-empty and less than 50 characters. </p>
+	 *
+	 * @param subject specifies the request subject to validate
+	 *
+	 * @return an empty string if the subject is valid, or an error message otherwise
+	 *
+	 */
+	public static String checkForValidRequestSubject(String subject) {
+		if (subject == null || subject.trim().isEmpty())
+			return "*** Error *** The request subject is empty.";
+		if (subject.length() > 50)
+			return "*** Error *** The request subject must be less than 50 characters.";
+		return "";
+	}
+	
+	/*****
 	 * <p> Method: checkForValidRequestDescription(String description) </p>
 	 *
 	 * <p> Description: Validates a request description before a create or update
-	 *  operation. The description must be non-empty. </p>
+	 *  operation. The description must be non-empty and less than 500 characters. </p>
 	 *
 	 * @param description specifies the request description to validate
 	 *
@@ -189,7 +208,8 @@ public class PostReplyValidator {
 	public static String checkForValidRequestDescription(String description) {
 		if (description == null || description.trim().isEmpty())
 			return "*** Error *** The request description is empty.";
-
+		if (description.length() > 500)
+			return "*** Error *** The request description must be less than 500 characters.";
 		return "";
 	}
 

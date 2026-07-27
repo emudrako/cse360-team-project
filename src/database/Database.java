@@ -12,6 +12,7 @@ import entityClasses.Reply;
 import entityClasses.Thread;
 import entityClasses.EvaluationParameter;
 import entityClasses.Request;
+import entityClasses.RequestComment;
 
 /*******
  * <p> Title: Database Class. </p>
@@ -243,6 +244,7 @@ public class Database {
 	    String requestsTable = "CREATE TABLE IF NOT EXISTS RequestsDB ("
 	    		+ "requestID         INT AUTO_INCREMENT PRIMARY KEY, "
 	    		+ "requestorUsername VARCHAR(255), "
+	    		+ "subject			 VARCHAR(255), "
 	    		+ "description       VARCHAR(1000), "
 	    		+ "isClosed          BOOL DEFAULT FALSE, "
 	    		+ "adminNotes        VARCHAR(1000), "
@@ -250,6 +252,15 @@ public class Database {
 	    		+ "createdAt         TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
 	    		+ "closedAt          TIMESTAMP)";
 	    statement.execute(requestsTable);
+	    
+	    // Create request comment table
+	    String requestCommentTable = "CREATE TABLE IF NOT EXISTS RequestCommentDB ("
+	    		+ "commentID         INT AUTO_INCREMENT PRIMARY KEY, "
+	    		+ "requestID		 INT, "
+	    		+ "commenterUsername VARCHAR(255), "
+	    		+ "description       VARCHAR(1000), "
+	    		+ "createdAt         TIMESTAMP DEFAULT CURRENT_TIMESTAMP)";
+	    statement.execute(requestCommentTable);
 	}
 	
 
@@ -1732,37 +1743,37 @@ public class Database {
 	 * @returns a list of Reply objects created from the database
 	 * 
 	 */
-			public List<Reply> getReplyObjects() throws SQLException {
-				List<Reply> replyObjects = new ArrayList<>();
+		public List<Reply> getReplyObjects() throws SQLException {
+			List<Reply> replyObjects = new ArrayList<>();
 				
-				String query = "SELECT * FROM RepliesDB";
+			String query = "SELECT * FROM RepliesDB";
 				
-				PreparedStatement stmt = connection.prepareStatement(query);
-				ResultSet rs = stmt.executeQuery();
+			PreparedStatement stmt = connection.prepareStatement(query);
+			ResultSet rs = stmt.executeQuery();
 				
-				if (rs.wasNull()) {
-					return replyObjects;
-				}
-				else {
-					while (rs.next()) {
-						int replyID = rs.getInt("replyID");
-						int parentReplyID = rs.getInt("parentReplyID");
-						boolean hasReplies = rs.getBoolean("hasReplies");
-						int numReplies = rs.getInt("numReplies");
-						Reply reply = new Reply(
-							rs.getInt("postID"),
-							rs.getString("body"),
-							rs.getString("authorUsername")
-							);
-						reply.setReplyID(replyID);
-						reply.setparentReplyID(parentReplyID);
-						reply.setHasReplies(hasReplies);
-						reply.setNumReplies(numReplies);
-						replyObjects.add(reply);
-					}
-				}
-				
+			if (rs.wasNull()) {
 				return replyObjects;
+			}
+			else {
+				while (rs.next()) {
+					int replyID = rs.getInt("replyID");
+					int parentReplyID = rs.getInt("parentReplyID");
+					boolean hasReplies = rs.getBoolean("hasReplies");
+					int numReplies = rs.getInt("numReplies");
+					Reply reply = new Reply(
+						rs.getInt("postID"),
+						rs.getString("body"),
+						rs.getString("authorUsername")
+						);
+					reply.setReplyID(replyID);
+					reply.setparentReplyID(parentReplyID);
+					reply.setHasReplies(hasReplies);
+					reply.setNumReplies(numReplies);
+					replyObjects.add(reply);
+				}
+			}
+				
+			return replyObjects;
 			}	
 		
 	/*******
@@ -2668,6 +2679,28 @@ public class Database {
 	 *
 	 */
 	public void createRequest(Request request) throws SQLException {
+		LocalDateTime now = LocalDateTime.now();
+		String insertRequest = "INSERT INTO RequestsDB (requestorUsername, subject, description) "
+			+ "VALUES (?, ?, ?)";
+		try (PreparedStatement pstmt = connection.prepareStatement(insertRequest,
+			Statement.RETURN_GENERATED_KEYS)) {
+				pstmt.setString(1, request.getRequestorUsername());
+				pstmt.setString(2, request.getSubject());
+				pstmt.setString(3, request.getDescription());
+				//pstmt.setTimestamp(4, Timestamp.valueOf(now));
+				pstmt.executeUpdate();
+
+		try (ResultSet rs = pstmt.getGeneratedKeys()) {
+			if (rs.next()) {
+				request.setRequestID(rs.getInt(1));
+			}
+		}
+		request.setCreatedAt(now);
+			} catch (SQLException e) {
+				System.err.println("*** ERROR *** Database error while creating request: "
+						+ e.getMessage());
+				throw e;
+			}
 	}
 
 	/*******
@@ -2693,9 +2726,47 @@ public class Database {
 	 * @return a List of all Request objects currently stored.
 	 *
 	 */
-	public List<Request> readAllRequests() {
-		return new ArrayList<Request>();
-	}
+	public List<Request> readAllRequests() throws SQLException {
+		List<Request> requestObjects = new ArrayList<>();
+		
+		String query = "SELECT * FROM RequestsDB";
+			
+		PreparedStatement stmt = connection.prepareStatement(query);
+		ResultSet rs = stmt.executeQuery();
+			
+		if (rs.wasNull()) {
+			return requestObjects;
+		}
+		else {
+			while (rs.next()) {
+				int requestID = rs.getInt("requestID");
+				String requestorUsername = rs.getString("requestorUsername");
+				String subject = rs.getString("subject");
+				String description = rs.getString("description");
+				boolean isClosed = rs.getBoolean("isClosed");
+				String adminNotes = rs.getString("adminNotes");
+				int closedRequestId = rs.getInt("closedRequestId");
+				Timestamp createdAt = rs.getTimestamp("createdAt");
+				Timestamp closedAt = rs.getTimestamp("closedAt");
+				Request request = new Request(
+					requestorUsername,
+					subject,
+					description
+					);
+				request.setRequestID(requestID);
+				request.setIsClosed(isClosed);
+				request.setAdminNotes(adminNotes);
+				request.setClosedRequestId(closedRequestId);
+				request.setCreatedAt(createdAt.toLocalDateTime());
+				if (closedAt != null) {
+					request.setClosedAt(closedAt.toLocalDateTime());
+				}
+				requestObjects.add(request);
+			}
+		}
+			
+		return requestObjects;
+		}	
 
 	/*******
 	 * <p> Method: updateRequest(int requestID, String newDescription) </p>
@@ -2722,6 +2793,81 @@ public class Database {
 	public void deleteRequest(int requestID) {
 	}
 
+	
+	/*******
+	 * <p> Method: createRequestComment(Request request) </p>
+	 *
+	 * <p> Description: Creates a new row in RequestsDB using the request parameter and
+	 *  sets the database-generated requestID back onto the Request object. </p>
+	 *
+	 * @throws SQLException when there is an issue creating the SQL command or executing it.
+	 *
+	 * @param request specifies the Request object to be added to the database.
+	 *
+	 */
+	public void createRequestComment(RequestComment comment) throws SQLException {
+		LocalDateTime now = LocalDateTime.now();
+		String insertRequestComment = "INSERT INTO RequestCommentDB (requestID, commenterUsername, description) "
+			+ "VALUES (?, ?, ?)";
+		try (PreparedStatement pstmt = connection.prepareStatement(insertRequestComment,
+			Statement.RETURN_GENERATED_KEYS)) {
+				pstmt.setInt(1, comment.getRequestID());
+				pstmt.setString(2, comment.getCommenterUsername());
+				pstmt.setString(3, comment.getDescription());
+				pstmt.executeUpdate();
+
+		try (ResultSet rs = pstmt.getGeneratedKeys()) {
+			if (rs.next()) {
+				comment.setRequestID(rs.getInt(1));
+			}
+		}
+		comment.setCreatedAt(now);
+			} catch (SQLException e) {
+				System.err.println("*** ERROR *** Database error while creating request: "
+						+ e.getMessage());
+				throw e;
+			}
+	}
+	
+	
+	/*******
+	 * <p> Method: readAllRequestComments() </p>
+	 *
+	 * <p> Description: Retrieves all RequestComment objects from RequestCommentDB. </p>
+	 *
+	 * @return a List of all RequestComment objects currently stored.
+	 *
+	 */
+	public List<RequestComment> readAllRequestComments() throws SQLException {
+		List<RequestComment> requestCommentObjects = new ArrayList<>();
+		
+		String query = "SELECT * FROM RequestCommentDB";
+			
+		PreparedStatement stmt = connection.prepareStatement(query);
+		ResultSet rs = stmt.executeQuery();
+			
+		if (rs.wasNull()) {
+			return requestCommentObjects;
+		}
+		else {
+			while (rs.next()) {
+				int requestID = rs.getInt("requestID");
+				String commenterUsername = rs.getString("commenterUsername");
+				String description = rs.getString("description");
+				Timestamp createdAt = rs.getTimestamp("createdAt");
+				RequestComment comment = new RequestComment(
+					requestID,
+					commenterUsername,
+					description
+					);
+				comment.setCreatedAt(createdAt.toLocalDateTime());
+				requestCommentObjects.add(comment);
+			}
+		}
+			
+		return requestCommentObjects;
+		}	
+	
 
 	/*******
 	 * <p> Method: flagPost(int postID, String staffUsername) </p>

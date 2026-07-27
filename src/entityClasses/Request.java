@@ -23,7 +23,9 @@ public class Request {
 	 */
 	private int           requestID;
 	private String        requestorUsername;
+	private String		  subject;
 	private String        description;
+	private String		  status;
 	private boolean       isClosed;
 	private String        adminNotes;         // null until admin closes the request
 	private int           closedRequestId;    // -1 if original; original's ID if this is a reopened request
@@ -44,12 +46,14 @@ public class Request {
 	 * @throws IllegalArgumentException if description is null or blank
 	 *
 	 */
-	public Request(String requestorUsername, String description) {
+	public Request(String requestorUsername, String subject, String description) {
 		if (description == null || description.trim().isEmpty()) {
 			throw new IllegalArgumentException("Request description must not be empty.");
 		}
 		this.requestorUsername = requestorUsername;
+		this.subject = subject;
 		this.description = description;
+		this.status = "Open";
 		this.isClosed = false;
 		this.adminNotes = null;
 		this.closedRequestId = -1;
@@ -92,6 +96,28 @@ public class Request {
 
 
 	/*****
+	 * <p> Method: String getSubject() </p>
+	 *
+	 * <p> Description: This getter returns the Subject. </p>
+	 *
+	 * @return a String of the Subject
+	 *
+	 */
+	public String getSubject() { return subject; }
+
+
+	/*****
+	 * <p> Method: void setSubject(String subject) </p>
+	 *
+	 * <p> Description: This setter defines the Subject attribute. </p>
+	 *
+	 * @param subject specifies the new subject for this request
+	 *
+	 */
+	public void setSubject(String subject) { this.subject = subject; }
+	
+	
+	/*****
 	 * <p> Method: String getDescription() </p>
 	 *
 	 * <p> Description: This getter returns the Description. </p>
@@ -113,6 +139,28 @@ public class Request {
 	public void setDescription(String description) { this.description = description; }
 
 
+	/*****
+	 * <p> Method: String getStatus() </p>
+	 *
+	 * <p> Description: This getter returns the Status. </p>
+	 *
+	 * @return a String of the Status
+	 *
+	 */
+	public String getStatus() { return status; }
+
+
+	/*****
+	 * <p> Method: void setStatus(String status) </p>
+	 *
+	 * <p> Description: This setter defines the Status attribute. </p>
+	 *
+	 * @param status specifies the new status for this request
+	 *
+	 */
+	public void setStatus(String status) { this.status = status; }
+	
+	
 	/*****
 	 * <p> Method: boolean getIsClosed() </p>
 	 *

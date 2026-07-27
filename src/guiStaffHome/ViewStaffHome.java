@@ -40,11 +40,12 @@ public class ViewStaffHome {
 	protected static Label label_UserDetails = new Label();
 	protected static Button button_Quit = new Button("X");
 	// GUI Area 2 - placeholder, no widgets yet
+
 	protected static Label label_UserHome = new Label();
 	protected static Button button_DiscussionBoard = new Button("Discussion Board");
 	protected static Button button_Parameters = new Button("Manage Parameters");
 	protected static Button button_Threads = new Button("Manage Threads");
-	protected static Button button_Requests = new Button("View Requests");
+	protected static Button button_Requests = new Button("View / Create Requests");
 	protected static Button button_Review = new Button("Review & Feedback");
 	protected static Button button_Coverage = new Button("Student Coverage");	
 	protected static Button button_Evaluate = new Button("Evaluate Student Discussion");
