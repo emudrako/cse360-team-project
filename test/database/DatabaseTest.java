@@ -2,6 +2,7 @@ package database;
 
 import entityClasses.Post;
 import entityClasses.Reply;
+import entityClasses.Thread;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,9 +17,11 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * <p> Description: Integration tests for the Database class. Covers read-tracking methods
  * (getReplyCount, markReplyAsRead, isReplyReadByUser, getUnreadReplyCount,
- * getUnreadRepliesForPost) and post/reply CRUD (updatePost, deletePost, updateReply,
- * deleteReply). Each test method gets a fresh private in-memory H2 database so tests
- * are fully isolated from one another and from the production file database. </p>
+ * getUnreadRepliesForPost), post/reply CRUD (updatePost, deletePost, updateReply,
+ * deleteReply), and thread CRUD (createThread, readThread, readAllThreads, updateThread,
+ * deleteThread with General guard and post migration). Each test method gets a fresh
+ * private in-memory H2 database so tests are fully isolated from one another and from
+ * the production file database. </p>
  *
  * <p> Copyright: Elena Mudrakova © 2026 </p>
  *
@@ -26,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * @version 1.00    2026-06-19 Initial version — read-tracking tests
  * @version 1.01    2026-06-27 Added updatePost, deletePost, updateReply, deleteReply tests
+ * @version 1.02    2026-07-18 Added thread CRUD tests (TP3 thread management story)
  *
  */
 class DatabaseTest {
@@ -320,6 +324,135 @@ class DatabaseTest {
         assertEquals(1, remaining.size());
         assertEquals(REPLY_BODY_2, remaining.get(0).getBody());
     }
+
+    // -------------------------------------------------------------------------
+    // Thread CRUD Story
+    // -------------------------------------------------------------------------
+
+    @Test
+    void generalThreadExistsAfterDatabaseInit() throws SQLException {
+        List<Thread> allThreads = db.readAllThreads();
+        assertEquals(1, allThreads.size());
+        assertEquals("General", allThreads.get(0).getName());
+        assertTrue(allThreads.get(0).getIsDefault());
+    }
+
+    @Test
+    void createThreadPersistsAndSetsID() throws SQLException {
+        Thread thread = new Thread("Exams", "Exam discussion", "staffA");
+        db.createThread(thread);
+
+        assertTrue(thread.getThreadID() > 0);
+        Thread loaded = db.readThread(thread.getThreadID());
+        assertNotNull(loaded);
+        assertEquals("Exams", loaded.getName());
+        assertEquals("Exam discussion", loaded.getDescription());
+    }
+
+    @Test
+    void createThreadWithBlankNameThrowsException() {
+        Thread thread = new Thread("", "desc", "staffA");
+        assertThrows(IllegalArgumentException.class, () -> db.createThread(thread));
+    }
+
+    @Test
+    void createThreadWithNullNameThrowsException() {
+        Thread thread = new Thread(null, "desc", "staffA");
+        assertThrows(IllegalArgumentException.class, () -> db.createThread(thread));
+    }
+
+    @Test
+    void createThreadWithNameTooLongThrowsException() {
+        String longName = "A".repeat(51);
+        Thread thread = new Thread(longName, "desc", "staffA");
+        assertThrows(IllegalArgumentException.class, () -> db.createThread(thread));
+    }
+
+    @Test
+    void createDuplicateThreadNameThrowsException() throws SQLException {
+        db.createThread(new Thread("Exams", "First", "staffA"));
+        assertThrows(IllegalArgumentException.class,
+                () -> db.createThread(new Thread("Exams", "Second", "staffA")));
+    }
+
+    @Test
+    void readThreadReturnsNullForUnknownID() {
+        assertNull(db.readThread(99999));
+    }
+
+    @Test
+    void updateThreadChangesNameAndDescription() throws SQLException {
+        Thread thread = new Thread("OldName", "Old desc", "staffA");
+        db.createThread(thread);
+
+        db.updateThread(thread.getThreadID(), "NewName", "New desc");
+
+        Thread loaded = db.readThread(thread.getThreadID());
+        assertEquals("NewName", loaded.getName());
+        assertEquals("New desc", loaded.getDescription());
+    }
+
+    @Test
+    void updateGeneralThreadThrowsException() throws SQLException {
+        Thread general = db.readAllThreads().stream()
+                .filter(Thread::getIsDefault).findFirst().orElseThrow();
+        assertThrows(IllegalArgumentException.class,
+                () -> db.updateThread(general.getThreadID(), "NotGeneral", ""));
+    }
+
+    @Test
+    void updateThreadWithDuplicateNameThrowsException() throws SQLException {
+        Thread thread1 = new Thread("Thread1", "", "staffA");
+        Thread thread2 = new Thread("Thread2", "", "staffA");
+        db.createThread(thread1);
+        db.createThread(thread2);
+        assertThrows(IllegalArgumentException.class,
+                () -> db.updateThread(thread2.getThreadID(), "Thread1", ""));
+    }
+
+    @Test
+    void deleteThreadRemovesItFromDB() throws SQLException {
+        Thread thread = new Thread("Exams", "desc", "staffA");
+        db.createThread(thread);
+
+        db.deleteThread(thread.getThreadID());
+
+        assertNull(db.readThread(thread.getThreadID()));
+    }
+
+    @Test
+    void deleteThreadMigratesPostsToGeneral() throws SQLException {
+        Thread thread = new Thread("Exams", "desc", "staffA");
+        db.createThread(thread);
+
+        Post post1 = new Post("Q1", "body", AUTHOR_A, "Exams");
+        Post post2 = new Post("Q2", "body", AUTHOR_A, "Exams");
+        db.createPost(post1);
+        db.createPost(post2);
+
+        db.deleteThread(thread.getThreadID());
+
+        assertEquals("General", db.getThread(post1.getPostID()));
+        assertEquals("General", db.getThread(post2.getPostID()));
+    }
+
+    @Test
+    void deleteGeneralThreadThrowsException() throws SQLException {
+        Thread general = db.readAllThreads().stream()
+                .filter(Thread::getIsDefault).findFirst().orElseThrow();
+        assertThrows(IllegalArgumentException.class,
+                () -> db.deleteThread(general.getThreadID()));
+    }
+
+    @Test
+    void createPostToNonExistentThreadThrowsException() {
+        Post post = new Post("Title", "Body", AUTHOR_A, "DoesNotExist");
+        assertThrows(IllegalArgumentException.class, () -> db.createPost(post));
+    }
+
+    // -------------------------------------------------------------------------
+    // Helpers
+    // -------------------------------------------------------------------------
 
     private Post createPost() throws SQLException {
         Post post = new Post(TITLE, BODY, AUTHOR_A, THREAD);

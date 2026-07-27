@@ -208,6 +208,37 @@ public class Database {
 	    		+ "createdBy   VARCHAR(255), "
 	    		+ "createdAt   TIMESTAMP DEFAULT CURRENT_TIMESTAMP)";
 	    statement.execute(threadsTable);
+	    
+	    // Create the EvaluationParameters table for STORY 2: Implement CRUD for Evaluation Parameters.
+	    // Supports requirement for staff can create, read, update and delete grading parameterss used to evaluate
+	    // student discussion performance.
+	    String EvaluationParametersTable = "CREATE TABLE IF NOT EXISTS EvaluationParametersDB ("
+	    		+ "parameterID		INT AUTO_INCREMENT PRIMARY KEY, "
+	    		+ "name				VARCHAR(255), "
+	    		+ "description		VARCHAR(1000),"
+	    		+ "maxScore			DOUBLE,"
+	    		+ "weight			DOUBLE)";
+	    statement.execute(EvaluationParametersTable);
+
+	    // Create the EvaluationScores table for STORY 3: Evaluate Student Discussion.
+	    // One row per (studentUsername, paramID) pair. The UNIQUE constraint is what lets
+	    // saveOrUpdateEvaluationScore() use an H2 MERGE to update an existing score in place
+	    // instead of creating a duplicate when staff re-score a parameter.
+	    String EvaluationScoresTable = "CREATE TABLE IF NOT EXISTS EvaluationScoresDB ("
+	    		+ "scoreID          INT AUTO_INCREMENT PRIMARY KEY, "
+	    		+ "studentUsername  VARCHAR(255), "
+	    		+ "paramID          INT, "
+	    		+ "staffUsername    VARCHAR(255), "
+	    		+ "scoreValue       DOUBLE, "
+	    		+ "feedback         VARCHAR(1000), "
+	    		+ "scoredAt         TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
+	    		+ "UNIQUE(studentUsername, paramID))";
+	    statement.execute(EvaluationScoresTable);
+
+	    // Seed the "General" thread on first run; idempotent on subsequent starts
+	    statement.execute("INSERT INTO ThreadsDB (name, description, isDefault, createdBy) "
+	    		+ "SELECT 'General', 'Default fallback thread', TRUE, 'system' "
+	    		+ "WHERE NOT EXISTS (SELECT 1 FROM ThreadsDB WHERE name = 'General')");
 
 	    // Create the requests table
 	    String requestsTable = "CREATE TABLE IF NOT EXISTS RequestsDB ("
@@ -1480,11 +1511,9 @@ public class Database {
 				throw new IllegalArgumentException(errMsg);
 			}
 			
-			// Validate the thread exists before touching the database
-			String threadErrMsg = recognizers.PostReplyValidator.checkForValidThread(post.getThread());
-			if (!threadErrMsg.isEmpty()) {
-				throw new IllegalArgumentException(threadErrMsg);
-			}
+			// Validate the thread exists in the database (dynamic — not hardcoded names)
+			if (!threadExistsInDB(post.getThread()))
+				throw new IllegalArgumentException("*** Error *** The specified thread does not exist.");
 
 			LocalDateTime now = LocalDateTime.now();
 			String insertPost = "INSERT INTO PostsDB (title, body, authorUsername, thread, isDeleted, createdAt) "
@@ -2053,6 +2082,37 @@ public class Database {
 	 *
 	 */
 	public void createThread(Thread thread) throws SQLException {
+		String nameErr = recognizers.PostReplyValidator.checkForValidThreadName(thread.getName());
+		if (!nameErr.isEmpty())
+			throw new IllegalArgumentException(nameErr);
+
+		String descErr = recognizers.PostReplyValidator.checkForValidThreadDescription(thread.getDescription());
+		if (!descErr.isEmpty())
+			throw new IllegalArgumentException(descErr);
+
+		if (threadExistsInDB(thread.getName()))
+			throw new IllegalArgumentException("Error: A thread with that name already exists.");
+
+		String insert = "INSERT INTO ThreadsDB (name, description, isDefault, createdBy, createdAt) "
+				+ "VALUES (?, ?, ?, ?, ?)";
+		try (PreparedStatement pstmt = connection.prepareStatement(insert, Statement.RETURN_GENERATED_KEYS)) {
+			LocalDateTime now = LocalDateTime.now();
+			pstmt.setString(1, thread.getName());
+			pstmt.setString(2, thread.getDescription());
+			pstmt.setBoolean(3, thread.getIsDefault());
+			pstmt.setString(4, thread.getCreatedBy());
+			pstmt.setTimestamp(5, Timestamp.valueOf(now));
+			pstmt.executeUpdate();
+
+			try (ResultSet rs = pstmt.getGeneratedKeys()) {
+				if (rs.next())
+					thread.setThreadID(rs.getInt(1));
+			}
+			thread.setCreatedAt(now);
+		} catch (SQLException e) {
+			System.err.println("Error: Database error while creating thread: " + e.getMessage());
+			throw e;
+		}
 	}
 
 	/*******
@@ -2067,6 +2127,16 @@ public class Database {
 	 *
 	 */
 	public Thread readThread(int threadID) {
+		String query = "SELECT * FROM ThreadsDB WHERE threadID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setInt(1, threadID);
+			try (ResultSet rs = pstmt.executeQuery()) {
+				if (rs.next())
+					return mapRowToThread(rs);
+			}
+		} catch (SQLException e) {
+			System.err.println("Error: Database error in readThread: " + e.getMessage());
+		}
 		return null;
 	}
 
@@ -2079,7 +2149,16 @@ public class Database {
 	 *
 	 */
 	public List<Thread> readAllThreads() {
-		return new ArrayList<Thread>();
+		List<Thread> list = new ArrayList<>();
+		String query = "SELECT * FROM ThreadsDB";
+		try (PreparedStatement pstmt = connection.prepareStatement(query);
+			 ResultSet rs = pstmt.executeQuery()) {
+			while (rs.next())
+				list.add(mapRowToThread(rs));
+		} catch (SQLException e) {
+			System.err.println("Error: Database error in readAllThreads: " + e.getMessage());
+		}
+		return list;
 	}
 
 	/*******
@@ -2094,8 +2173,49 @@ public class Database {
 	 *
 	 * @param newDescription specifies the new description for the thread.
 	 *
+	 * @throws IllegalArgumentException when the thread is General, the name is invalid,
+	 *  or the new name is already taken by another thread.
+	 *
+	 * @throws SQLException when there is an issue executing the SQL command.
+	 *
 	 */
-	public void updateThread(int threadID, String newName, String newDescription) {
+	public void updateThread(int threadID, String newName, String newDescription) throws SQLException {
+		Thread existing = readThread(threadID);
+		if (existing == null)
+			throw new IllegalArgumentException("*** Error *** Thread not found.");
+
+		if (existing.getIsDefault())
+			throw new IllegalArgumentException("*** Error *** The 'General' thread cannot be updated.");
+
+		String nameErr = recognizers.PostReplyValidator.checkForValidThreadName(newName);
+		if (!nameErr.isEmpty())
+			throw new IllegalArgumentException(nameErr);
+
+		String descErr = recognizers.PostReplyValidator.checkForValidThreadDescription(newDescription);
+		if (!descErr.isEmpty())
+			throw new IllegalArgumentException(descErr);
+
+		// Reject if the new name is already taken by a different thread
+		String checkQuery = "SELECT COUNT(*) FROM ThreadsDB WHERE name = ? AND threadID <> ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(checkQuery)) {
+			pstmt.setString(1, newName);
+			pstmt.setInt(2, threadID);
+			try (ResultSet rs = pstmt.executeQuery()) {
+				if (rs.next() && rs.getInt(1) > 0)
+					throw new IllegalArgumentException("*** Error *** A thread with that name already exists.");
+			}
+		}
+
+		String update = "UPDATE ThreadsDB SET name = ?, description = ? WHERE threadID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(update)) {
+			pstmt.setString(1, newName);
+			pstmt.setString(2, newDescription);
+			pstmt.setInt(3, threadID);
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			System.err.println("Error: Database error while updating thread: " + e.getMessage());
+			throw e;
+		}
 	}
 
 	/*******
@@ -2107,8 +2227,81 @@ public class Database {
 	 *
 	 * @param threadID specifies the ID of the thread to delete.
 	 *
+	 * @throws IllegalArgumentException when the thread is General or not found.
+	 *
+	 * @throws SQLException when there is an issue executing the SQL command.
+	 *
 	 */
-	public void deleteThread(int threadID) {
+	public void deleteThread(int threadID) throws SQLException {
+		Thread existing = readThread(threadID);
+		if (existing == null)
+			throw new IllegalArgumentException("Error: Thread not found.");
+
+		if (existing.getIsDefault())
+			throw new IllegalArgumentException("Error: The 'General' thread cannot be deleted.");
+
+		// Migrate all posts in this thread to "General" before removing the thread
+		String migrate = "UPDATE PostsDB SET thread = 'General' WHERE thread = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(migrate)) {
+			pstmt.setString(1, existing.getName());
+			pstmt.executeUpdate();
+		}
+
+		String delete = "DELETE FROM ThreadsDB WHERE threadID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(delete)) {
+			pstmt.setInt(1, threadID);
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			System.err.println("Error: Database error while deleting thread: " + e.getMessage());
+			throw e;
+		}
+	}
+
+	/*******
+	 * <p> Method: threadExistsInDB(String name) </p>
+	 *
+	 * <p> Description: Returns true if a thread with the given name exists in ThreadsDB.
+	 *  Used by createPost and createThread for validation. </p>
+	 *
+	 * @param name specifies the thread name to look up
+	 *
+	 * @return true if the thread exists, false otherwise
+	 *
+	 */
+	private boolean threadExistsInDB(String name) {
+		if (name == null) return false;
+		String query = "SELECT COUNT(*) FROM ThreadsDB WHERE name = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setString(1, name);
+			try (ResultSet rs = pstmt.executeQuery()) {
+				return rs.next() && rs.getInt(1) > 0;
+			}
+		} catch (SQLException e) {
+			return false;
+		}
+	}
+
+	/*******
+	 * <p> Method: mapRowToThread(ResultSet rs) </p>
+	 *
+	 * <p> Description: Maps the current row of a ResultSet from ThreadsDB to a Thread
+	 *  object. Caller is responsible for advancing the ResultSet cursor. </p>
+	 *
+	 * @param rs specifies the ResultSet positioned on the row to map
+	 *
+	 * @return a Thread object populated from the row
+	 *
+	 * @throws SQLException when a column cannot be read
+	 *
+	 */
+	private Thread mapRowToThread(ResultSet rs) throws SQLException {
+		Thread t = new Thread(rs.getString("name"), rs.getString("description"), rs.getString("createdBy"));
+		t.setThreadID(rs.getInt("threadID"));
+		t.setIsDefault(rs.getBoolean("isDefault"));
+		Timestamp ts = rs.getTimestamp("createdAt");
+		if (ts != null)
+			t.setCreatedAt(ts.toLocalDateTime());
+		return t;
 	}
 
 
@@ -2123,14 +2316,38 @@ public class Database {
 	 *
 	 * @param param specifies the EvaluationParameter object to be added to the database.
 	 *
+	 * @see EvaluationParameterCrudTest testCreateValidParameter , testUniqueIDs
+	 * 
 	 */
+	
 	public void createEvaluationParameter(EvaluationParameter param) throws SQLException {
+		String insertEvaluationParameter = "INSERT INTO EvaluationParametersDB (name, description, maxScore, weight) "
+			+ "VALUES (?, ?, ?, ?)";
+		try (PreparedStatement pstmt = connection.prepareStatement(insertEvaluationParameter,
+				Statement.RETURN_GENERATED_KEYS)) {
+			pstmt.setString(1, param.getName());
+			pstmt.setString(2, param.getDescription());
+			pstmt.setDouble(3, param.getMaxScore());
+			pstmt.setDouble(4, param.getWeight());
+			pstmt.executeUpdate();
+
+			try (ResultSet rs = pstmt.getGeneratedKeys()) {
+				if (rs.next()) {
+					param.setParamID(rs.getInt(1));
+				}
+			}
+		} catch (SQLException e) {
+					System.err.println("*** ERROR *** Database error while creating evaluation parameter: "
+							+ e.getMessage());
+					throw e;
+				}
 	}
 
 	/*******
 	 * <p> Method: readEvaluationParameter(int paramID) </p>
 	 *
-	 * <p> Description: Retrieves a single EvaluationParameter object from
+	 * <p> Description: Satisfies Read portion of Story 2: Implement CRUD for Staff
+	 *  Parameters. Retrieves a single EvaluationParameter object from
 	 *  EvaluationParametersDB matching the specified paramID, or null if no such
 	 *  parameter exists. </p>
 	 *
@@ -2139,22 +2356,73 @@ public class Database {
 	 * @return an EvaluationParameter object matching the specified paramID, or null if
 	 *  not found.
 	 *
+	 * @see EvaluationParameterCrudTest testReadParameter, testRaedNonexistentID
+	 * 
 	 */
 	public EvaluationParameter readEvaluationParameter(int paramID) {
-		return null;
+	    String query = "SELECT * FROM EvaluationParametersDB WHERE parameterID = ?";
+	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+	        pstmt.setInt(1, paramID);
+	        try (ResultSet rs = pstmt.executeQuery()) {
+	            if (rs.next()) {
+	                EvaluationParameter param = new EvaluationParameter(
+	                    rs.getString("name"),
+	                    rs.getString("description"),
+	                    rs.getDouble("maxScore"),
+	                    rs.getDouble("weight")
+	                );
+	                param.setParamID(paramID);
+	                return param;
+	            }
+	        }
+	    } catch (SQLException e) {
+	        System.err.println("*** ERROR *** Database error while reading parameter: "
+	                + e.getMessage());
+	    }
+	    return null;
 	}
 
 	/*******
 	 * <p> Method: readAllEvaluationParameters() </p>
 	 *
-	 * <p> Description: Retrieves all EvaluationParameter objects from
-	 *  EvaluationParametersDB. </p>
+	 * <p> Description: Retrieves all EvaluationParameter objects stored in the EvaluationParametersDB table. This
+	 * satisfies the Read portion of STORY 2: Implementation of CRUD for Evaluation Parameters. Each database row
+	 * is converted into an EvaluationParameter object via the constructor, with the database parameter ID set afterward </p>
 	 *
-	 * @return a List of all EvaluationParameter objects currently stored.
+	 * @return a List of all EvaluationParameter objects currently stored. An empty list returned if no
+	 * parameters exist.
+	 * 
+	 * @throws SQLException when there is an issue creating the SQL command or executing it.
 	 *
 	 */
-	public List<EvaluationParameter> readAllEvaluationParameters() {
-		return new ArrayList<EvaluationParameter>();
+	public List<EvaluationParameter> readAllEvaluationParameters() throws SQLException {
+		List<EvaluationParameter> allParams = new ArrayList<>();
+		
+		String query = "SELECT * FROM EvaluationParametersDB";
+		
+		PreparedStatement stmt = connection.prepareStatement(query);
+		ResultSet rs = stmt.executeQuery();
+		
+		while (rs.next()) {
+			int paramID = rs.getInt("parameterID");
+			String name = rs.getString("name");
+			String description = rs.getString("description");
+			double maxScore = rs.getDouble("maxScore");
+			double weight = rs.getDouble("weight");
+
+			EvaluationParameter newParam  = new EvaluationParameter(
+						name,
+						description,
+						maxScore,
+						weight
+					);
+			
+			newParam.setParamID(paramID);
+
+			allParams.add(newParam);
+		}
+		
+		return allParams;		
 	}
 
 	/*******
@@ -2172,11 +2440,30 @@ public class Database {
 	 *
 	 * @param maxScore specifies the new maximum score for the parameter.
 	 *
-	 * @param weight specifies the new weight for the parameter (0.0-1.0).
+	 * @param weight specifies the new weight for the parameter (1-10).
+	 * 
+	 * @see EvaluationParameterCrudTest testUpdateParameter, testUpdateNonexistentID, 
+	 * testUpdateRejectsInvalidData
 	 *
 	 */
-	public void updateEvaluationParameter(int paramID, String newName,
-			String newDescription, double maxScore, double weight) {
+	public boolean updateEvaluationParameter(int paramID, String newName, String newDescription,
+	        double newMaxScore, double newWeight) {
+	    if (paramID <= 0) return false;
+
+	    String query = "UPDATE EvaluationParametersDB SET name = ?, description = ?, maxScore = ?, weight = ? "
+	            + "WHERE parameterID = ?";
+	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+	        pstmt.setString(1, newName);
+	        pstmt.setString(2, newDescription);
+	        pstmt.setDouble(3, newMaxScore);
+	        pstmt.setDouble(4, newWeight);
+	        pstmt.setInt(5, paramID);
+	        int rowsUpdated = pstmt.executeUpdate();
+	        return rowsUpdated > 0;
+	    } catch (SQLException e) {
+	        System.err.println("*** ERROR *** Database error while updating parameter: " + e.getMessage());
+	        return false;
+	    }
 	}
 
 	/*******
@@ -2187,8 +2474,196 @@ public class Database {
 	 *
 	 * @param paramID specifies the ID of the parameter to delete.
 	 *
+	 * @see EvaluationParameterCrudTest testDeleteParameter, testDeleteNonexistentID, 
+	 * testDeleteDoesNotAffectOtherRows
+	 *
 	 */
-	public void deleteEvaluationParameter(int paramID) {
+	public boolean deleteEvaluationParameter(int paramID) {
+	    if (paramID <= 0) return false;
+
+	    String query = "DELETE FROM EvaluationParametersDB WHERE parameterID = ?";
+	    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+	        pstmt.setInt(1, paramID);
+	        int rowsDeleted = pstmt.executeUpdate();
+	        return rowsDeleted > 0;
+	    } catch (SQLException e) {
+	        System.err.println("*** ERROR *** Database error while deleting parameter: " + e.getMessage());
+	        return false;
+	    }
+	}
+
+
+	/*******
+	 * <p> Method: getStudentUserList() </p>
+	 *
+	 * <p> Description: Returns the usernames of every user with studentRole=TRUE, for
+	 *  populating the student selector on the Evaluate Student Discussion screen
+	 *  (STORY 3, criterion 1: "A staff user can select a student from a list").
+	 *  Mirrors the "&lt;User&gt;" placeholder pattern already used by getUserList(),
+	 *  using "&lt;Student&gt;" instead so the combo box always has a neutral default
+	 *  selection. </p>
+	 *
+	 * @return a list of student usernames prefixed with a "&lt;Student&gt;" placeholder;
+	 *  a list containing only the placeholder if the query fails
+	 *
+	 */
+	public List<String> getStudentUserList() {
+		List<String> studentList = new ArrayList<String>();
+		studentList.add("<Student>");
+		String query = "SELECT userName FROM userDB WHERE studentRole = TRUE";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			ResultSet rs = pstmt.executeQuery();
+			while (rs.next()) {
+				studentList.add(rs.getString("userName"));
+			}
+		} catch (SQLException e) {
+			System.err.println("*** ERROR *** Database error in getStudentUserList: " + e.getMessage());
+		}
+		return studentList;
+	}
+
+	/*******
+	 * <p> Method: saveOrUpdateEvaluationScore(String studentUsername, int paramID,
+	 *  String staffUsername, double scoreValue, double maxScore) </p>
+	 *
+	 * <p> Description: Saves a staff-assigned score for a student on a parameter,
+	 *  satisfying STORY 3 criteria 2 (assign a score) and 3 (update an existing
+	 *  score). Reuses the EvaluationScore constructor purely for its range and
+	 *  empty-username validation -- the same pattern updateEvaluationParameter()
+	 *  uses -- then performs an H2 MERGE keyed on (studentUsername, paramID), so
+	 *  re-scoring the same parameter updates the existing row in place instead of
+	 *  creating a duplicate. </p>
+	 *
+	 * @param studentUsername specifies the student being scored
+	 *
+	 * @param paramID specifies the EvaluationParameter being scored
+	 *
+	 * @param staffUsername specifies the staff member assigning the score
+	 *
+	 * @param scoreValue specifies the raw score being assigned
+	 *
+	 * @param maxScore specifies the maximum score allowed for this parameter, used
+	 *  only to validate scoreValue before the write
+	 *
+	 * @throws IllegalArgumentException if the score or either username fails the
+	 *  EvaluationScore constructor's validation
+	 *
+	 * @throws SQLException when there is an issue creating the SQL command or
+	 *  executing it
+	 *
+	 * @see tests.EvaluateStudentDiscussionTest#testSaveNewScorePersists()
+	 * @see tests.EvaluateStudentDiscussionTest#testReScoringUpdatesInPlace()
+	 *
+	 */
+	public void saveOrUpdateEvaluationScore(String studentUsername, int paramID,
+			String staffUsername, double scoreValue, double maxScore) throws SQLException {
+		// Reuse the constructor purely for its validation; the object itself is discarded
+		new entityClasses.EvaluationScore(studentUsername, paramID, staffUsername, scoreValue, maxScore);
+
+		String merge = "MERGE INTO EvaluationScoresDB "
+				+ "(studentUsername, paramID, staffUsername, scoreValue, scoredAt) "
+				+ "KEY(studentUsername, paramID) VALUES (?, ?, ?, ?, ?)";
+		try (PreparedStatement pstmt = connection.prepareStatement(merge)) {
+			pstmt.setString(1, studentUsername);
+			pstmt.setInt(2, paramID);
+			pstmt.setString(3, staffUsername);
+			pstmt.setDouble(4, scoreValue);
+			pstmt.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			System.err.println("*** ERROR *** Database error while saving evaluation score: "
+					+ e.getMessage());
+			throw e;
+		}
+	}
+
+	/*******
+	 * <p> Method: readScoresForStudent(String studentUsername) </p>
+	 *
+	 * <p> Description: Retrieves every EvaluationScore saved for the specified
+	 *  student, satisfying STORY 3 criterion 3 (viewing previously saved scores). </p>
+	 *
+	 * @param studentUsername specifies the student whose scores should be retrieved
+	 *
+	 * @return a List of EvaluationScore objects for this student; empty if none
+	 *  have been saved yet or the query fails
+	 *
+	 */
+	public List<entityClasses.EvaluationScore> readScoresForStudent(String studentUsername) {
+		List<entityClasses.EvaluationScore> result = new ArrayList<entityClasses.EvaluationScore>();
+		String query = "SELECT * FROM EvaluationScoresDB WHERE studentUsername = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setString(1, studentUsername);
+			try (ResultSet rs = pstmt.executeQuery()) {
+				while (rs.next()) {
+					result.add(mapRowToEvaluationScore(rs));
+				}
+			}
+		} catch (SQLException e) {
+			System.err.println("*** ERROR *** Database error while reading scores for student: "
+					+ e.getMessage());
+		}
+		return result;
+	}
+
+	/*******
+	 * <p> Method: readAllEvaluationScores() </p>
+	 *
+	 * <p> Description: Retrieves every EvaluationScore in the database. Used to
+	 *  reconstruct a complete EvaluationScoreList, for example when auditing all
+	 *  scores across every student. </p>
+	 *
+	 * @return a List of every EvaluationScore currently stored; empty if the query
+	 *  fails
+	 *
+	 */
+	public List<entityClasses.EvaluationScore> readAllEvaluationScores() {
+		List<entityClasses.EvaluationScore> result = new ArrayList<entityClasses.EvaluationScore>();
+		String query = "SELECT * FROM EvaluationScoresDB";
+		try (PreparedStatement pstmt = connection.prepareStatement(query);
+			 ResultSet rs = pstmt.executeQuery()) {
+			while (rs.next()) {
+				result.add(mapRowToEvaluationScore(rs));
+			}
+		} catch (SQLException e) {
+			System.err.println("*** ERROR *** Database error while reading all evaluation scores: "
+					+ e.getMessage());
+		}
+		return result;
+	}
+
+	/*******
+	 * <p> Method: mapRowToEvaluationScore(ResultSet rs) </p>
+	 *
+	 * <p> Description: Maps the current row of a ResultSet from EvaluationScoresDB
+	 *  to an EvaluationScore object. Caller is responsible for advancing the
+	 *  ResultSet cursor. The row's own scoreValue is passed as both the score and
+	 *  the constructor's maxScore argument: a value already accepted by the
+	 *  database is by definition within whatever range was validated at write
+	 *  time, so this satisfies the constructor's guard clause without a second
+	 *  lookup of EvaluationParametersDB purely to reconstruct the object. The real
+	 *  maxScore used for grading always comes from EvaluationParameter, not from
+	 *  this reconstructed value. </p>
+	 *
+	 * @param rs specifies the ResultSet positioned on the row to map
+	 *
+	 * @return an EvaluationScore object populated from the row
+	 *
+	 * @throws SQLException when a column cannot be read
+	 *
+	 */
+	private entityClasses.EvaluationScore mapRowToEvaluationScore(ResultSet rs) throws SQLException {
+		double scoreValue = rs.getDouble("scoreValue");
+		entityClasses.EvaluationScore score = new entityClasses.EvaluationScore(
+				rs.getString("studentUsername"),
+				rs.getInt("paramID"),
+				rs.getString("staffUsername"),
+				scoreValue,
+				scoreValue);
+		score.setScoreID(rs.getInt("scoreID"));
+		Timestamp ts = rs.getTimestamp("scoredAt");
+		if (ts != null) score.setScoredAt(ts.toLocalDateTime());
+		return score;
 	}
 
 

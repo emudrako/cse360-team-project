@@ -26,6 +26,10 @@ public class PostReplyValidator {
 	public static final int MAX_TITLE_LENGTH = 100;
 	public static final int MAX_BODY_LENGTH = 1000;
 
+	// Maximum lengths allowed for thread fields
+	public static final int MAX_THREAD_NAME_LENGTH = 50;
+	public static final int MAX_THREAD_DESC_LENGTH = 500;
+
 	public static String checkForValidPost(String title, String body) {
 		// Check title empty
 		if (title == null || title.trim().isEmpty())
@@ -61,17 +65,59 @@ public class PostReplyValidator {
 		return "";
 	}
 
+	/*****
+	 * <p> Method: checkForValidThreadName(String name) </p>
+	 *
+	 * <p> Description: Validates a thread name before a create or update operation.
+	 *  The name must be non-null, non-blank, and at most MAX_THREAD_NAME_LENGTH characters. </p>
+	 *
+	 * @param name specifies the thread name to validate
+	 *
+	 * @return an empty string if the name is valid, or an error message otherwise
+	 *
+	 */
+	public static String checkForValidThreadName(String name) {
+		if (name == null || name.trim().isEmpty())
+			return "Error: The thread name is empty.";
+
+		if (name.length() > MAX_THREAD_NAME_LENGTH)
+			return "Error: Thread name is too long. Maximum is "
+					+ MAX_THREAD_NAME_LENGTH + " characters.";
+
+		return "";
+	}
+
+	/*****
+	 * <p> Method: checkForValidThreadDescription(String description) </p>
+	 *
+	 * <p> Description: Validates a thread description before a create or update operation.
+	 *  Description is optional (null or blank is allowed), but must not exceed
+	 *  MAX_THREAD_DESC_LENGTH characters if provided. </p>
+	 *
+	 * @param description specifies the thread description to validate
+	 *
+	 * @return an empty string if the description is valid, or an error message otherwise
+	 *
+	 */
+	public static String checkForValidThreadDescription(String description) {
+		if (description != null && description.length() > MAX_THREAD_DESC_LENGTH)
+			return "Error: Thread description is too long. Maximum is "
+					+ MAX_THREAD_DESC_LENGTH + " characters.";
+
+		return "";
+	}
+
 	public static String checkThreadPermission(boolean isStaff) {
 		// Students do not have authority to create, edit, or delete threads (Story 12)
 		if (!isStaff)
-			return "*** Error *** Only staff members can create, edit, or delete threads.";
+			return "Error: Only staff members can create, edit, or delete threads.";
 
 		return "";
 	}
 	
 	public static String checkForValidThread(String thread) {
 	    if (thread == null || (!thread.equals("General") && !thread.equals("Homework") && !thread.equals("Quizzes")))
-	        return "*** Error *** The specified thread does not exist.";
+	        return "Error: The specified thread does not exist.";
 
 	    return "";
 	}
@@ -92,10 +138,10 @@ public class PostReplyValidator {
 	 */
 	public static String checkForValidThread(String thread, ThreadList threadList) {
 		if (thread == null || thread.trim().isEmpty())
-			return "*** Error *** The thread name is empty.";
+			return "Error: The thread name is empty.";
 
 		if (threadList == null || !threadList.threadExists(thread))
-			return "*** Error *** The specified thread does not exist.";
+			return "Error: The specified thread does not exist.";
 
 		return "";
 	}
