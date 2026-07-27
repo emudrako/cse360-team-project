@@ -50,6 +50,20 @@ public class RequestList {
 
 
 	/*****
+	 * <p> Method: List<Request> getAllRequests() </p>
+	 *
+	 * <p> Description: This method returns all Request objects. </p>
+	 *
+	 * @return a List of all Request objects
+	 *
+	 */
+	public List<Request> getAllRequests() {
+		List<Request> result = this.requests;
+		return result;
+	}
+	
+	
+	/*****
 	 * <p> Method: List<Request> getAllOpenRequests() </p>
 	 *
 	 * <p> Description: This method returns all open (not closed) Request objects. </p>
@@ -177,7 +191,7 @@ public class RequestList {
 		if (original == null) {
 			return null;
 		}
-		Request reopened = new Request(original.getRequestorUsername(), original.getDescription());
+		Request reopened = new Request(original.getRequestorUsername(), original.getSubject(), original.getDescription());
 		reopened.setClosedRequestId(closedRequestId);
 		requests.add(reopened);
 		return reopened;
