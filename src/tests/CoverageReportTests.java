@@ -1,5 +1,8 @@
 package tests;
 
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+
 import entityClasses.Post;
 import entityClasses.Reply;
 import guiStaffCoverage.ControllerStaffCoverage;
@@ -11,281 +14,285 @@ import java.util.Map;
 /*******
  * <p> Title: CoverageReportTests </p>
  *
- * <p> Description: This class is a console-based testbed that tests the Students
- * Answer Coverage Computation aspect. It exercises the
- * ControllerStaffCoverage.computeCoverage() method directly, without launching
- * JavaFX or connecting to a live H2 database, so tests are fast and repeatable.
- * This follows the same console-test pattern used by Story7Tests and
- * RelatedPostsTests in the team's TP2 codebase. </p>
+ * <p> Description: JUnit 5 test class for the Students Answer Coverage Computation
+ * aspect. Tests ControllerStaffCoverage.computeCoverage() and meetsThreshold()
+ * directly without launching JavaFX or connecting to a live H2 database.
+ * Covers all requirements from TP3 Testing Requirements.pdf. </p>
  *
  * <p> Copyright: Sara Suarez © 2026 </p>
  *
  * @author Sara Suarez
  *
- * @version 1.00  2026-07-10  Initial version — 9 test cases covering all
- *                             requirements from TP3 Testing Requirements.pdf
+ * @version 2.00  2026-07-26  Converted to JUnit 5
  */
 public class CoverageReportTests {
 
-    private static int passCount = 0;
-    private static int failCount = 0;
+    // ── Helper methods ────────────────────────────────────────────────────────
 
-    public static void main(String[] args) {
-        System.out.println("===== Students Answer Coverage Computation Test Cases =====\n");
-        testStudentMeetsThresholdExactly();
-        testStudentExceedsThreshold();
-        testStudentBelowThreshold();
-        testStudentHasZeroReplies();
-        testDeduplicationMultipleRepliesToSamePeer();
-        testSelfReplyExclusion();
-        testReportCompleteness();
-        testCountOfOne();
-        testLargeInput();
-        System.out.println("\n===== Results: " + passCount + " passed, " + failCount + " failed =====");
+    /**
+     * Creates a Post with a specific postID and author for use in tests.
+     * Uses setter injection to set postID directly without a database round-trip.
+     */
+    private Post makePost(int postID, String author) {
+        Post p = new Post("Test Title", "Test Body", author, "General");
+        p.setPostID(postID);
+        return p;
     }
 
-    private static void check(boolean condition, String testName, String detail) {
-        if (condition) {
-            passCount++;
-            System.out.println("PASS - " + testName + ": " + detail);
-        } else {
-            failCount++;
-            System.out.println("FAIL - " + testName + ": " + detail);
-        }
+    /**
+     * Creates a Reply targeting a specific postID authored by the given username.
+     */
+    private Reply makeReply(int postID, String author) {
+        return new Reply(postID, "Test reply body", author);
     }
+
+    // ── Tests ─────────────────────────────────────────────────────────────────
 
     /**********
      * <p> Method: testStudentMeetsThresholdExactly() </p>
      *
-     * <p> Description: Tests R1 and R3. Verifies a student who replied to exactly
-     * 3 distinct peers gets count=3 and is not flagged. Boundary value at threshold. </p>
+     * <p> Description: Tests R1 and R3. A student who replied to exactly 3 distinct
+     * peers must receive count=3 and must not be flagged. Boundary value at threshold.
+     * The threshold must be inclusive — exactly 3 passes. </p>
      *
      * <p> Requirement: R1, R3 </p>
      *
-     * <p> Pass Condition: PASS if count=3 and meetsThreshold returns true. </p>
+     * <p> Pass Condition: count equals 3 and meetsThreshold returns true. </p>
      */
-    private static void testStudentMeetsThresholdExactly() {
-        System.out.println("-- Test 1: Student meets threshold exactly (Boundary count = 3) --");
+    @Test
+    public void testStudentMeetsThresholdExactly() {
         List<Post> posts = new ArrayList<>();
         posts.add(makePost(1, "userB"));
         posts.add(makePost(2, "userC"));
         posts.add(makePost(3, "userD"));
+
         List<Reply> replies = new ArrayList<>();
         replies.add(makeReply(1, "userA"));
         replies.add(makeReply(2, "userA"));
         replies.add(makeReply(3, "userA"));
+
         Map<String, Integer> result = ControllerStaffCoverage.computeCoverage(replies, posts);
         int count = result.getOrDefault("userA", 0);
-        check(count == 3, "Test1-Count", "Expected 3 distinct peers, got " + count);
-        check(ControllerStaffCoverage.meetsThreshold(count), "Test1-NotFlagged", "Student with count=3 should meet threshold");
+
+        assertEquals(3, count, "Expected 3 distinct peers");
+        assertTrue(ControllerStaffCoverage.meetsThreshold(count), "Count=3 should meet threshold");
     }
 
     /**********
      * <p> Method: testStudentExceedsThreshold() </p>
      *
-     * <p> Description: Tests R1 and R3. Verifies a student with 5 distinct peers
-     * gets count=5 and is not flagged. </p>
+     * <p> Description: Tests R1 and R3. A student with 5 distinct peers must get
+     * count=5 and must not be flagged. </p>
      *
      * <p> Requirement: R1, R3 </p>
      *
-     * <p> Pass Condition: PASS if count=5 and meetsThreshold returns true. </p>
+     * <p> Pass Condition: count equals 5 and meetsThreshold returns true. </p>
      */
-    private static void testStudentExceedsThreshold() {
-        System.out.println("\n-- Test 2: Student exceeds threshold --");
+    @Test
+    public void testStudentExceedsThreshold() {
         List<Post> posts = new ArrayList<>();
         for (int i = 1; i <= 5; i++) posts.add(makePost(i, "peer" + i));
+
         List<Reply> replies = new ArrayList<>();
         for (int i = 1; i <= 5; i++) replies.add(makeReply(i, "userA"));
+
         Map<String, Integer> result = ControllerStaffCoverage.computeCoverage(replies, posts);
         int count = result.getOrDefault("userA", 0);
-        check(count == 5, "Test2-Count", "Expected 5 distinct peers, got " + count);
-        check(ControllerStaffCoverage.meetsThreshold(count), "Test2-NotFlagged", "Student with count=5 should meet threshold");
+
+        assertEquals(5, count, "Expected 5 distinct peers");
+        assertTrue(ControllerStaffCoverage.meetsThreshold(count), "Count=5 should meet threshold");
     }
 
     /**********
      * <p> Method: testStudentBelowThreshold() </p>
      *
-     * <p> Description: Tests R1 and R3. Verifies a student with 2 distinct peers
-     * gets count=2 and is flagged. Boundary value just below threshold. </p>
+     * <p> Description: Tests R1 and R3. A student with 2 distinct peers must get
+     * count=2 and must be flagged. Boundary value just below threshold. </p>
      *
      * <p> Requirement: R1, R3 </p>
      *
-     * <p> Pass Condition: PASS if count=2 and meetsThreshold returns false. </p>
+     * <p> Pass Condition: count equals 2 and meetsThreshold returns false. </p>
      */
-    private static void testStudentBelowThreshold() {
-        System.out.println("\n-- Test 3: Student below threshold (Boundary count = 2) --");
+    @Test
+    public void testStudentBelowThreshold() {
         List<Post> posts = new ArrayList<>();
         posts.add(makePost(1, "userB"));
         posts.add(makePost(2, "userC"));
+
         List<Reply> replies = new ArrayList<>();
         replies.add(makeReply(1, "userA"));
         replies.add(makeReply(2, "userA"));
+
         Map<String, Integer> result = ControllerStaffCoverage.computeCoverage(replies, posts);
         int count = result.getOrDefault("userA", 0);
-        check(count == 2, "Test3-Count", "Expected 2 distinct peers, got " + count);
-        check(!ControllerStaffCoverage.meetsThreshold(count), "Test3-Flagged", "Student with count=2 should be flagged");
+
+        assertEquals(2, count, "Expected 2 distinct peers");
+        assertFalse(ControllerStaffCoverage.meetsThreshold(count), "Count=2 should be flagged");
     }
 
     /**********
      * <p> Method: testStudentHasZeroReplies() </p>
      *
-     * <p> Description: Tests R1, R3, R5. Verifies that a student with no replies
-     * gets count=0 not null, and is flagged. No NullPointerException thrown. </p>
+     * <p> Description: Tests R1, R3, R5. A student with no replies must return
+     * count=0 not null. No NullPointerException must be thrown. </p>
      *
      * <p> Requirement: R1, R3, R5 </p>
      *
-     * <p> Pass Condition: PASS if result not null, count=0, meetsThreshold false. </p>
+     * <p> Pass Condition: result not null, count=0, meetsThreshold false. </p>
      */
-    private static void testStudentHasZeroReplies() {
-        System.out.println("\n-- Test 4: Student has zero replies --");
+    @Test
+    public void testStudentHasZeroReplies() {
         List<Post> posts = new ArrayList<>();
         posts.add(makePost(1, "userB"));
+
         List<Reply> replies = new ArrayList<>();
+
         Map<String, Integer> result = ControllerStaffCoverage.computeCoverage(replies, posts);
-        check(result != null, "Test4-NotNull", "Result map must not be null");
+
+        assertNotNull(result, "Result map must not be null");
         int count = result.getOrDefault("userA", 0);
-        check(count == 0, "Test4-Count", "Expected count=0 for student with no replies, got " + count);
-        check(!ControllerStaffCoverage.meetsThreshold(count), "Test4-Flagged", "Student with count=0 should be flagged");
+        assertEquals(0, count, "Expected count=0 for student with no replies");
+        assertFalse(ControllerStaffCoverage.meetsThreshold(count), "Count=0 should be flagged");
     }
 
     /**********
      * <p> Method: testDeduplicationMultipleRepliesToSamePeer() </p>
      *
-     * <p> Description: Tests R2. Verifies that 4 replies to the same peer count
-     * as 1, not 4. Deduplication prevents gaming the requirement. </p>
+     * <p> Description: Tests R2. Four replies to posts by the same peer must count
+     * as 1 not 4. Without deduplication students could game the requirement. </p>
      *
      * <p> Requirement: R2 </p>
      *
-     * <p> Pass Condition: PASS if count=1. </p>
+     * <p> Pass Condition: count equals 1. </p>
      */
-    private static void testDeduplicationMultipleRepliesToSamePeer() {
-        System.out.println("\n-- Test 5: Multiple replies to same peer deduplicated --");
+    @Test
+    public void testDeduplicationMultipleRepliesToSamePeer() {
         List<Post> posts = new ArrayList<>();
         posts.add(makePost(1, "userB"));
         posts.add(makePost(2, "userB"));
         posts.add(makePost(3, "userB"));
         posts.add(makePost(4, "userB"));
+
         List<Reply> replies = new ArrayList<>();
         replies.add(makeReply(1, "userA"));
         replies.add(makeReply(2, "userA"));
         replies.add(makeReply(3, "userA"));
         replies.add(makeReply(4, "userA"));
+
         Map<String, Integer> result = ControllerStaffCoverage.computeCoverage(replies, posts);
         int count = result.getOrDefault("userA", 0);
-        check(count == 1, "Test5-Deduplication", "4 replies to same peer must count as 1, got " + count);
-        check(!ControllerStaffCoverage.meetsThreshold(count), "Test5-Flagged", "Student with count=1 should be flagged");
+
+        assertEquals(1, count, "4 replies to same peer must count as 1");
+        assertFalse(ControllerStaffCoverage.meetsThreshold(count), "Count=1 should be flagged");
     }
 
     /**********
      * <p> Method: testSelfReplyExclusion() </p>
      *
-     * <p> Description: Tests R4. Verifies that a reply to the student's own post
-     * does not count toward their peer total. Count must be 2, not 3. </p>
+     * <p> Description: Tests R4. A reply to the student's own post must not count
+     * toward their peer total. Count must be 2 not 3. </p>
      *
      * <p> Requirement: R4 </p>
      *
-     * <p> Pass Condition: PASS if count=2, confirming self-reply excluded. </p>
+     * <p> Pass Condition: count equals 2, confirming self-reply excluded. </p>
      */
-    private static void testSelfReplyExclusion() {
-        System.out.println("\n-- Test 6: Self-reply excluded from count --");
+    @Test
+    public void testSelfReplyExclusion() {
         List<Post> posts = new ArrayList<>();
         posts.add(makePost(1, "userB"));
         posts.add(makePost(2, "userC"));
-        posts.add(makePost(3, "userA")); // userA's own post
+        posts.add(makePost(3, "userA")); // own post
+
         List<Reply> replies = new ArrayList<>();
         replies.add(makeReply(1, "userA")); // counts
         replies.add(makeReply(2, "userA")); // counts
-        replies.add(makeReply(3, "userA")); // must NOT count — self-reply
+        replies.add(makeReply(3, "userA")); // must NOT count
+
         Map<String, Integer> result = ControllerStaffCoverage.computeCoverage(replies, posts);
         int count = result.getOrDefault("userA", 0);
-        check(count == 2, "Test6-SelfReplyExcluded", "Self-reply must not count, expected 2, got " + count);
-        check(!ControllerStaffCoverage.meetsThreshold(count), "Test6-Flagged", "Student with count=2 should be flagged");
+
+        assertEquals(2, count, "Self-reply must not count, expected 2");
+        assertFalse(ControllerStaffCoverage.meetsThreshold(count), "Count=2 should be flagged");
     }
 
     /**********
      * <p> Method: testReportCompleteness() </p>
      *
-     * <p> Description: Tests R7. Verifies that a zero-reply student returns 0
-     * via getOrDefault without throwing an exception. </p>
+     * <p> Description: Tests R7. A zero-reply student must return 0 via getOrDefault
+     * without throwing an exception. No student may be silently omitted. </p>
      *
      * <p> Requirement: R7 </p>
      *
-     * <p> Pass Condition: PASS if active student has count=1 and zero-reply
-     * student returns 0 via getOrDefault. </p>
+     * <p> Pass Condition: active student has count=1, zero-reply student returns 0. </p>
      */
-    private static void testReportCompleteness() {
-        System.out.println("\n-- Test 7: Report completeness -- zero-reply student handled --");
+    @Test
+    public void testReportCompleteness() {
         List<Post> posts = new ArrayList<>();
         posts.add(makePost(1, "userB"));
+
         List<Reply> replies = new ArrayList<>();
         replies.add(makeReply(1, "userA"));
+
         Map<String, Integer> result = ControllerStaffCoverage.computeCoverage(replies, posts);
-        int countA = result.getOrDefault("userA", 0);
-        check(countA == 1, "Test7-ActiveStudent", "Active student userA should have count=1, got " + countA);
-        int countC = result.getOrDefault("userC", 0);
-        check(countC == 0, "Test7-ZeroReplyStudent", "Zero-reply student userC should return 0, got " + countC);
-        check(!ControllerStaffCoverage.meetsThreshold(countC), "Test7-ZeroReplyFlagged", "Zero-reply student should be flagged");
+
+        assertEquals(1, result.getOrDefault("userA", 0), "Active student should have count=1");
+        assertEquals(0, result.getOrDefault("userC", 0), "Zero-reply student should return 0");
+        assertFalse(ControllerStaffCoverage.meetsThreshold(0), "Zero-reply student should be flagged");
     }
 
     /**********
      * <p> Method: testCountOfOne() </p>
      *
-     * <p> Description: Tests R1 and R3 at boundary count=1. Verifies single-reply
-     * student is correctly flagged. </p>
+     * <p> Description: Tests R1 and R3 at boundary count=1. A student who replied
+     * to only one peer must be flagged. </p>
      *
      * <p> Requirement: R1, R3 </p>
      *
-     * <p> Pass Condition: PASS if count=1 and meetsThreshold returns false. </p>
+     * <p> Pass Condition: count equals 1 and meetsThreshold returns false. </p>
      */
-    private static void testCountOfOne() {
-        System.out.println("\n-- Test 8: Count = 1 (well below threshold) --");
+    @Test
+    public void testCountOfOne() {
         List<Post> posts = new ArrayList<>();
         posts.add(makePost(1, "userB"));
+
         List<Reply> replies = new ArrayList<>();
         replies.add(makeReply(1, "userA"));
+
         Map<String, Integer> result = ControllerStaffCoverage.computeCoverage(replies, posts);
         int count = result.getOrDefault("userA", 0);
-        check(count == 1, "Test8-Count", "Expected count=1, got " + count);
-        check(!ControllerStaffCoverage.meetsThreshold(count), "Test8-Flagged", "Student with count=1 should be flagged");
+
+        assertEquals(1, count, "Expected count=1");
+        assertFalse(ControllerStaffCoverage.meetsThreshold(count), "Count=1 should be flagged");
     }
 
     /**********
      * <p> Method: testLargeInput() </p>
      *
-     * <p> Description: Tests NF1 (performance). 30 students each replying to
-     * 10 different peers (~300 replies). Verifies all complete correctly. </p>
+     * <p> Description: Tests NF1 (performance). 30 students each replying to 10
+     * different peers (~300 replies total). All must complete correctly. </p>
      *
      * <p> Requirement: NF1 </p>
      *
-     * <p> Pass Condition: PASS if all 30 students have count=10. </p>
+     * <p> Pass Condition: all 30 students have count=10. </p>
      */
-    private static void testLargeInput() {
-        System.out.println("\n-- Test 9: Large input (30 students, ~300 replies) --");
+    @Test
+    public void testLargeInput() {
         List<Post> posts = new ArrayList<>();
         for (int i = 1; i <= 30; i++) posts.add(makePost(i, "peer" + i));
+
         List<Reply> replies = new ArrayList<>();
         for (int student = 1; student <= 30; student++) {
             for (int postNum = 1; postNum <= 10; postNum++) {
                 replies.add(makeReply(postNum, "student" + student));
             }
         }
+
         Map<String, Integer> result = ControllerStaffCoverage.computeCoverage(replies, posts);
-        boolean allCorrect = true;
+
+        assertEquals(30, result.size(), "All 30 students should appear in result");
         for (int student = 1; student <= 30; student++) {
-            int count = result.getOrDefault("student" + student, 0);
-            if (count != 10) { allCorrect = false; break; }
+            assertEquals(10, result.getOrDefault("student" + student, 0),
+                "student" + student + " should have count=10");
         }
-        check(result.size() == 30, "Test9-AllStudents", "All 30 students should appear, got " + result.size());
-        check(allCorrect, "Test9-CorrectCounts", "All 30 students should have count=10");
-    }
-
-    private static Post makePost(int postID, String author) {
-        Post p = new Post("Test Title", "Test Body", author, "General");
-        p.setPostID(postID);
-        return p;
-    }
-
-    private static Reply makeReply(int postID, String author) {
-        return new Reply(postID, "Test reply body", author);
     }
 }
