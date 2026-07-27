@@ -219,6 +219,21 @@ public class Database {
 	    		+ "weight			DOUBLE)";
 	    statement.execute(EvaluationParametersTable);
 
+	    // Create the EvaluationScores table for STORY 3: Evaluate Student Discussion.
+	    // One row per (studentUsername, paramID) pair. The UNIQUE constraint is what lets
+	    // saveOrUpdateEvaluationScore() use an H2 MERGE to update an existing score in place
+	    // instead of creating a duplicate when staff re-score a parameter.
+	    String EvaluationScoresTable = "CREATE TABLE IF NOT EXISTS EvaluationScoresDB ("
+	    		+ "scoreID          INT AUTO_INCREMENT PRIMARY KEY, "
+	    		+ "studentUsername  VARCHAR(255), "
+	    		+ "paramID          INT, "
+	    		+ "staffUsername    VARCHAR(255), "
+	    		+ "scoreValue       DOUBLE, "
+	    		+ "feedback         VARCHAR(1000), "
+	    		+ "scoredAt         TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
+	    		+ "UNIQUE(studentUsername, paramID))";
+	    statement.execute(EvaluationScoresTable);
+
 	    // Seed the "General" thread on first run; idempotent on subsequent starts
 	    statement.execute("INSERT INTO ThreadsDB (name, description, isDefault, createdBy) "
 	    		+ "SELECT 'General', 'Default fallback thread', TRUE, 'system' "
@@ -2465,6 +2480,181 @@ public class Database {
 	        return false;
 	    }
 	}
+
+
+	/*******
+	 * <p> Method: getStudentUserList() </p>
+	 *
+	 * <p> Description: Returns the usernames of every user with studentRole=TRUE, for
+	 *  populating the student selector on the Evaluate Student Discussion screen
+	 *  (STORY 3, criterion 1: "A staff user can select a student from a list").
+	 *  Mirrors the "&lt;User&gt;" placeholder pattern already used by getUserList(),
+	 *  using "&lt;Student&gt;" instead so the combo box always has a neutral default
+	 *  selection. </p>
+	 *
+	 * @return a list of student usernames prefixed with a "&lt;Student&gt;" placeholder;
+	 *  a list containing only the placeholder if the query fails
+	 *
+	 */
+	public List<String> getStudentUserList() {
+		List<String> studentList = new ArrayList<String>();
+		studentList.add("<Student>");
+		String query = "SELECT userName FROM userDB WHERE studentRole = TRUE";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			ResultSet rs = pstmt.executeQuery();
+			while (rs.next()) {
+				studentList.add(rs.getString("userName"));
+			}
+		} catch (SQLException e) {
+			System.err.println("*** ERROR *** Database error in getStudentUserList: " + e.getMessage());
+		}
+		return studentList;
+	}
+
+	/*******
+	 * <p> Method: saveOrUpdateEvaluationScore(String studentUsername, int paramID,
+	 *  String staffUsername, double scoreValue, double maxScore) </p>
+	 *
+	 * <p> Description: Saves a staff-assigned score for a student on a parameter,
+	 *  satisfying STORY 3 criteria 2 (assign a score) and 3 (update an existing
+	 *  score). Reuses the EvaluationScore constructor purely for its range and
+	 *  empty-username validation -- the same pattern updateEvaluationParameter()
+	 *  uses -- then performs an H2 MERGE keyed on (studentUsername, paramID), so
+	 *  re-scoring the same parameter updates the existing row in place instead of
+	 *  creating a duplicate. </p>
+	 *
+	 * @param studentUsername specifies the student being scored
+	 *
+	 * @param paramID specifies the EvaluationParameter being scored
+	 *
+	 * @param staffUsername specifies the staff member assigning the score
+	 *
+	 * @param scoreValue specifies the raw score being assigned
+	 *
+	 * @param maxScore specifies the maximum score allowed for this parameter, used
+	 *  only to validate scoreValue before the write
+	 *
+	 * @throws IllegalArgumentException if the score or either username fails the
+	 *  EvaluationScore constructor's validation
+	 *
+	 * @throws SQLException when there is an issue creating the SQL command or
+	 *  executing it
+	 *
+	 * @see tests.EvaluateStudentDiscussionTest#testSaveNewScorePersists()
+	 * @see tests.EvaluateStudentDiscussionTest#testReScoringUpdatesInPlace()
+	 *
+	 */
+	public void saveOrUpdateEvaluationScore(String studentUsername, int paramID,
+			String staffUsername, double scoreValue, double maxScore) throws SQLException {
+		// Reuse the constructor purely for its validation; the object itself is discarded
+		new entityClasses.EvaluationScore(studentUsername, paramID, staffUsername, scoreValue, maxScore);
+
+		String merge = "MERGE INTO EvaluationScoresDB "
+				+ "(studentUsername, paramID, staffUsername, scoreValue, scoredAt) "
+				+ "KEY(studentUsername, paramID) VALUES (?, ?, ?, ?, ?)";
+		try (PreparedStatement pstmt = connection.prepareStatement(merge)) {
+			pstmt.setString(1, studentUsername);
+			pstmt.setInt(2, paramID);
+			pstmt.setString(3, staffUsername);
+			pstmt.setDouble(4, scoreValue);
+			pstmt.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			System.err.println("*** ERROR *** Database error while saving evaluation score: "
+					+ e.getMessage());
+			throw e;
+		}
+	}
+
+	/*******
+	 * <p> Method: readScoresForStudent(String studentUsername) </p>
+	 *
+	 * <p> Description: Retrieves every EvaluationScore saved for the specified
+	 *  student, satisfying STORY 3 criterion 3 (viewing previously saved scores). </p>
+	 *
+	 * @param studentUsername specifies the student whose scores should be retrieved
+	 *
+	 * @return a List of EvaluationScore objects for this student; empty if none
+	 *  have been saved yet or the query fails
+	 *
+	 */
+	public List<entityClasses.EvaluationScore> readScoresForStudent(String studentUsername) {
+		List<entityClasses.EvaluationScore> result = new ArrayList<entityClasses.EvaluationScore>();
+		String query = "SELECT * FROM EvaluationScoresDB WHERE studentUsername = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setString(1, studentUsername);
+			try (ResultSet rs = pstmt.executeQuery()) {
+				while (rs.next()) {
+					result.add(mapRowToEvaluationScore(rs));
+				}
+			}
+		} catch (SQLException e) {
+			System.err.println("*** ERROR *** Database error while reading scores for student: "
+					+ e.getMessage());
+		}
+		return result;
+	}
+
+	/*******
+	 * <p> Method: readAllEvaluationScores() </p>
+	 *
+	 * <p> Description: Retrieves every EvaluationScore in the database. Used to
+	 *  reconstruct a complete EvaluationScoreList, for example when auditing all
+	 *  scores across every student. </p>
+	 *
+	 * @return a List of every EvaluationScore currently stored; empty if the query
+	 *  fails
+	 *
+	 */
+	public List<entityClasses.EvaluationScore> readAllEvaluationScores() {
+		List<entityClasses.EvaluationScore> result = new ArrayList<entityClasses.EvaluationScore>();
+		String query = "SELECT * FROM EvaluationScoresDB";
+		try (PreparedStatement pstmt = connection.prepareStatement(query);
+			 ResultSet rs = pstmt.executeQuery()) {
+			while (rs.next()) {
+				result.add(mapRowToEvaluationScore(rs));
+			}
+		} catch (SQLException e) {
+			System.err.println("*** ERROR *** Database error while reading all evaluation scores: "
+					+ e.getMessage());
+		}
+		return result;
+	}
+
+	/*******
+	 * <p> Method: mapRowToEvaluationScore(ResultSet rs) </p>
+	 *
+	 * <p> Description: Maps the current row of a ResultSet from EvaluationScoresDB
+	 *  to an EvaluationScore object. Caller is responsible for advancing the
+	 *  ResultSet cursor. The row's own scoreValue is passed as both the score and
+	 *  the constructor's maxScore argument: a value already accepted by the
+	 *  database is by definition within whatever range was validated at write
+	 *  time, so this satisfies the constructor's guard clause without a second
+	 *  lookup of EvaluationParametersDB purely to reconstruct the object. The real
+	 *  maxScore used for grading always comes from EvaluationParameter, not from
+	 *  this reconstructed value. </p>
+	 *
+	 * @param rs specifies the ResultSet positioned on the row to map
+	 *
+	 * @return an EvaluationScore object populated from the row
+	 *
+	 * @throws SQLException when a column cannot be read
+	 *
+	 */
+	private entityClasses.EvaluationScore mapRowToEvaluationScore(ResultSet rs) throws SQLException {
+		double scoreValue = rs.getDouble("scoreValue");
+		entityClasses.EvaluationScore score = new entityClasses.EvaluationScore(
+				rs.getString("studentUsername"),
+				rs.getInt("paramID"),
+				rs.getString("staffUsername"),
+				scoreValue,
+				scoreValue);
+		score.setScoreID(rs.getInt("scoreID"));
+		Timestamp ts = rs.getTimestamp("scoredAt");
+		if (ts != null) score.setScoredAt(ts.toLocalDateTime());
+		return score;
+	}
+
 
 	/*******
 	 * <p> Method: createRequest(Request request) </p>
