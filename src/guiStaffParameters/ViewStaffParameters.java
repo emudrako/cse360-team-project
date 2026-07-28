@@ -280,7 +280,7 @@ public class ViewStaffParameters{
 		button_Done.setOnAction((_) -> { hideParamDetails(); });
 		button_Done.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
 
-		setupLabelUI(label_ErrorMessage, "Arial", 12, 400, Pos.BASELINE_LEFT, 240, 650);
+		setupLabelUI(label_ErrorMessage, "Arial", 12, 400, Pos.BASELINE_LEFT, 240, 635);
 		label_ErrorMessage.setStyle("-fx-text-fill: #BF0D3E;");
 
 		// Start with the form hidden
@@ -323,12 +323,20 @@ public class ViewStaffParameters{
 	    button_OpenCreateForm.setVisible(false);
 	    label_Name.setVisible(true);
 	    field_Name.setVisible(true);
+	    field_Name.clear();
+	    field_Name.setEditable(true);
 	    label_Description.setVisible(true);
 	    field_Description.setVisible(true);
+	    field_Description.clear();
+	    field_Description.setEditable(true);
 	    label_MaxScore.setVisible(true);
 	    field_MaxScore.setVisible(true);
+	    field_MaxScore.clear();
+	    field_MaxScore.setEditable(true);
 	    label_Weight.setVisible(true);
 	    field_Weight.setVisible(true);
+	    field_Weight.clear();
+	    field_Weight.setEditable(true);
 	    button_Edit.setVisible(false);
 	    button_Update.setVisible(false);
 	    button_Done.setVisible(false);
