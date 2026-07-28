@@ -1,1 +1,0 @@
-typeSearchIndex = [{"l":"All Classes and Interfaces","u":"allclasses-index.html","k":"18"},{"p":"database","l":"Database"},{"p":"recognizers","l":"PostReplyValidator"},{"p":"entityClasses","l":"Thread"},{"p":"entityClasses","l":"ThreadList"}];updateSearchResults();
