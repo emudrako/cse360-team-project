@@ -53,6 +53,8 @@ public class ViewStudentHome {
 	protected static Button button_DiscussionBoard = new Button("CSE 360 Discussion Board\nSee Whats Happening!");
 	
 	protected static Button button_MyPosts = new Button();
+	
+	protected static Button button_MyFeedback = new Button("My Feedback");
 
 
 	// GUI Area 3
@@ -207,6 +209,11 @@ public class ViewStudentHome {
         button_MyPosts.setOnAction((_) -> guiMyPosts.ViewMyPosts.displayMyPosts(theStage, theUser));
         button_MyPosts.setStyle("-fx-background-color: #041E42; -fx-text-fill: white; -fx-background-radius: 5;");
         
+        setupButtonUI(button_MyFeedback, "Dialog", 16, 290, Pos.CENTER, 190, 610);
+        button_MyFeedback.setMinHeight(50);
+        button_MyFeedback.setOnAction((_) -> guiStudentFeedback.ViewStudentFeedback.displayMyFeedback(theStage, theUser));
+        button_MyFeedback.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
+        
         setupButtonUI(button_Logout, "Dialog", 12, 70, Pos.CENTER, 769, 10);
         button_Logout.setOnAction((_) -> ControllerStudentHome.performLogout());
         button_Logout.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
@@ -231,6 +238,7 @@ public class ViewStudentHome {
                 button_UpdateThisUser,
                 button_DiscussionBoard,
                 button_MyPosts,
+                button_MyFeedback,
                 button_Logout,
                 button_Quit,
                 button_ContinueToCreate

@@ -11,6 +11,7 @@ import entityClasses.Post;
 import entityClasses.Reply;
 import entityClasses.Thread;
 import entityClasses.EvaluationParameter;
+import entityClasses.Feedback;
 import entityClasses.Request;
 import entityClasses.RequestComment;
 
@@ -2868,6 +2869,55 @@ public class Database {
 		return requestCommentObjects;
 		}	
 	
+	/*******
+	 * <p> Method: readAllPostsWithStaffFields() </p>
+	 *
+	 * <p> Description: Retrieves every non deleted Post from PostsDB, including the
+	 *  flag/note/resolve/review fields, for the Staff Review screen. </p>
+	 *
+	 * @return a List of all non deleted Post objects, including staff fields.
+	 *
+	 */
+	public List<Post> readAllPostsWithStaffFields() {
+		List<Post> posts = new ArrayList<>();
+		String query = "SELECT * FROM PostsDB WHERE isDeleted = FALSE ORDER BY createdAt DESC";
+		try (PreparedStatement pstmt = connection.prepareStatement(query);
+			 ResultSet rs = pstmt.executeQuery()) {
+			while (rs.next()) {
+				posts.add(mapRowToPostWithStaffFields(rs));
+			}
+		} catch (SQLException e) {
+			System.err.println("*** ERROR *** Database error in readAllPostsWithStaffFields: " + e.getMessage());
+		}
+		return posts;
+	}
+	
+	/*******
+	 * <p> Method: readRepliesForPostWithStaffFields(int postID) </p>
+	 *
+	 * <p> Description: Retrieves all Reply objects for a given post, including the
+	 *  staff flag/note/resolve fields. </p>
+	 *
+	 * @param postID specifies the post whose replies should be retrieved.
+	 *
+	 * @return a List of Reply objects for the specified post, including staff fields.
+	 *
+	 */
+	public List<Reply> readRepliesForPostWithStaffFields(int postID) {
+		List<Reply> replies = new ArrayList<>();
+		String query = "SELECT * FROM RepliesDB WHERE postID = ? ORDER BY createdAt ASC";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setInt(1, postID);
+			try (ResultSet rs = pstmt.executeQuery()) {
+				while (rs.next()) {
+					replies.add(mapRowToReplyWithStaffFields(rs));
+				}
+			}
+		} catch (SQLException e) {
+			System.err.println("*** ERROR *** Database error in readRepliesForPostWithStaffFields: " + e.getMessage());
+		}
+		return replies;
+	}
 
 	/*******
 	 * <p> Method: flagPost(int postID, String staffUsername) </p>
@@ -2881,6 +2931,15 @@ public class Database {
 	 *
 	 */
 	public void flagPost(int postID, String staffUsername) {
+		String query = "UPDATE PostsDB SET isFlagged = TRUE, flaggedBy = ?, flaggedAt = ? WHERE postID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setString(1, staffUsername);
+			pstmt.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
+			pstmt.setInt(3, postID);
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			System.err.println("*** ERROR *** Database error in flagPost: " + e.getMessage());
+		}
 	}
 
 	/*******
@@ -2895,6 +2954,14 @@ public class Database {
 	 *
 	 */
 	public void setPostStaffNote(int postID, String note) {
+		String query = "UPDATE PostsDB SET staffNote = ? WHERE postID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setString(1, note);
+			pstmt.setInt(2, postID);
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			System.err.println("*** ERROR *** Database error in setPostStaffNote: " + e.getMessage());
+		}
 	}
 
 	/*******
@@ -2909,6 +2976,34 @@ public class Database {
 	 *
 	 */
 	public void resolvePost(int postID, String staffUsername) {
+		String query = "UPDATE PostsDB SET isResolved = TRUE, resolvedBy = ?, resolvedAt = ? WHERE postID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setString(1, staffUsername);
+			pstmt.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
+			pstmt.setInt(3, postID);
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			System.err.println("*** ERROR *** Database error in resolvePost: " + e.getMessage());
+		}
+	}
+	
+	/*******
+	 * <p> Method: markPostReviewed(int postID, String staffUsername) </p>
+	 *
+	 * <p> Description: Marks the specified post as reviewed and records which staff member
+	 *  reviewed it and when. </p>
+	 *
+	 */
+	public void markPostReviewed(int postID, String staffUsername) {
+		String query = "UPDATE PostsDB SET isReviewed = TRUE, reviewedBy = ?, reviewedAt = ? WHERE postID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setString(1, staffUsername);
+			pstmt.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
+			pstmt.setInt(3, postID);
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			System.err.println("*** ERROR *** Database error in markPostReviewed: " + e.getMessage());
+		}
 	}
 
 	/*******
@@ -2920,7 +3015,17 @@ public class Database {
 	 *
 	 */
 	public List<Post> readFlaggedPosts() {
-		return new ArrayList<Post>();
+		List<Post> posts = new ArrayList<>();
+		String query = "SELECT * FROM PostsDB WHERE isFlagged = TRUE";
+		try (PreparedStatement pstmt = connection.prepareStatement(query);
+			 ResultSet rs = pstmt.executeQuery()) {
+			while (rs.next()) {
+				posts.add(mapRowToPostWithStaffFields(rs));
+			}
+		} catch (SQLException e) {
+			System.err.println("*** ERROR *** Database error in readFlaggedPosts: " + e.getMessage());
+		}
+		return posts;
 	}
 
 
@@ -2930,12 +3035,17 @@ public class Database {
 	 * <p> Description: Marks the specified reply as flagged and records which staff member
 	 *  flagged it by setting isFlagged=true and flaggedBy in RepliesDB. </p>
 	 *
-	 * @param replyID specifies the ID of the reply to flag.
-	 *
-	 * @param staffUsername specifies the username of the staff member flagging the reply.
-	 *
 	 */
 	public void flagReply(int replyID, String staffUsername) {
+		String query = "UPDATE RepliesDB SET isFlagged = TRUE, flaggedBy = ?, flaggedAt = ? WHERE replyID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setString(1, staffUsername);
+			pstmt.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
+			pstmt.setInt(3, replyID);
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			System.err.println("*** ERROR *** Database error in flagReply: " + e.getMessage());
+		}
 	}
 
 	/*******
@@ -2950,6 +3060,14 @@ public class Database {
 	 *
 	 */
 	public void setReplyStaffNote(int replyID, String note) {
+		String query = "UPDATE RepliesDB SET staffNote = ? WHERE replyID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setString(1, note);
+			pstmt.setInt(2, replyID);
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			System.err.println("*** ERROR *** Database error in setReplyStaffNote: " + e.getMessage());
+		}
 	}
 
 	/*******
@@ -2964,6 +3082,15 @@ public class Database {
 	 *
 	 */
 	public void resolveReply(int replyID, String staffUsername) {
+		String query = "UPDATE RepliesDB SET isResolved = TRUE, resolvedBy = ?, resolvedAt = ? WHERE replyID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setString(1, staffUsername);
+			pstmt.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
+			pstmt.setInt(3, replyID);
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			System.err.println("*** ERROR *** Database error in resolveReply: " + e.getMessage());
+		}
 	}
 
 	/*******
@@ -2975,7 +3102,196 @@ public class Database {
 	 *
 	 */
 	public List<Reply> readFlaggedReplies() {
-		return new ArrayList<Reply>();
+		List<Reply> replies = new ArrayList<>();
+		String query = "SELECT * FROM RepliesDB WHERE isFlagged = TRUE";
+		try (PreparedStatement pstmt = connection.prepareStatement(query);
+			 ResultSet rs = pstmt.executeQuery()) {
+			while (rs.next()) {
+				replies.add(mapRowToReplyWithStaffFields(rs));
+			}
+		} catch (SQLException e) {
+			System.err.println("*** ERROR *** Database error in readFlaggedReplies: " + e.getMessage());
+		}
+		return replies;
+	}
+	
+	/*******
+	 * <p> Method: mapRowToPostWithStaffFields(ResultSet rs) </p>
+	 *
+	 * <p> Description: Maps the current row of a ResultSet from PostsDB to a Post object,
+	 *  including the staff flag/note/resolve/review fields. </p>
+	 *
+	 */
+	private Post mapRowToPostWithStaffFields(ResultSet rs) throws SQLException {
+		Post post = new Post(
+			rs.getString("title"),
+			rs.getString("body"),
+			rs.getString("authorUsername"),
+			rs.getString("thread"));
+		post.setPostID(rs.getInt("postID"));
+		post.setIsDeleted(rs.getBoolean("isDeleted"));
+		Timestamp createdTs = rs.getTimestamp("createdAt");
+		if (createdTs != null) post.setCreatedAt(createdTs.toLocalDateTime());
+ 
+		// Staff-only fields — requires the matching setters to exist on Post.java
+		post.setIsFlagged(rs.getBoolean("isFlagged"));
+		post.setFlaggedBy(rs.getString("flaggedBy"));
+		Timestamp flaggedTs = rs.getTimestamp("flaggedAt");
+		if (flaggedTs != null) post.setFlaggedAt(flaggedTs.toLocalDateTime());
+		post.setStaffNote(rs.getString("staffNote"));
+		post.setIsResolved(rs.getBoolean("isResolved"));
+		post.setResolvedBy(rs.getString("resolvedBy"));
+		Timestamp resolvedTs = rs.getTimestamp("resolvedAt");
+		if (resolvedTs != null) post.setResolvedAt(resolvedTs.toLocalDateTime());
+		post.setIsReviewed(rs.getBoolean("isReviewed"));
+		post.setReviewedBy(rs.getString("reviewedBy"));
+		Timestamp reviewedTs = rs.getTimestamp("reviewedAt");
+		if (reviewedTs != null) post.setReviewedAt(reviewedTs.toLocalDateTime());
+ 
+		return post;
+	}
+	
+	/*******
+	 * <p> Method: mapRowToReplyWithStaffFields(ResultSet rs) </p>
+	 *
+	 * <p> Description: Maps the current row of a ResultSet from RepliesDB to a Reply
+	 *  object.  </p>
+	 *
+	 */
+	private Reply mapRowToReplyWithStaffFields(ResultSet rs) throws SQLException {
+		Reply reply = new Reply(
+			rs.getInt("postID"),
+			rs.getString("body"),
+			rs.getString("authorUsername"));
+		reply.setReplyID(rs.getInt("replyID"));
+		reply.setparentReplyID(rs.getInt("parentReplyID"));
+		reply.setHasReplies(rs.getBoolean("hasReplies"));
+		reply.setNumReplies(rs.getInt("numReplies"));
+		Timestamp createdTs = rs.getTimestamp("createdAt");
+		if (createdTs != null) reply.setCreatedAt(createdTs.toLocalDateTime());
+ 
+		// Staff-only fields — requires the matching setters to exist on Reply.java
+		reply.setIsFlagged(rs.getBoolean("isFlagged"));
+		reply.setFlaggedBy(rs.getString("flaggedBy"));
+		Timestamp flaggedTs = rs.getTimestamp("flaggedAt");
+		if (flaggedTs != null) reply.setFlaggedAt(flaggedTs.toLocalDateTime());
+		reply.setStaffNote(rs.getString("staffNote"));
+		reply.setIsResolved(rs.getBoolean("isResolved"));
+		reply.setResolvedBy(rs.getString("resolvedBy"));
+		Timestamp resolvedTs = rs.getTimestamp("resolvedAt");
+		if (resolvedTs != null) reply.setResolvedAt(resolvedTs.toLocalDateTime());
+ 
+		return reply;
+	}
+	
+	/*******
+	 * <p> Method: createFeedback(Feedback feedback) </p>
+	 *
+	 * <p> Description: Creates a new row in FeedbackDB using the feedback parameter, and
+	 *  sets the generated feedbackID back onto the Feedback object. </p>
+	 *
+	 */
+	public void createFeedback(Feedback feedback) throws SQLException {
+		LocalDateTime now = LocalDateTime.now();
+		String insert = "INSERT INTO FeedbackDB (postID, staffUsername, targetUsername, body, createdAt) "
+				+ "VALUES (?, ?, ?, ?, ?)";
+		try (PreparedStatement pstmt = connection.prepareStatement(insert, Statement.RETURN_GENERATED_KEYS)) {
+			pstmt.setInt(1, feedback.getPostID());
+			pstmt.setString(2, feedback.getStaffUsername());
+			pstmt.setString(3, feedback.getTargetUsername());
+			pstmt.setString(4, feedback.getBody());
+			pstmt.setTimestamp(5, Timestamp.valueOf(now));
+			pstmt.executeUpdate();
+ 
+			try (ResultSet rs = pstmt.getGeneratedKeys()) {
+				if (rs.next())
+					feedback.setFeedbackID(rs.getInt(1));
+			}
+			feedback.setCreatedAt(now);
+		} catch (SQLException e) {
+			System.err.println("*** ERROR *** Database error while creating feedback: " + e.getMessage());
+			throw e;
+		}
+	}
+	
+	/*******
+	 * <p> Method: readFeedbackForPost(int postID) </p>
+	 *
+	 * <p> Description: Retrieves all Feedback objects addressed to a given post, ordered
+	 *  oldest first. Intended for staff views. </p>
+	 *
+	 */
+	public List<Feedback> readFeedbackForPost(int postID) {
+		List<Feedback> list = new ArrayList<>();
+		String query = "SELECT * FROM FeedbackDB WHERE postID = ? ORDER BY createdAt ASC";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setInt(1, postID);
+			try (ResultSet rs = pstmt.executeQuery()) {
+				while (rs.next())
+					list.add(mapRowToFeedback(rs));
+			}
+		} catch (SQLException e) {
+			System.err.println("*** ERROR *** Database error in readFeedbackForPost: " + e.getMessage());
+		}
+		return list;
+	}
+
+	/*******
+	 * <p> Method: readFeedbackForTargetUser(String targetUsername) </p>
+	 *
+	 * <p> Description: Retrieves all Feedback objects addressed to a specific user, ordered
+	 *  oldest first.  </p>
+	 *
+	 */
+	public List<Feedback> readFeedbackForTargetUser(String targetUsername) {
+		List<Feedback> list = new ArrayList<>();
+		String query = "SELECT * FROM FeedbackDB WHERE targetUsername = ? ORDER BY createdAt ASC";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setString(1, targetUsername);
+			try (ResultSet rs = pstmt.executeQuery()) {
+				while (rs.next())
+					list.add(mapRowToFeedback(rs));
+			}
+		} catch (SQLException e) {
+			System.err.println("*** ERROR *** Database error in readFeedbackForTargetUser: " + e.getMessage());
+		}
+		return list;
+	}
+	
+	/*******
+	 * <p> Method: deleteFeedback(int feedbackID) </p>
+	 *
+	 * <p> Description: Permanently removes a feedback entry from FeedbackDB. </p>
+	 *
+	 */
+	public boolean deleteFeedback(int feedbackID) {
+		String query = "DELETE FROM FeedbackDB WHERE feedbackID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setInt(1, feedbackID);
+			return pstmt.executeUpdate() > 0;
+		} catch (SQLException e) {
+			System.err.println("*** ERROR *** Database error in deleteFeedback: " + e.getMessage());
+			return false;
+		}
+	}
+	
+	/*******
+	 * <p> Method: mapRowToFeedback(ResultSet rs) </p>
+	 *
+	 * <p> Description: Maps the current row of a ResultSet from FeedbackDB to a Feedback
+	 *  object. </p>
+	 *
+	 */
+	private Feedback mapRowToFeedback(ResultSet rs) throws SQLException {
+		Feedback fb = new Feedback(
+			rs.getInt("postID"),
+			rs.getString("staffUsername"),
+			rs.getString("targetUsername"),
+			rs.getString("body"));
+		fb.setFeedbackID(rs.getInt("feedbackID"));
+		Timestamp ts = rs.getTimestamp("createdAt");
+		if (ts != null) fb.setCreatedAt(ts.toLocalDateTime());
+		return fb;
 	}
 
 
