@@ -16,6 +16,7 @@ package guiStaffHome;
  * @author Elena Mudrakova
  *
  * @version 1.00		2026-06-01 Initial version
+ * @version 1.01		2026-07-26 Added performEvaluate() for STORY 3: Evaluate Student Discussion
  *
  */
 
@@ -106,7 +107,19 @@ public class ControllerStaffHome {
 	protected static void performCoverage() {
 		guiStaffCoverage.ViewStaffCoverage.displayStaffCoverage(ViewStaffHome.theStage, ViewStaffHome.theUser);
 	}
-	
+
+	/**********
+	 * <p> Method: performEvaluate() </p>
+	 *
+	 * <p> Description: Directs the staff user to the Evaluate Student Discussion page,
+	 *  satisfying STORY 1 criterion 2 (a labeled navigation button for every staff
+	 *  feature) for STORY 3: Evaluate Student Discussion. </p>
+	 *
+	 */
+	protected static void performEvaluate() {
+		guiStaffEvaluate.ControllerStaffEvaluate.performStaffEvaluate(ViewStaffHome.theStage, ViewStaffHome.theUser);
+	}
+
 	/**********
 	 * <p> Method: performLogout() </p>
 	 *

@@ -4,6 +4,8 @@ import java.util.List;
 import database.Database;
 import entityClasses.Reply;
 import guiDiscussionBoard.ControllerDiscussionBoard;
+import guiStaffDiscussionBoard.ViewStaffDiscussionBoard;
+import guiStaffHome.ViewStaffHome;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
@@ -520,7 +522,12 @@ public class ControllerMyPosts {
 	 * 
 	 */
 	protected static void performHome() {
-	    guiStudentHome.ViewStudentHome.displayStudentHome(ViewMyPosts.theStage, ViewMyPosts.theUser);
+	    if (ViewMyPosts.theUser.getStaffRole() == true) {
+	    	ViewStaffHome.displayStaffHome(ViewMyPosts.theStage, ViewMyPosts.theUser);
+	    }
+	    else {
+	    	guiStudentHome.ViewStudentHome.displayStudentHome(ViewMyPosts.theStage, ViewMyPosts.theUser);
+	    }
 	}
 	
 	/**********
@@ -530,7 +537,12 @@ public class ControllerMyPosts {
 	 *
 	 */
 	protected static void performGoToDiscussionBoard() {
-	    guiDiscussionBoard.ViewDiscussionBoard.displayDiscussionBoard(ViewMyPosts.theStage, ViewMyPosts.theUser);
+		if (ViewMyPosts.theUser.getStaffRole() == true) {
+	    	ViewStaffDiscussionBoard.displayStaffDiscussionBoard(ViewMyPosts.theStage, ViewMyPosts.theUser);
+	    }
+	    else {
+	    	guiDiscussionBoard.ViewDiscussionBoard.displayDiscussionBoard(ViewMyPosts.theStage, ViewMyPosts.theUser);
+	    }
 	}
 	
 	/**********

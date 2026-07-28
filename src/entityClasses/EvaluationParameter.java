@@ -41,6 +41,21 @@ public class EvaluationParameter {
 	 * 
 	 * @throws IllegalArgumentException if name is empty, maxScore is out of range, weight is out of range,
 	 * or description is too short.
+	 * 
+	 * @see tests.EvaluationParameterCrudTest#testCreateValidParameter()
+	 * @see tests.EvaluationParameterCrudTest#testCreateRejectEmptyName()
+	 * @see tests.EvaluationParameterCrudTest#testCreateRejectNullName()
+	 * @see tests.EvaluationParameterCrudTest#testMaxScoreLowerBoundaryValid()
+	 * @see tests.EvaluationParameterCrudTest#testMaxScoreLowerBoundaryInvalid()
+	 * @see tests.EvaluationParameterCrudTest#testMaxScoreUpperBoundaryValid()
+	 * @see tests.EvaluationParameterCrudTest#testMaxScoreUpperBoundaryInvalid()
+	 * @see tests.EvaluationParameterCrudTest#testWeightLowerBoundaryValid()
+	 * @see tests.EvaluationParameterCrudTest#testWeightLowerBoundaryInvalid()
+ 	 * @see tests.EvaluationParameterCrudTest#testWeightUpperBoundaryValid()
+ 	 * @see tests.EvaluationParameterCrudTest#testWeightUpperBoundaryInvalid()
+ 	 * @see tests.EvaluationParameterCrudTest#testDescriptionBoundaryValid()
+ 	 * @see tests.EvaluationParameterCrudTest#testDescriptionBoundaryInvalid()
+ 	 * @see tests.EvaluationParameterCrudTest#testUniqueIDs()
 	 *
 	 */
 	public EvaluationParameter(String name, String description, double maxScore,
