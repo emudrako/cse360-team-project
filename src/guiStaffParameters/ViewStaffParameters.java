@@ -72,11 +72,13 @@ public class ViewStaffParameters{
 	protected static Label label_Weight = new Label("Weight (1-10):");
 	protected static javafx.scene.control.TextField field_Weight = new javafx.scene.control.TextField();
 
+
 	protected static Button button_Submit = new Button("Submit");
 	protected static Button button_Cancel = new Button("Cancel");
 	
 	// GUI Area III Parameter Details hide button
-	protected static Button button_Done = new Button("Done");
+	protected static Button button_Delete = new Button("Delete");
+	protected static Button button_Done = new Button("Back");
 	protected static EvaluationParameter currentParam;
 	protected static Button button_Update = new Button("Save Updates");
 	protected static Button button_Edit = new Button("Edit");
@@ -182,15 +184,15 @@ public class ViewStaffParameters{
 		setupLabelUI(label_PageTitle, "Arial", 28, 400, Pos.CENTER, 300, 140);
 		// GUI Area II
 		// Position and size the scroll pane so it sits inside the white card
-		paramCardList.setPadding(new Insets(5));
+		paramCardList.setPadding(new Insets(8));
 		scrollPane_ParamCards.setLayoutX(220);
 		scrollPane_ParamCards.setLayoutY(190);
 		scrollPane_ParamCards.setPrefWidth(560);
-		scrollPane_ParamCards.setPrefHeight(42);
+		scrollPane_ParamCards.setPrefHeight(65);
 		scrollPane_ParamCards.setStyle("-fx-background-color: transparent;");
 		
 		// GUI Area III — Create Parameter form setup
-		setupButtonUI(button_OpenCreateForm, "Dialog", 14, 200, Pos.CENTER, 400, 250);
+		setupButtonUI(button_OpenCreateForm, "Dialog", 14, 200, Pos.CENTER, 400, 420);
 		button_OpenCreateForm.setOnAction((_) -> { showCreateForm(); });
 		button_OpenCreateForm.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
 
@@ -259,13 +261,26 @@ public class ViewStaffParameters{
 		        label_ErrorMessage.setText("Max Score and Weight must be valid numbers.");
 		    }
 			});
+		
+		// Button to delete the currently viewed parameter
+		setupButtonUI(button_Delete, "Dialog", 13, 120, Pos.CENTER, 240, 655);
+		button_Delete.setOnAction((_) -> {
+		    ControllerStaffParameters.performDeleteStaffParameter(currentParam.getParamID());
+
+		    // Refresh the card list and close the Details panel
+		    List<EvaluationParameter> allParams = ControllerStaffParameters.performReadAllStaffParameters();
+		    displayParamCards(allParams);
+		    hideParamDetails();
+		});
+		button_Delete.setStyle("-fx-background-color: #BF0D3E; -fx-text-fill: white; -fx-background-radius: 5;");
+		
 		button_Update.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
 		// Button to clear the Parameter Details and hide the window
 		setupButtonUI(button_Done, "Dialog", 13, 120, Pos.CENTER, 650, 655);
 		button_Done.setOnAction((_) -> { hideParamDetails(); });
-		button_Done.setStyle("-fx-background-color: #BF0D3E; -fx-text-fill: white; -fx-background-radius: 5;");
+		button_Done.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
 
-		setupLabelUI(label_ErrorMessage, "Arial", 12, 400, Pos.BASELINE_LEFT, 240, 650);
+		setupLabelUI(label_ErrorMessage, "Arial", 12, 400, Pos.BASELINE_LEFT, 240, 635);
 		label_ErrorMessage.setStyle("-fx-text-fill: #BF0D3E;");
 
 		// Start with the form hidden
@@ -276,7 +291,7 @@ public class ViewStaffParameters{
 			    scrollPane_ParamCards, button_OpenCreateForm,
 			    label_Name, field_Name, label_Description, field_Description,
 			    label_MaxScore, field_MaxScore, label_Weight, field_Weight,
-			    button_Submit, button_Cancel, button_Edit, button_Update, button_Done, label_ErrorMessage);
+			    button_Submit, button_Cancel, button_Edit, button_Update, button_Delete, button_Done, label_ErrorMessage);
 	}
 	
 	/**********
@@ -308,12 +323,20 @@ public class ViewStaffParameters{
 	    button_OpenCreateForm.setVisible(false);
 	    label_Name.setVisible(true);
 	    field_Name.setVisible(true);
+	    field_Name.clear();
+	    field_Name.setEditable(true);
 	    label_Description.setVisible(true);
 	    field_Description.setVisible(true);
+	    field_Description.clear();
+	    field_Description.setEditable(true);
 	    label_MaxScore.setVisible(true);
 	    field_MaxScore.setVisible(true);
+	    field_MaxScore.clear();
+	    field_MaxScore.setEditable(true);
 	    label_Weight.setVisible(true);
 	    field_Weight.setVisible(true);
+	    field_Weight.clear();
+	    field_Weight.setEditable(true);
 	    button_Edit.setVisible(false);
 	    button_Update.setVisible(false);
 	    button_Done.setVisible(false);
@@ -383,6 +406,7 @@ public class ViewStaffParameters{
 	    field_Weight.setText(String.valueOf(param.getWeight()));
 	    field_Weight.setEditable(false);
 
+	    button_Delete.setVisible(true);
 	    button_Done.setVisible(true);
 	    button_Edit.setVisible(true);
 	    button_Update.setVisible(false);
@@ -413,6 +437,7 @@ public class ViewStaffParameters{
 	    button_Cancel.setVisible(false);
 	    label_ErrorMessage.setVisible(false);
 	    label_ErrorMessage.setText("");  
+	    button_Delete.setVisible(false);
 
 	}
 	/**********
