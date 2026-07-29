@@ -1,36 +1,47 @@
 package guiStaffRequests;
 
+import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.Cursor;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import database.Database;
 import entityClasses.Request;
 import entityClasses.RequestComment;
 import entityClasses.RequestList;
 import entityClasses.User;
+import guiAdminHome.ViewAdminHome;
+import guiStaffHome.ViewStaffHome;
 
 
 /*******
  * <p> Title: ControllerStaffRequests Class. </p>
  *
- * <p> Description: Stub controller for the Staff requests screen.
- * Currently just handles navigation into this screen from Staff Home; will be
- * expanded with real event handlers as this feature is built out. </p>
+ * <p> Description: Contains all methods to display the necessary elements
+ * on the Staff Request page. Also contains all methods to perform all
+ * necessary functions for creating requests, request cards, comments.
+ * Populates different elements depending on whether the user is a Staff or
+ * an Admin. </p>
  *
- * <p> Copyright: OWNER_NAME_HERE © 2026 </p>
+ * <p> Copyright: Pete Echavarria © 2026 </p>
  *
- * @author OWNER_NAME_HERE
+ * @author Pete Echavarria
  *
  * @version 1.00		2026-07-15 Initial version
  *
@@ -39,16 +50,22 @@ public class ControllerStaffRequests {
 
 	// Reference for the in-memory database so this package has access
 	private static Database theDatabase = applicationMain.FoundationsMain.database;	
-	private static RequestList allRequests;
+	// A RequestList object that will be populated with Request objects from the database
+	public static RequestList allRequests;
+	// Keeps track of the currently selected requests for use in several methods
 	static Request currentRequest;
+	// When true, will display the newCommentForm
 	private static boolean onCommentForm = false;
+	// A list of all RequestComment objects that will be populated from the database
 	private static List<RequestComment> allComments = new ArrayList<>();
+	// A combo box that will allow selected an Admin to assign a request to
+	private static ComboBox<String> comboBox_adminSelect = new ComboBox<String>();
 	
 	/**********
 	 * <p> Method: repaintTheWindow() </p>
 	 *
-	 * <p> Description: Clears and rebuilds the Discussion Board page, reloading
-	 * all posts and replies from the database to ensure newly created content
+	 * <p> Description: Clears and rebuilds the Staff Requests page, reloading
+	 * all requests and comments from the database to ensures newly created content
 	 * appears immediately. </p>
 	 *
 	 */
@@ -60,7 +77,6 @@ public class ControllerStaffRequests {
 				ViewStaffRequests.label_UserDetails,
 				ViewStaffRequests.textfield_Search,
 				ViewStaffRequests.button_Search,
-				ViewStaffRequests.button_NewRequest,
 				ViewStaffRequests.button_Open,
 				ViewStaffRequests.button_Assigned,
 				ViewStaffRequests.button_Closed,
@@ -71,6 +87,16 @@ public class ControllerStaffRequests {
 		        ViewStaffRequests.button_Home,
 		        ViewStaffRequests.button_Logout,
 		        ViewStaffRequests.button_Quit);
+		// Adds button_NewRequest only if the user is a Staff
+		if (ViewStaffRequests.theUser.getCurrentRole().equals("Staff")) {
+			ViewStaffRequests.theRootPane.getChildren().add(
+				ViewStaffRequests.button_NewRequest);
+		}
+		// Adds button_AssignedToMe only if the user is an Admin
+		if (ViewStaffRequests.theUser.getCurrentRole().equals("Admin")) {
+			ViewStaffRequests.theRootPane.getChildren().add(
+				ViewStaffRequests.button_AssignedToMe);
+		}
 		
 		// Always reload posts from the database to ensure newly created posts appear immediately
 		List<Request> requests = new ArrayList<>();
@@ -84,7 +110,8 @@ public class ControllerStaffRequests {
 			e.printStackTrace();
 		}
 		displayRequestCards();
-		
+		// Always reload request comments from the database to ensure newly created comments
+		// appear immediately
 		try {
 		    allComments = theDatabase.readAllRequestComments();
 		} catch (SQLException e) {
@@ -99,10 +126,10 @@ public class ControllerStaffRequests {
 	}
 	
 	/**********
-	 * <p> Method: performControllerStaffRequestsStage ps, User user) </p>
+	 * <p> Method: performStaffRequests(Stage ps, User user) </p>
 	 *
-	 * <p> Description: Called when the staff user navigates to this screen
-	 * (e.g., from a button on Staff Home). Displays the corresponding View. </p>
+	 * <p> Description: Called when the Staff or Admin user navigates to this screen
+	 * (e.g., from a button on Staff or Admin Home). Displays the corresponding View. </p>
 	 *
 	 * @param ps specifies the JavaFX Stage to be used for this GUI
 	 *
@@ -120,34 +147,50 @@ public class ControllerStaffRequests {
 	 * of request cards that contain the search word(s) in the subject or 
 	 * description of the request. </p>
 	 *
-	 *
 	 */
 	public static void performSearch() {
+		// Allows the user to enter search words without regard to capitalization or spaces
 		String searchWords = ViewStaffRequests.textfield_Search.getText().trim().toLowerCase();
-		List<Request> requestList = allRequests.getAllRequests();
+		if (searchWords.isEmpty()) {
+			repaintTheWindow();
+			return;
+		}
 		
 		ViewStaffRequests.requestCardList.getChildren().clear();
+		ViewStaffRequests.scrollPane_RequestDetails.setContent(null);
 		
+		List<Request> requestList = allRequests.getAllRequests();
+		
+		// found will turn true as soon as at least one request is found matching search word(s)
+		boolean found = false;
 		for (Request request : requestList) {		
 			String subject = request.getSubject().trim().toLowerCase();
 			String description = request.getDescription().trim().toLowerCase();
 			if (subject.contains(searchWords) || description.contains(searchWords)) {
-			        VBox card = createRequestCard(request);
-			        if (card != null) {
-			        	ViewStaffRequests.requestCardList.getChildren().add(card);
-			        }
-			}
+			    found = true;
+			    VBox card = createRequestCard(request);
+			    if (card != null) {
+			    	ViewStaffRequests.requestCardList.getChildren().add(card);
+			    }
+			}	
+		}
+		// If no requests are found matching the search word(s), display an error message
+		if (!found) {
+			ViewStaffRequests.requestCardList.getChildren().add(
+				new Label("No requests matching: " + searchWords));
 		}
 	}
 	
 	
 	/**********
-	 * <p> Method: createRequestCard() </p>
+	 * <p> Method: VBox createRequestCard(Request request) </p>
 	 * 
 	 * <p> Description: This method creates request cards to populate the request card
 	 * scroll pane. The card contains information about a request, including the subject
 	 * and author so a user can decide which request to view. They can then click on the
 	 * card to view the full request. </p>
+	 * 
+	 * @return a VBox containing the newly created request card
 	 * 
 	 * @param request the Request object from which to create the request card from
 	 * 
@@ -169,6 +212,9 @@ public class ControllerStaffRequests {
 	    Label subject = new Label(request.getSubject());
 	    subject.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
 	    
+	    Label requestID = new Label("ID: " + request.getRequestID());
+	    requestID.setStyle("-fx-font-size: 11px; -fx-text-fill: gray;");
+	    
 	    // Format timestamp nicely
 	    String formattedTime = "";
 	    if (request.getCreatedAt() != null) {
@@ -180,16 +226,21 @@ public class ControllerStaffRequests {
 	    Label authorAndTime = new Label("by " + request.getRequestorUsername() + "  •  " + formattedTime);
 	    authorAndTime.setStyle("-fx-font-size: 11px; -fx-text-fill: gray;");
 	    
-	    // Thread in upper right using HBox
+	    // Status in lower right using HBox
 	    Label status = new Label(request.getStatus());
 	    status.setStyle("-fx-font-size: 11px; -fx-text-fill: gray; -fx-font-style: italic;");
 	    
 	    javafx.scene.layout.HBox topRow = new javafx.scene.layout.HBox();
-	    javafx.scene.layout.Region spacer = new javafx.scene.layout.Region();
-	    javafx.scene.layout.HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
-	    topRow.getChildren().addAll(subject, spacer, status);
+	    javafx.scene.layout.Region topSpacer = new javafx.scene.layout.Region();
+	    javafx.scene.layout.HBox.setHgrow(topSpacer, javafx.scene.layout.Priority.ALWAYS);
+	    topRow.getChildren().addAll(subject, topSpacer, requestID);
 	    
-	    requestCard.getChildren().addAll(topRow, authorAndTime);
+	    javafx.scene.layout.HBox bottomRow = new javafx.scene.layout.HBox();
+	    javafx.scene.layout.Region bottomSpacer = new javafx.scene.layout.Region();
+	    javafx.scene.layout.HBox.setHgrow(bottomSpacer, javafx.scene.layout.Priority.ALWAYS);
+	    bottomRow.getChildren().addAll(authorAndTime, bottomSpacer, status);
+	    
+	    requestCard.getChildren().addAll(topRow, bottomRow);
 	    requestCard.setCursor(Cursor.HAND);
 	    requestCard.setOnMouseClicked((_) -> {
 	    	currentRequest = request;
@@ -206,12 +257,13 @@ public class ControllerStaffRequests {
 	 * <p> Description: This method populates the request cards Scroll Pane, which shows
 	 * a list of requests by subject. The request cards visible are based on which status
 	 * has been selected. If no status has been selected, all request cards are visible. </p>
-	 * 
-	 * @param requestObjects the list of Request objects to display as request cards
 	 *  
 	 */
 	protected static void displayRequestCards() {
-	    List<Request> requestList = allRequests.getAllRequests();
+	    // A list containing all Request objects that exist
+		List<Request> requestList = allRequests.getAllRequests();
+		// A list that will be populated with the request objects matching the
+		// specified status
 		List<Request> newRequestList = new ArrayList<>();
 
 	    if (ViewStaffRequests.selectedStatus.equals("Open")) {
@@ -228,6 +280,14 @@ public class ControllerStaffRequests {
 	            }
 	        }
 	    }
+	    else if (ViewStaffRequests.selectedStatus.equals("Assigned To Me")) {
+	    	for (Request request : requestList) {
+	    		if (request.getAssignedTo().equals(ViewStaffRequests.theUser.getUserName())
+	    				&& !request.getStatus().equals("Closed")) {
+	    			newRequestList.add(request);
+	    		}
+	    	}
+	    }
 	    else if (ViewStaffRequests.selectedStatus.equals("Closed")) {
 	        for (Request request : requestList) {
 	            if (request.getStatus().equals("Closed")) {
@@ -237,7 +297,9 @@ public class ControllerStaffRequests {
 	    }
 	    else {
 	        for (Request request : requestList) {
-	            newRequestList.add(request);
+	            if (!request.getStatus().equals("Closed")) {
+	            	newRequestList.add(request);
+	            }
 	        }
 	    }
 	    
@@ -252,7 +314,7 @@ public class ControllerStaffRequests {
 	
 	
 	/**********
-	* <p> Method: displayRequest() </p>
+	* <p> Method: displayRequest(Request request) </p>
 	*
 	* <p> Description: This method populates the request details Scroll Pane with the
 	* full request details when the user clicks on a request card. </p>
@@ -275,9 +337,159 @@ public class ControllerStaffRequests {
 	    Label subject = new Label(request.getSubject());
 	    subject.setStyle("-fx-font-weight: bold;" + "-fx-font-size: 18px;");
 		
+	    Label requestID = new Label("Request ID: " + request.getRequestID());
 	    Label requestor = new Label("Requestor: " + request.getRequestorUsername());
 	    Label status = new Label("Status: " + request.getStatus());
-		
+	    Label assignedTo = new Label("Assigned To: " + request.getAssignedTo());
+	    
+	    Button button_ReOpen = new Button("Re-Open");
+    	button_ReOpen.setOnAction((_) -> {
+    		// A pop up window that allows for entering a new description for the
+    		// re-opened request
+    		TextInputDialog reopenRequest = new TextInputDialog();
+    		reopenRequest.setHeight(300);
+    		reopenRequest.setWidth(600);
+    		reopenRequest.setTitle("Re-Open Request");
+    		reopenRequest.setHeaderText("Enter a description for the new request");
+    		reopenRequest.setContentText("Description: ");
+			Optional<String> result = reopenRequest.showAndWait();
+			if (result.isPresent()) {
+				String requestorUsername = currentRequest.getRequestorUsername();
+				String requestSubject = currentRequest.getSubject();
+				// If the request to be re-opened was itself a re-opened request, this
+				// removes the request reference in the subject line
+				int index = requestSubject.indexOf('[');
+				if (index != -1) {
+					requestSubject = requestSubject.substring(0, index-1);
+				}
+				// Adds a reference to the closed parent request in the subject line
+				requestSubject += " [Re-Opened from "
+						+ "ID: " + currentRequest.getRequestID() + "]";
+				String newDescription = result.get();
+				Request newRequest = new Request(requestorUsername, requestSubject, newDescription);
+				// Opens the new request with an Assigned status
+				newRequest.setStatus("Assigned");
+				// The new request will be automatically assigned to the Admin that closed it
+				newRequest.setAssignedTo(currentRequest.getAssignedTo());
+				newRequest.setClosedRequestId(currentRequest.getRequestID());
+				allRequests.addRequest(newRequest);
+				try {
+					theDatabase.createRequest(newRequest);
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+				currentRequest = newRequest;
+				repaintTheWindow();
+	    		displayRequest(currentRequest);
+			}
+			else {
+				displayRequest(currentRequest);
+			}
+    		});
+
+	    // Adds admin specific functions to the request details pane
+	    HBox adminFunctions = new HBox(5);
+	    if (ViewStaffRequests.theUser.getCurrentRole().equals("Admin")) {
+	    	// A combo box that will contain a list of all Admins
+	    	setupComboBoxUI(comboBox_adminSelect, "Dialog", 14, 100);
+	    	List<String> userList = theDatabase.getUserList();
+	    	// Removes <User> from userList so only usernames are searched
+	    	userList.remove(0);
+	    	List<String> adminList = new ArrayList<>();
+	    	for (String username : userList) {
+	    		User tempUser = theDatabase.getUserObject(username);
+	    		// Only adds a username to the adminList if they have an Admin role
+	    		if (tempUser.getAdminRole()) {
+	    			adminList.add(tempUser.getUserName());
+	    		}
+	    	}
+	    	// Sorts usernames in the adminList alphabetically
+	    	adminList.sort(String.CASE_INSENSITIVE_ORDER);
+	    	// Adds default combobox selection as the first element of adminList
+	    	adminList.add(0, "<Assign Admin>");
+	    	// Adds Unassigned option as the second element of adminList
+	    	adminList.add(1, "Unassigned");
+	    	comboBox_adminSelect.setItems(FXCollections.observableArrayList(adminList));
+	    	comboBox_adminSelect.getSelectionModel().select(0);
+	    	
+	    	Button button_Assign = new Button("Assign");
+	    	button_Assign.setOnAction((_) -> {
+				// Does nothing if no selection is made from the adminSelect list
+	    		if (comboBox_adminSelect.getValue().equals("<Assign Admin>")) {
+					return;
+				}
+				else if (comboBox_adminSelect.getValue().equals("Unassigned")) {
+					// Unassigning a request will set its status to Open
+					request.setStatus("Open");
+					request.setAssignedTo(comboBox_adminSelect.getValue());
+					theDatabase.updateRequestStatus(request, "Open");
+					theDatabase.updateRequestAssigned(request, comboBox_adminSelect.getValue());
+					Alert assignConfirmation = new Alert(Alert.AlertType.INFORMATION);
+					assignConfirmation.setTitle("Success!");
+					assignConfirmation.setHeaderText("Request has been successfully unassigned.");
+					assignConfirmation.showAndWait();
+				}
+				else {
+					request.setStatus("Assigned");
+					request.setAssignedTo(comboBox_adminSelect.getValue());
+					theDatabase.updateRequestStatus(request, "Assigned");
+					theDatabase.updateRequestAssigned(request, comboBox_adminSelect.getValue());
+					Alert assignConfirmation = new Alert(Alert.AlertType.INFORMATION);
+					assignConfirmation.setTitle("Success!");
+					assignConfirmation.setHeaderText("Request has been successfully assigned to: "
+							+ comboBox_adminSelect.getValue());
+					assignConfirmation.showAndWait();
+				}
+				repaintTheWindow();
+	    		displayRequest(currentRequest);
+				});
+	    		
+	    	Button button_Close = new Button("Close");
+	    	button_Close.setOnAction((_) -> {
+	    		// A pop-up window that allows for entering Admin notes that will be displayed in
+	    		// the closed request
+	    		TextInputDialog adminNotes = new TextInputDialog();
+	    		adminNotes.setHeight(300);
+	    		adminNotes.setWidth(600);
+	    		adminNotes.setTitle("Close Request");
+				adminNotes.setHeaderText("Admin Notes");
+				adminNotes.setContentText("Notes: ");
+				Optional<String> result = adminNotes.showAndWait();
+				if (result.isPresent()) {
+					String notes = result.get();
+					LocalDateTime closedAt = LocalDateTime.now();
+					request.setAssignedTo(ViewStaffRequests.theUser.getUserName());
+					request.setAdminNotes(notes);
+					request.setStatus("Closed");
+					request.setClosedAt(closedAt);
+					theDatabase.updateRequestAssigned(request, ViewStaffRequests.theUser.getUserName());
+					theDatabase.updateAdminNotes(request, notes);
+					theDatabase.updateRequestStatus(request, "Closed");
+					theDatabase.updateRequestIsClosed(request, true);
+					theDatabase.updateRequestClosedAt(request, Timestamp.valueOf(closedAt));
+					request.setIsClosed(true);
+					repaintTheWindow();
+		    		displayRequest(currentRequest);
+				}
+				else {
+					displayRequest(currentRequest);
+				}
+				});
+	    	
+	    	// Only adds the Re-Open button to Closed requests
+	    	if (currentRequest.getStatus().equals("Closed")) {
+	    		adminFunctions.getChildren().add(button_ReOpen);
+	    	}
+	    	// If the request is not Closed, populate the following Admin functions
+	    	else {
+	    		adminFunctions.getChildren().addAll(
+	    		comboBox_adminSelect,
+	    		button_Assign,
+	    		button_Close
+	    			);
+	    	}
+	    }
+	    
 	    TextArea description = new TextArea(request.getDescription());
 	    description.setPrefHeight(100);
 	    description.setWrapText(true);
@@ -292,56 +504,82 @@ public class ControllerStaffRequests {
 		
 		fullRequest.getChildren().addAll(
 				subject,
+				requestID,
 				requestor,
 				status,
+				assignedTo
+				);
+				
+		if (currentRequest.getStatus().equals("Closed")) {
+			fullRequest.getChildren().add(button_ReOpen);
+		}
+		
+		fullRequest.getChildren().addAll(
+				adminFunctions,
 				description,
 				button_Comment
 				);
 
+		// If the Comment button was clicked, populate a newCommentForm
+		// in the Request Details scroll pane
 		if (onCommentForm == true) {
 			VBox commentForm = newCommentForm();
 			fullRequest.getChildren().add(commentForm);
 			onCommentForm = false;
 		}
 		
-		VBox displayComments = new VBox(5);
+		// If the request has Admin notes, display them in the Request Details
+		// scroll pane
+		if (currentRequest.getAdminNotes() != null) {
+			VBox displayAdminNotes = new VBox(5);
+			displayAdminNotes.setPadding(new Insets(15));
+			Label admin = new Label("*Admin Notes*");
+			admin.setStyle("-fx-font-weight: bold;" + "-fx-font-size: 14px;");
+			TextArea adminNotes = new TextArea(currentRequest.getAdminNotes());
+			adminNotes.setPrefHeight(100);
+			adminNotes.setWrapText(true);
+			adminNotes.setEditable(false);
+			displayAdminNotes.getChildren().addAll(
+					admin,
+					adminNotes);
+			fullRequest.getChildren().add(displayAdminNotes);
+		}
+		
+		// Searches through the list of allComments to find those associated with
+		// the currently selected request
 		for (RequestComment comment : allComments) {
 			if (comment.getRequestID() == currentRequest.getRequestID()) {
-				displayComments.getChildren().add(displayRequestComment(comment));
+				fullRequest.getChildren().add(displayRequestComment(comment));
 			}
 		}
-		fullRequest.getChildren().add(displayComments);
+		
 		ViewStaffRequests.scrollPane_RequestDetails.setContent(fullRequest);
 	} 
 	
 	
 	/**********
-	* <p> Method: displayRequestComment() </p>
+	* <p> Method: VBox displayRequestComment(RequestComment comment) </p>
 	*
 	* <p> Description: This method populates the request details Scroll Pane with the
-	* full request details when the user clicks on a request card. </p>
+	* details of the RequestComment object that is passed as an argument. </p>
 	*
-	* @param request the Request object to display in the request details Scroll Pane
+	* @return a VBox containing the details of the RequestComment object
+	* 
+	* @param comment the RequestComment object to display in the request details Scroll Pane
 	*
 	*/
 	protected static VBox displayRequestComment(RequestComment comment) {
 	    VBox requestComment = new VBox(5);
-	    requestComment.setPadding(new Insets(10));
-	    requestComment.setStyle(
-	        "-fx-background-color: white;" +
-	        "-fx-border-color: #E0E0E0;" +
-	        "-fx-border-radius: 8;" +
-	        "-fx-background-radius: 8;" +
-	        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4, 0, 0, 2);"
-	    );
+	    requestComment.setPadding(new Insets(15));
 
 	    Label commenter = new Label("Commenter: " + comment.getCommenterUsername());
+	    commenter.setStyle("-fx-font-weight: bold;" + "-fx-font-size: 14px;");
 		
 	    TextArea description = new TextArea(comment.getDescription());
 	    description.setPrefHeight(100);
 	    description.setWrapText(true);
 	    description.setEditable(false);
-		
+	    
 	    requestComment.getChildren().addAll(
 				commenter,
 				description
@@ -351,12 +589,12 @@ public class ControllerStaffRequests {
 	
 
 	/**********
-	 * <p> Method: newCommentForm() </p>
+	 * <p> Method: VBox newCommentForm() </p>
 	 * 
-	 * <p> Description: This method populates the new reply VBox in GUI Area 4. It
-	 * contains all necessary fields for the user to create a reply. </p>
+	 * <p> Description: This method populates the new comment VBox in GUI Area 4. It
+	 * contains all necessary fields for the user to create a comment. </p>
 	 * 
-	 * @return a VBox containing the reply form with a text area and submit/cancel buttons
+	 * @return a VBox containing the comment form with a text area and submit/cancel buttons
 	 *  
 	 */
 	protected static VBox newCommentForm() {
@@ -383,6 +621,7 @@ public class ControllerStaffRequests {
 		button_Submit.setOnAction((_) ->
 			{performCreateComment(currentRequest.getRequestID(),
 				ViewStaffRequests.theUser.getUserName(), textArea_CommentContent.getText());
+				repaintTheWindow();
 				displayRequest(currentRequest);
 			});
 		button_Cancel.setOnAction((_) ->
@@ -393,11 +632,11 @@ public class ControllerStaffRequests {
 	
 	
 	/**********
-	 * <p> Method: performCreateComment() </p>
+	 * <p> Method: performCreateComment(int requestID, String commenterUsername, String description) </p>
 	 * 
-	 * <p> Description: This method validates the title and body input, saves it to the database,
-	 * clears the form fields, and navigates back to the Discussion Board,
-	 * Displays an error message if validation fails or a database exception occurs. </p>
+	 * <p> Description: This method validates description input, saves the comment to the database,
+	 * clears the form fields, and navigates back to the Staff Requests page. An error message is
+	 * displayed if validation fails or a database exception occurs. </p>
 	 * 
 	 */
 	protected static void performCreateComment(int requestID, String commenterUsername, String description) {
@@ -424,25 +663,22 @@ public class ControllerStaffRequests {
 	
 	
 	/**********
-	 * <p> Method: performReturn() </p>
-	 * 
-	 * <p> Description: This method returns the user to the staff homepage </p>
-	 * 
-	 */
-	protected static void performReturn() {
-	    guiStaffHome.ViewStaffHome.displayStaffHome(ViewStaffRequests.theStage, ViewStaffRequests.theUser);
-	}
-	
-	
-	/**********
 	 * <p> Method: performHome() </p>
 	 * 
-	 * <p> Description: This method returns the user to the student home page </p>
+	 * <p> Description: This method returns the user to the Staff or Admin home page, depending on their role </p>
 	 * 
 	 */
 	protected static void performHome() {
-		guiStaffHome.ViewStaffHome.displayStaffHome(ViewStaffRequests.theStage,
-				ViewStaffRequests.theUser);
+		// Checks if the user if an Admin or a Staff to determine what home
+		// page to take them to
+		if (ViewStaffRequests.theUser.getCurrentRole().equals("Admin")) {
+			ViewAdminHome.displayAdminHome(ViewStaffRequests.theStage, 
+					ViewStaffRequests.theUser);
+		}
+		if (ViewStaffRequests.theUser.getCurrentRole().equals("Staff")) {
+			ViewStaffHome.displayStaffHome(ViewStaffRequests.theStage, 
+					ViewStaffRequests.theUser);
+		}
 	}
 	
 	
@@ -469,5 +705,20 @@ public class ControllerStaffRequests {
 	 */
 	protected static void performQuit() {
 		System.exit(0);
+	}
+	
+	/**********
+	 * Private local method to initialize the standard fields for a ComboBox
+	 * 
+	 * @param c		The ComboBox object to be initialized
+	 * @param ff	The font to be used
+	 * @param f		The size of the font to be used
+	 * @param w		The width of the ComboBox
+	 * @param x		The location from the left edge (x axis)
+	 * @param y		The location from the top (y axis)
+	 */
+	protected static void setupComboBoxUI(ComboBox <String> c, String ff, double f, double w) {
+		c.setStyle("-fx-font: " + f + " " + ff + ";");
+		c.setMinWidth(w);
 	}
 }

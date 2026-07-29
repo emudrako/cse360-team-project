@@ -6,14 +6,16 @@ import java.time.LocalDateTime;
  * <p> Title: RequestComment Class </p>
  *
  * <p> Description: This Request class represents an admin request entity in the system.
- *  Staff can request admins to perform admin-specific actions. Requests appear in an open
- *  list visible to staff and admins. Admins can document actions taken and close requests.
- *  Staff can reopen a closed request; reopened requests link back to the original closed
- *  request via closedRequestId. </p>
+ *  Staff can request Admins to perform admin-specific actions. Requests appear in an open
+ *  list visible to Staff and Admins. Admins can document actions taken and close requests.
+ *  Staff can reopen a closed request; reopened requests have a reference to the orignal
+ *  request in their subject line </p>
  *
- * <p> Copyright: Elena Mudrakova © 2026 </p>
+ * <p> Copyright: Pete Echavarria © 2026 </p>
  *
- * @author Elena Mudrakova
+ * @author Pete Echavarria
+ * 
+ * @version 1.00		2026-07-17 Initial version
  *
  */
 
@@ -27,13 +29,15 @@ public class RequestComment {
 	private LocalDateTime createdAt;
 
 	/*****
-	 * <p> Method: RequestComment(String commenterUsername, String description) </p>
+	 * <p> Method: RequestComment(int requestID, String commenterUsername, String description) </p>
 	 *
 	 * <p> Description: This constructor is used to establish Request entity objects.
 	 *  Throws IllegalArgumentException if description is empty. </p>
 	 *
+	 * @param requestID specifies the request that the comment belongs to
+	 * 
 	 * @param requestorUsername specifies the username of the staff member submitting
-	 *  the request
+	 * the request
 	 *
 	 * @param description specifies the description of the request; must be non-empty
 	 *
@@ -54,9 +58,9 @@ public class RequestComment {
 	/*****
 	 * <p> Method: int getRequestID() </p>
 	 *
-	 * <p> Description: This getter returns the RequestID. </p>
+	 * <p> Description: This getter returns the requestID. </p>
 	 *
-	 * @return an int of the RequestID
+	 * @return an int of the requestID
 	 *
 	 */
 	public int getRequestID() { return requestID; }
@@ -67,18 +71,18 @@ public class RequestComment {
 	 *
 	 * <p> Description: This setter defines the RequestID attribute. </p>
 	 *
-	 * @param id specifies the RequestID assigned to this request by the database
+	 * @param id specifies the requestID assigned to this request by the database
 	 *
 	 */
 	public void setRequestID(int id) { requestID = id; }
 
 
 	/*****
-	 * <p> Method: String getRequestorUsername() </p>
+	 * <p> Method: String getCommenterUsername() </p>
 	 *
-	 * <p> Description: This getter returns the RequestorUsername. </p>
+	 * <p> Description: This getter returns the commenterUsername. </p>
 	 *
-	 * @return a String of the username who submitted this request
+	 * @return a String of the username who created this comment
 	 *
 	 */
 	public String getCommenterUsername() { return commenterUsername; }
@@ -87,9 +91,9 @@ public class RequestComment {
 	/*****
 	 * <p> Method: String getDescription() </p>
 	 *
-	 * <p> Description: This getter returns the Description. </p>
+	 * <p> Description: This getter returns the description. </p>
 	 *
-	 * @return a String of the Description
+	 * @return a String of the description
 	 *
 	 */
 	public String getDescription() { return description; }
@@ -98,7 +102,7 @@ public class RequestComment {
 	/*****
 	 * <p> Method: void setDescription(String description) </p>
 	 *
-	 * <p> Description: This setter defines the Description attribute. </p>
+	 * <p> Description: This setter defines the description attribute. </p>
 	 *
 	 * @param description specifies the new description for this request
 	 *
@@ -106,15 +110,25 @@ public class RequestComment {
 	public void setDescription(String description) { this.description = description; }
 
 
-
 	/*****
 	 * <p> Method: void setCreatedAt(LocalDateTime time) </p>
 	 *
-	 * <p> Description: This setter defines the CreatedAt timestamp. </p>
+	 * <p> Description: This setter defines the createdAt timestamp. </p>
 	 *
-	 * @param time specifies the timestamp when this request was created
+	 * @param time specifies the timestamp when this comment was created
 	 *
 	 */
-	public void setCreatedAt(LocalDateTime time) { createdAt = time; }
+	public void setCreatedAt(LocalDateTime time) { this.createdAt = time; }
+	
+	
+	/*****
+	 * <p> Method: LocalDateTime getCreatedAt() </p>
+	 *
+	 * <p> Description: This getter returns the createdAt timestamp. </p>
+	 *
+	 * @return the timestamp createAt
+	 *
+	 */
+	public LocalDateTime getCreatedAt() { return createdAt; }
 
 }

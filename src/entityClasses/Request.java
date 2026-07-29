@@ -26,6 +26,7 @@ public class Request {
 	private String		  subject;
 	private String        description;
 	private String		  status;
+	private String		  assignedTo;
 	private boolean       isClosed;
 	private String        adminNotes;         // null until admin closes the request
 	private int           closedRequestId;    // -1 if original; original's ID if this is a reopened request
@@ -54,6 +55,7 @@ public class Request {
 		this.subject = subject;
 		this.description = description;
 		this.status = "Open";
+		this.assignedTo = "Unassigned";
 		this.isClosed = false;
 		this.adminNotes = null;
 		this.closedRequestId = -1;
@@ -159,6 +161,28 @@ public class Request {
 	 *
 	 */
 	public void setStatus(String status) { this.status = status; }
+	
+	
+	/*****
+	 * <p> Method: String getAssignedTo() </p>
+	 *
+	 * <p> Description: This getter returns the assignedTo value. </p>
+	 *
+	 * @return a String of the assignedTo value
+	 *
+	 */
+	public String getAssignedTo() { return assignedTo; }
+
+
+	/*****
+	 * <p> Method: void setAssignedTo(String assignedTo) </p>
+	 *
+	 * <p> Description: This setter defines the assignedTo attribute. </p>
+	 *
+	 * @param status specifies the new assignedTo value for this request
+	 *
+	 */
+	public void setAssignedTo(String assignedTo) { this.assignedTo = assignedTo; }
 	
 	
 	/*****

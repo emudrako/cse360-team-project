@@ -20,7 +20,7 @@ import entityClasses.User;
  * <p> Title: ViewStaffRequests class  </p>
  *
  * <p> Description: The Java/FX-based page for viewing Staff requests. Provides
- * a view that shows a list of request that can be filtered by their status - Open,
+ * a view that shows a list of requests that can be filtered by their status - Open,
  * Assigned, and Closed. Once a request is clicked on from the list, the full request
  * will be displayed, as well as all comments on the request. </p>
  *
@@ -45,8 +45,7 @@ public class ViewStaffRequests{
 	private static double height = 900;
 	
 	// These are the widget attributes for the GUI. There are 3 areas for this GUI.
-		
-	
+			
 	// GUI Area 1
 
     //  Labels for page title and user name 
@@ -64,17 +63,19 @@ public class ViewStaffRequests{
 	
 	// GUI Area 2: 
 
-	// Search bar and submit button for searching requests by keyword(s)
+	// Search bar and search button for searching requests by keyword(s)
 	protected static TextField textfield_Search = new TextField();
 	protected static Button button_Search = new Button("Search");
 	
 	// Tracks the currently selected status filter. An empty string means all requests are shown
 	protected static String selectedStatus = "";
 	// Buttons for status filtering
-	protected static Button button_Open = new Button ("Open");
+	protected static Button button_Open = new Button("Open");
 	protected static Button button_Assigned = new Button ("Assigned");
 	protected static Button button_Closed = new Button("Closed");
-	protected static Button button_ViewAll = new Button ("View All");
+	protected static Button button_ViewAll = new Button("View All");
+	// Admin only filter
+	protected static Button button_AssignedToMe = new Button("Assigned To Me");
 
 	// Create new request button
 	protected static Button button_NewRequest = new Button("New Request");
@@ -86,7 +87,6 @@ public class ViewStaffRequests{
 	protected static VBox requestCardList = new VBox(10);
 	// Scroll pane that wraps requestCardList to allow scrolling through request cards
 	protected static ScrollPane scrollPane_RequestCardList = new ScrollPane(requestCardList);
-	// Request object to be displayed when its associated request card is clicked
 	
 	
 	// GUI Area 4: 
@@ -105,6 +105,7 @@ public class ViewStaffRequests{
 	protected static User theUser;	// The current user of the application
 		
 	public static Scene theStaffRequestsScene = null;	// The Scene each invocation populates
+	
 
 	/*-*******************************************************************************************
 
@@ -141,7 +142,6 @@ public class ViewStaffRequests{
 		// Populate the dynamic aspects of the GUI with the data from the user and the current
 		// state of the system.
 		ControllerStaffRequests.repaintTheWindow();
-		
 	}
 
 	/**********
@@ -174,14 +174,23 @@ public class ViewStaffRequests{
 		label_PageTitle.setStyle("-fx-text-fill: #041E42; -fx-font-weight: bold;");
 		
 		setupButtonUI(button_Home, "Dialog", 12, 52, Pos.CENTER, 845, 10);
-		button_Home.setOnAction((_) -> {ControllerStaffRequests.performHome();
+		button_Home.setOnAction((_) -> {
+				ControllerStaffRequests.performHome();
+				// Sets currentRequest to null since the user is navigating away from
+				// the Staff Requests page
 				ControllerStaffRequests.currentRequest = null;
+				// Sets the Request Details pane to null so no request will be displayed
+				// when the user navigates back to the Staff Requests page
 				scrollPane_RequestDetails.setContent(null); });
 		button_Home.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
 
 		setupButtonUI(button_Logout, "Dialog", 12, 57, Pos.CENTER, 900, 10);
 		button_Logout.setOnAction((_) -> {ControllerStaffRequests.performLogout(); 
+				// Sets currentRequest to null since the user is navigating away from
+				// the Staff Requests page
 				ControllerStaffRequests.currentRequest = null;
+				// Sets the Request Details pane to null so no request will be displayed
+				// when the user navigates back to the Staff Requests page
 				scrollPane_RequestDetails.setContent(null); });
 		button_Logout.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
     
@@ -201,28 +210,38 @@ public class ViewStaffRequests{
 
 		setupButtonUI(button_NewRequest, "Dialog", 12, 150, Pos.CENTER, 440, 160);
 		button_NewRequest.setOnAction((_) -> { guiCreateRequest.ViewCreateRequest.displayCreateRequest(theStage, theUser);
+				// Sets currentRequest to null since the user is navigating away from
+				// the Staff Requests page
 				ControllerStaffRequests.currentRequest = null;
+				// Sets the Request Details pane to null so no request will be displayed
+				// when the user navigates back to the Staff Requests page
 				scrollPane_RequestDetails.setContent(null); });
 		button_NewRequest.setStyle("-fx-background-color: #041E42; -fx-text-fill: white; -fx-background-radius: 5;");
 
-		setupButtonUI(button_Open, "Dialog", 13, 80, Pos.CENTER, 20, 160);
+		setupButtonUI(button_Open, "Dialog", 12, 70, Pos.CENTER, 20, 160);
 		button_Open.setOnAction((_) -> { selectedStatus = "Open"; ControllerStaffRequests.displayRequestCards();
 				selectedStatus = "";});
 		button_Open.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
 		
-		setupButtonUI(button_Assigned, "Dialog", 13, 80, Pos.CENTER, 110, 160);
+		setupButtonUI(button_Assigned, "Dialog", 12, 70, Pos.CENTER, 95, 160);
 		button_Assigned.setOnAction((_) -> { selectedStatus = "Assigned"; ControllerStaffRequests.displayRequestCards();
 				selectedStatus = "";});
 		button_Assigned.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
+		
 
-		setupButtonUI(button_Closed, "Dialog", 13, 80, Pos.CENTER, 200, 160);
+		setupButtonUI(button_Closed, "Dialog", 12, 70, Pos.CENTER, 170, 160);
 		button_Closed.setOnAction((_) -> { selectedStatus = "Closed"; ControllerStaffRequests.displayRequestCards();
 		selectedStatus = "";});
 		button_Closed.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
 
-		setupButtonUI(button_ViewAll, "Dialog", 13, 80, Pos.CENTER, 290, 160);
+		setupButtonUI(button_ViewAll, "Dialog", 12, 70, Pos.CENTER, 245, 160);
 		button_ViewAll.setOnAction((_) -> { selectedStatus = ""; ControllerStaffRequests.displayRequestCards(); });
 		button_ViewAll.setStyle("-fx-background-color: #002D72; -fx-text-fill: white; -fx-background-radius: 5;");
+		
+		setupButtonUI(button_AssignedToMe, "Dialog", 12, 70, Pos.CENTER, 320, 160);
+		button_AssignedToMe.setOnAction((_) -> { selectedStatus = "Assigned To Me"; ControllerStaffRequests.displayRequestCards();
+				selectedStatus = "";});
+		button_AssignedToMe.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 5;");
 	
 		
 		// GUI Area 3
@@ -232,7 +251,6 @@ public class ViewStaffRequests{
 		// GUI Area 4
 		setupScrollPane(scrollPane_RequestDetails, 0, 550, 600, 435, 193);
 		
-
 		// This is the end of the GUI Widgets for the page
 	}	
 	
@@ -340,6 +358,7 @@ public class ViewStaffRequests{
 	protected static void setupScrollPane(ScrollPane s, double p, double w, double h, double x, double y) {
 		s.setPadding(new Insets(p));
 		s.setMinWidth(w);
+		s.setMaxWidth(w);;
 		s.setMinHeight(h);
 		s.setMaxHeight(h);
 		s.setLayoutX(x);

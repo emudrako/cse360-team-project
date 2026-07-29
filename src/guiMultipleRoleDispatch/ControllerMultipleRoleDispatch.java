@@ -58,6 +58,7 @@ public class ControllerMultipleRoleDispatch {
 		if (role.compareTo("Admin") == 0) {
 			
 			// It is Admin Role
+			guiMultipleRoleDispatch.ViewMultipleRoleDispatch.theUser.setCurrentRole("Admin");
 			guiAdminHome.ViewAdminHome.displayAdminHome(
 					guiMultipleRoleDispatch.ViewMultipleRoleDispatch.theStage, 
 					guiMultipleRoleDispatch.ViewMultipleRoleDispatch.theUser);
@@ -66,6 +67,7 @@ public class ControllerMultipleRoleDispatch {
 		} else if (role.compareTo("Role1") == 0) {
 
 			// It is Role1 Role
+			guiMultipleRoleDispatch.ViewMultipleRoleDispatch.theUser.setCurrentRole("Role1");
 			guiRole1.ViewRole1Home.displayRole1Home(
 					guiMultipleRoleDispatch.ViewMultipleRoleDispatch.theStage, 
 					guiMultipleRoleDispatch.ViewMultipleRoleDispatch.theUser);
@@ -74,6 +76,7 @@ public class ControllerMultipleRoleDispatch {
 		} else if (role.compareTo("Role2") == 0) {
 
 			// It is Role 2 Role
+			guiMultipleRoleDispatch.ViewMultipleRoleDispatch.theUser.setCurrentRole("Role2");
 			guiRole2.ViewRole2Home.displayRole2Home(
 					guiMultipleRoleDispatch.ViewMultipleRoleDispatch.theStage,
 					guiMultipleRoleDispatch.ViewMultipleRoleDispatch.theUser);
@@ -88,6 +91,7 @@ public class ControllerMultipleRoleDispatch {
 		// See if Instructor
 		} else if (role.compareTo("Instructor") == 0) {
 
+			guiMultipleRoleDispatch.ViewMultipleRoleDispatch.theUser.setCurrentRole("Instructor");
 			guiInstructorHome.ViewInstructorHome.displayInstructorHome(
 					guiMultipleRoleDispatch.ViewMultipleRoleDispatch.theStage,
 					guiMultipleRoleDispatch.ViewMultipleRoleDispatch.theUser);
@@ -95,6 +99,7 @@ public class ControllerMultipleRoleDispatch {
 		// See if Staff
 		} else if (role.compareTo("Staff") == 0) {
 
+			guiMultipleRoleDispatch.ViewMultipleRoleDispatch.theUser.setCurrentRole("Staff");
 			guiStaffHome.ViewStaffHome.displayStaffHome(
 					guiMultipleRoleDispatch.ViewMultipleRoleDispatch.theStage,
 					guiMultipleRoleDispatch.ViewMultipleRoleDispatch.theUser);

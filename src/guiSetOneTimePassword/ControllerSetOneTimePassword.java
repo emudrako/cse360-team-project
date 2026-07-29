@@ -1,7 +1,6 @@
 package guiSetOneTimePassword;
 
 import database.Database;
-import guiFirstAdmin.ViewFirstAdmin;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 

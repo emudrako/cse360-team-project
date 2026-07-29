@@ -247,6 +247,8 @@ public class Database {
 	    		+ "requestorUsername VARCHAR(255), "
 	    		+ "subject			 VARCHAR(255), "
 	    		+ "description       VARCHAR(1000), "
+	    		+ "status			 VARCHAR(255), "
+	    		+ "assignedTo		 VARCHAR(255), "
 	    		+ "isClosed          BOOL DEFAULT FALSE, "
 	    		+ "adminNotes        VARCHAR(1000), "
 	    		+ "closedRequestId   INT DEFAULT -1, "
@@ -1178,6 +1180,51 @@ public class Database {
 	    } catch (SQLException e) {
 			return false;
 	    }
+	}
+	
+	
+	/*******
+	 * <p> Method: boolean getUserObject(String username) </p>
+	 * 
+	 * <p> Description: Returns a User object will all the user's information
+	 * for a given username.</p>
+	 * 
+	 * @param username is the username of the user
+	 * 
+	 * @return User a User object that contains all the information for the
+	 * specified username
+	 *  
+	 */
+	// get the attributes for a specified user
+	public User getUserObject(String username) {
+		User userObject;
+		String query = "SELECT * FROM userDB WHERE username = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setString(1, username);
+	        ResultSet rs = pstmt.executeQuery();
+			rs.next();
+	    	String theUsername = rs.getString(2);
+	    	String password = rs.getString(3);
+	    	String firstName = rs.getString(4);
+	    	String middleName = rs.getString(5);
+	    	String lastName = rs.getString(6);
+	    	String preferredFirstName = rs.getString(7);
+	    	String emailAddress = rs.getString(8);
+	    	boolean adminRole = rs.getBoolean(9);
+	    	boolean newRole1 = rs.getBoolean(10);
+	    	boolean newRole2 = rs.getBoolean(11);
+	    	boolean studentRole = rs.getBoolean(12);
+	    	boolean instructorRole = rs.getBoolean(13);
+	    	boolean staffRole = rs.getBoolean(14);
+	    	userObject = new User(theUsername, password, firstName, middleName, lastName,
+	    			preferredFirstName, emailAddress, adminRole, newRole1, newRole2);
+	    	userObject.setStudentRole(studentRole);
+	    	userObject.setInstructorRole(instructorRole);
+	    	userObject.setStaffRole(staffRole);
+	    } catch (SQLException e) {
+	    	return null;
+	    }
+		return userObject;
 	}
 	
 	
@@ -2681,14 +2728,16 @@ public class Database {
 	 */
 	public void createRequest(Request request) throws SQLException {
 		LocalDateTime now = LocalDateTime.now();
-		String insertRequest = "INSERT INTO RequestsDB (requestorUsername, subject, description) "
-			+ "VALUES (?, ?, ?)";
+		String insertRequest = "INSERT INTO RequestsDB (requestorUsername, subject, description, "
+			+ "status, assignedTo) "
+			+ "VALUES (?, ?, ?, ?, ?)";
 		try (PreparedStatement pstmt = connection.prepareStatement(insertRequest,
 			Statement.RETURN_GENERATED_KEYS)) {
 				pstmt.setString(1, request.getRequestorUsername());
 				pstmt.setString(2, request.getSubject());
 				pstmt.setString(3, request.getDescription());
-				//pstmt.setTimestamp(4, Timestamp.valueOf(now));
+				pstmt.setString(4, request.getStatus());
+				pstmt.setString(5, request.getAssignedTo());
 				pstmt.executeUpdate();
 
 		try (ResultSet rs = pstmt.getGeneratedKeys()) {
@@ -2744,6 +2793,8 @@ public class Database {
 				String requestorUsername = rs.getString("requestorUsername");
 				String subject = rs.getString("subject");
 				String description = rs.getString("description");
+				String status = rs.getString("status");
+				String assignedTo = rs.getString("assignedTo");
 				boolean isClosed = rs.getBoolean("isClosed");
 				String adminNotes = rs.getString("adminNotes");
 				int closedRequestId = rs.getInt("closedRequestId");
@@ -2755,6 +2806,8 @@ public class Database {
 					description
 					);
 				request.setRequestID(requestID);
+				request.setStatus(status);
+				request.setAssignedTo(assignedTo);
 				request.setIsClosed(isClosed);
 				request.setAdminNotes(adminNotes);
 				request.setClosedRequestId(closedRequestId);
@@ -2781,6 +2834,129 @@ public class Database {
 	 *
 	 */
 	public void updateRequest(int requestID, String newDescription) {
+	}
+	
+	/*******
+	 * <p> Method: updateRequestIsClosed(Request request, boolean value) </p>
+	 *
+	 * <p> Description: Updates the isClosed value of an existing request in RequestsDB. </p>
+	 *
+	 * @param request specifies the request to update.
+	 *
+	 * @param value specifies the new isClosed value for the request.
+	 *
+	 */
+	public void updateRequestIsClosed(Request request, boolean value) {
+		int requestID = request.getRequestID();
+		String query = "UPDATE RequestsDB SET isClosed = ? WHERE requestID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setBoolean(1, value);
+			pstmt.setInt(2, requestID);
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	/*******
+	 * <p> Method: updateRequestStatus(Request request, String newStatus) </p>
+	 *
+	 * <p> Description: Updates the status of an existing open request in RequestsDB.
+	 *  Only open requests may be updated. </p>
+	 *
+	 * @param request specifies the request to update.
+	 *
+	 * @param newStatus specifies the new status for the request.
+	 *
+	 */
+	public void updateRequestStatus(Request request, String newStatus) {
+		if (request.getIsClosed()) {
+			return;
+		}
+		int requestID = request.getRequestID();
+		String query = "UPDATE RequestsDB SET status = ? WHERE requestID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setString(1, newStatus);
+			pstmt.setInt(2, requestID);
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	/*******
+	 * <p> Method: updateRequestAssigned(Request request, String newAssigned) </p>
+	 *
+	 * <p> Description: Updates the assignedTo value of an existing open request in RequestsDB.
+	 *  Only open requests may be updated. </p>
+	 *
+	 * @param request specifies the request to update.
+	 *
+	 * @param newAssigned specifies the new assignedTo value for the request.
+	 *
+	 */
+	public void updateRequestAssigned(Request request, String newAssigned) {
+		if (request.getIsClosed()) {
+			return;
+		}
+		int requestID = request.getRequestID();
+		String query = "UPDATE RequestsDB SET assignedTo = ? WHERE requestID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setString(1, newAssigned);
+			pstmt.setInt(2, requestID);
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	/*******
+	 * <p> Method: updateRequestAdminNotes(Request request, String newAdminNotes) </p>
+	 *
+	 * <p> Description: Updates the adminNotes value of an existing request in RequestsDB. </p>
+	 *
+	 * @param request specifies the request to update.
+	 *
+	 * @param newAdminNotes specifies the new adminNotes value for the request.
+	 *
+	 */
+	public void updateAdminNotes(Request request, String newAdminNotes) {
+		int requestID = request.getRequestID();
+		String query = "UPDATE RequestsDB SET adminNotes = ? WHERE requestID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setString(1, newAdminNotes);
+			pstmt.setInt(2, requestID);
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	/*******
+	 * <p> Method: updateRequestClosedAt(Request request, LocalDateTime closedAt) </p>
+	 *
+	 * <p> Description: Updates the closedAt value of an existing request in RequestsDB. </p>
+	 *
+	 * @param request specifies the request to update.
+	 *
+	 * @param closedAt specifies the new closedAt value for the request.
+	 *
+	 */
+	public void updateRequestClosedAt(Request request, Timestamp closedAt) {
+		int requestID = request.getRequestID();
+		String query = "UPDATE RequestsDB SET closedAt = ? WHERE requestID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setTimestamp(1, closedAt);
+			pstmt.setInt(2, requestID);
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
 	}
 
 	/*******
