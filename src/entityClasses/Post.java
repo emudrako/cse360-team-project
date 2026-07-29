@@ -210,6 +210,8 @@ public class Post {
      * from being attributed to the wrong person.</p>
      */
     private String flaggedBy;
+    
+    private LocalDateTime flaggedAt;
 
     /**
      * Private staff annotation for this post, not visible to students.
@@ -242,6 +244,14 @@ public class Post {
      * decisions after the fact.</p>
      */
     private String resolvedBy;
+    
+    private LocalDateTime resolvedAt;
+    
+    private boolean isReviewed;
+    
+    private String reviewedBy;
+    
+    private LocalDateTime reviewedAt;
 
 
     // =========================================================================
@@ -598,4 +608,99 @@ public class Post {
      * @param username the username of the staff member closing the moderation action
      */
     public void setResolvedBy(String username) { resolvedBy = username; }
+    
+    /*****
+     * <p> Method: LocalDateTime getFlaggedAt() </p>
+     *
+     * <p> Description: Returns the timestamp when this post was most recently flagged. </p>
+     *
+     * @return the flag timestamp, or {@code null} if never flagged
+     */
+    public LocalDateTime getFlaggedAt() { return flaggedAt; }
+
+    /*****
+     * <p> Method: void setFlaggedAt(LocalDateTime time) </p>
+     *
+     * <p> Description: Records when this post was flagged. </p>
+     *
+     * @param time the timestamp of the flag action
+     */
+    public void setFlaggedAt(LocalDateTime time) { flaggedAt = time; }
+
+    /*****
+     * <p> Method: LocalDateTime getResolvedAt() </p>
+     *
+     * <p> Description: Returns the timestamp when this post's moderation action was
+     * resolved. </p>
+     *
+     * @return the resolution timestamp, or {@code null} if not yet resolved
+     */
+    public LocalDateTime getResolvedAt() { return resolvedAt; }
+
+    /*****
+     * <p> Method: void setResolvedAt(LocalDateTime time) </p>
+     *
+     * <p> Description: Records when this post's moderation action was resolved. </p>
+     *
+     * @param time the timestamp of the resolve action
+     */
+    public void setResolvedAt(LocalDateTime time) { resolvedAt = time; }
+
+    /*****
+     * <p> Method: boolean getIsReviewed() </p>
+     *
+     * <p> Description: Returns once a staff member has marked this post
+     * reviewed during grading, so nothing gets missed. Separate from the flag/resolve
+     * moderation workflow. </p>
+     *
+     * @return {@code true} if this post has been marked reviewed, {@code false} otherwise
+     */
+    public boolean getIsReviewed() { return isReviewed; }
+
+    /*****
+     * <p> Method: void setIsReviewed(boolean isReviewed) </p>
+     *
+     * <p> Description: Marks this post as reviewed. </p>
+     *
+     * @param isReviewed {@code true} to mark this post reviewed
+     */
+    public void setIsReviewed(boolean isReviewed) { this.isReviewed = isReviewed; }
+
+    /*****
+     * <p> Method: String getReviewedBy() </p>
+     *
+     * <p> Description: Returns the username of the staff member who marked this post
+     * reviewed. </p>
+     *
+     * @return the username of the reviewing staff member, or {@code null} if not yet
+     *         reviewed
+     */
+    public String getReviewedBy() { return reviewedBy; }
+
+    /*****
+     * <p> Method: void setReviewedBy(String username) </p>
+     *
+     * <p> Description: Records which staff member marked this post reviewed. </p>
+     *
+     * @param username the username of the staff member marking the post reviewed
+     */
+    public void setReviewedBy(String username) { reviewedBy = username; }
+
+    /*****
+     * <p> Method: LocalDateTime getReviewedAt() </p>
+     *
+     * <p> Description: Returns the timestamp when this post was marked reviewed. </p>
+     *
+     * @return the review timestamp, or {@code null} if not yet reviewed
+     */
+    public LocalDateTime getReviewedAt() { return reviewedAt; }
+
+    /*****
+     * <p> Method: void setReviewedAt(LocalDateTime time) </p>
+     *
+     * <p> Description: Records when this post was marked reviewed. </p>
+     *
+     * @param time the timestamp of the review action
+     */
+    public void setReviewedAt(LocalDateTime time) { reviewedAt = time; }
 }

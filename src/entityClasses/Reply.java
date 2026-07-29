@@ -29,9 +29,11 @@ public class Reply {
 	private int numReplies;
 	private boolean isFlagged;
 	private String  flaggedBy;
+	private LocalDateTime flaggedAt;
 	private String  staffNote;   // private staff annotation, not visible to students
 	private boolean isResolved;
 	private String  resolvedBy;
+	private LocalDateTime resolvedAt;
 	
 	/*****
 	 * <p> Method: Reply() </p>
@@ -362,4 +364,10 @@ public class Reply {
 	 *
 	 */
 	public void setResolvedBy(String username) { resolvedBy = username; }
+	
+	public LocalDateTime getFlaggedAt() { return flaggedAt; }
+	public void setFlaggedAt(LocalDateTime time) { flaggedAt = time; }
+
+	public LocalDateTime getResolvedAt() { return resolvedAt; }
+	public void setResolvedAt(LocalDateTime time) { resolvedAt = time; }
 }
