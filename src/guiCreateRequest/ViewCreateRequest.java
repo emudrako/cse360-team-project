@@ -38,6 +38,7 @@ public class ViewCreateRequest {
 	private static double height = 900;
 
 	// GUI Area 1
+	
 	// Labels for page title and display name of logged in user
 	protected static Label label_PageTitle = new Label();
 	protected static Label label_UserDetails = new Label();
@@ -45,7 +46,9 @@ public class ViewCreateRequest {
 	protected static Button button_Cancel = new Button("Cancel");
 	protected static Button button_Quit = new Button("X");
 
+	
 	// GUI Area 2 - ListView and Controls
+	
 	// Input fields for request subject and description
 	protected static Label label_SubjectHeader = new Label("Subject:");
 	protected static javafx.scene.control.TextField textfield_Subject = new javafx.scene.control.TextField();
@@ -56,6 +59,7 @@ public class ViewCreateRequest {
 	// Displays validation error messages to the user
 	protected static Label label_ErrorMessage = new Label();
 
+	
 	// GUI Area 3 
 	
 	// Singleton instance - null until first display call
@@ -108,7 +112,8 @@ public class ViewCreateRequest {
 	/**********
 	 * <p> Method: ViewCreateRequest() </p>
 	 *
-	 * <p> Description: Initializes all GUI elements. It is a Singleton and runs once. </p>
+	 * <p> Description: Initializes all GUI elements of the Create Request page.
+	 * It is a Singleton and runs once. </p>
 	 *
 	 */
 	private ViewCreateRequest() {

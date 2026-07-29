@@ -2,6 +2,7 @@ package guiCreateRequest;
 
 import database.Database;
 import entityClasses.Request;
+import guiStaffRequests.ControllerStaffRequests;
 import guiStaffRequests.ViewStaffRequests;
 import guiUserLogin.ViewUserLogin;
 
@@ -9,17 +10,17 @@ import guiUserLogin.ViewUserLogin;
  * <p> Title: ControllerCreateRequest Class. </p>
  *
  * <p> Description: The Java/FX-based Create Request Page controller. Handles button actions
- * defined by ViewCreateRequest. This page is a placeholder; actions for submitting a new
- * admin request will be added in a future phase.
+ * defined by ViewCreateRequest. Allows Staff to created a request for an Admin to perform
+ * admin-specific actions.
  *
  * The class has been written assuming that the View or the Model are the only class methods
  * that can invoke these methods. This is why each has been declared as protected.</p>
  *
- * <p> Copyright: Elena Mudrakova © 2026 </p>
+ * <p> Copyright: Pete Echavarria © 2026 </p>
  *
- * @author Elena Mudrakova
+ * @author Pete Echavarria
  *
- * @version 1.00		2026-06-27 Initial placeholder version
+ * @version 1.00		2026-07-17 Initial Version
  *
  */
 
@@ -46,9 +47,9 @@ public class ControllerCreateRequest {
 	/**********
 	 * <p> Method: performCreateRequest() </p>
 	 * 
-	 * <p> Description: This method validates the title and body input, saves it to the database,
-	 * clears the form fields, and navigates back to the Discussion Board,
-	 * Displays an error message if validation fails or a database exception occurs. </p>
+	 * <p> Description: This method validates the subject and description input of the request,
+	 * saves it to the database, clears the form fields, and navigates back to the Staff Requests
+	 * page. Displays an error message if validation fails or a database exception occurs. </p>
 	 * 
 	 */
 	protected static void performCreateRequest() {
@@ -56,7 +57,7 @@ public class ControllerCreateRequest {
 	    String description = ViewCreateRequest.textarea_Description.getText();
 	    String errMsg;
 	    
-	 // Validate input using PostReplyValidator
+	    // Validate input using PostReplyValidator
 	    errMsg = recognizers.PostReplyValidator.checkForValidRequestSubject(subject);
 	    if (!errMsg.isEmpty()) {
 	        ViewCreateRequest.label_ErrorMessage.setText(errMsg);
@@ -68,7 +69,7 @@ public class ControllerCreateRequest {
 	        return;
 	    }
 	    
-	    // Create the post and save to database
+	   // Create the request and save to database
 	   Request request = new Request(ViewCreateRequest.theUser.getUserName(), subject, description);
 	    try {
 	        theDatabase.createRequest(request);
@@ -81,6 +82,7 @@ public class ControllerCreateRequest {
 	    } catch (Exception e) {
 	    	ViewCreateRequest.label_ErrorMessage.setText("Error creating post: " + e.getMessage());
 	    }
+	    ControllerStaffRequests.allRequests.addRequest(request);
 	}
 	
 	

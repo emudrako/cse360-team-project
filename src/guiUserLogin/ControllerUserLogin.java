@@ -4,9 +4,6 @@ import java.util.Optional;
 
 import database.Database;
 import entityClasses.User;
-import guiFirstAdmin.ViewFirstAdmin;
-import guiSetOneTimePassword.ViewSetOneTimePassword;
-import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.Alert.AlertType;
@@ -174,31 +171,37 @@ public class ControllerUserLogin {
 				loginResult = theDatabase.loginAdmin(user);
 				if (loginResult) {
 					guiAdminHome.ViewAdminHome.displayAdminHome(theStage, user);
+					user.setCurrentRole("Admin");
 				}
 			} else if (user.getNewRole1()) {
 				loginResult = theDatabase.loginRole1(user);
 				if (loginResult) {
 					guiRole1.ViewRole1Home.displayRole1Home(theStage, user);
+					user.setCurrentRole("Role1");
 				}
 			} else if (user.getNewRole2()) {
 				loginResult = theDatabase.loginRole2(user);
 				if (loginResult) {
 					guiRole2.ViewRole2Home.displayRole2Home(theStage, user);
+					user.setCurrentRole("Role2");
 				}
 			} else if (user.getStudentRole()) {
 				loginResult = theDatabase.loginStudent(user);
 				if (loginResult) {
 					guiStudentHome.ViewStudentHome.displayStudentHome(theStage, user);
+					user.setCurrentRole("Student");
 				}
 			} else if (user.getInstructorRole()) {
 				loginResult = theDatabase.loginInstructor(user);
 				if (loginResult) {
 					guiInstructorHome.ViewInstructorHome.displayInstructorHome(theStage, user);
+					user.setCurrentRole("Instructor");
 				}
 			} else if (user.getStaffRole()) {
 				loginResult = theDatabase.loginStaff(user);
 				if (loginResult) {
 					guiStaffHome.ViewStaffHome.displayStaffHome(theStage, user);
+					user.setCurrentRole("Staff");
 				}
 			} else {
 				System.out.println("***** UserLogin goToUserHome request has an invalid role");

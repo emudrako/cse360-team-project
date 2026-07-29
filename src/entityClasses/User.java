@@ -31,6 +31,7 @@ public class User {
     private boolean studentRole;	
     private boolean instructorRole;
     private boolean staffRole;
+    private String currentRole;
     
     
     /*****
@@ -252,7 +253,31 @@ public class User {
     public boolean getStudentRole() { return studentRole; }
     public boolean getInstructorRole() { return instructorRole; }
     public boolean getStaffRole() { return staffRole; }
+    
+    
+    /*****
+     * <p> Method: setCurrentRole(String currentRole) </p>
+     * 
+     * <p> Description: This setter defines the currentRole attribute. </p>
+     * 
+     * @param a String of the user's current role
+	 *
+     */
 
+    public void setCurrentRole(String currentRole) { this.currentRole = currentRole; }
+
+    
+    /*****
+     * <p> Method: String getCurrentRole() </p>
+     * 
+     * <p> Description: This getter returns the value of the currentRole attribute </p>
+     * 
+     * @return a Sting with the current role of the user
+	 *
+     */
+
+    public String getCurrentRole() { return currentRole; }
+    
         
     /*****
      * <p> Method: int getNumRoles() </p>

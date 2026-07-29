@@ -12,12 +12,9 @@ import entityClasses.ReplyList;
 import javafx.geometry.Insets;
 import javafx.scene.Cursor;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
+
 
 /*******
  * <p> Title: ControllerDiscussionBoard Class. </p>
@@ -219,12 +216,12 @@ public class ControllerDiscussionBoard {
 	    Label thread = new Label(post.getThread());
 	    thread.setStyle("-fx-font-size: 11px; -fx-text-fill: gray; -fx-font-style: italic;");
 	    
-	    javafx.scene.layout.HBox topRow = new javafx.scene.layout.HBox();
+	    javafx.scene.layout.HBox bottomRow = new javafx.scene.layout.HBox();
 	    javafx.scene.layout.Region spacer = new javafx.scene.layout.Region();
 	    javafx.scene.layout.HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
-	    topRow.getChildren().addAll(title, spacer, thread);
+	    bottomRow.getChildren().addAll(authorAndTime, spacer, thread);
 	    
-	    postCard.getChildren().addAll(topRow, authorAndTime);
+	    postCard.getChildren().addAll(title, bottomRow);
 	    postCard.setCursor(Cursor.HAND);
 	    postCard.setOnMouseClicked((_) -> {
 	        ViewDiscussionBoard.currentPost = post;

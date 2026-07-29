@@ -20,10 +20,8 @@ import entityClasses.User;
  * <p> Title: ViewStaffDiscussionBoard class  </p>
  *
  * <p> Description: The Java/FX-based page for viewing the Staff discussion board. Provides a
- * view similar to the Student Discussion board, with the added functionality of clicking Staff
- * only buttons on each post to allow the staff the give feedback or flag inappropriate posts.
- * This gui implements a search bar, thread filter buttons, post card list, post body display 
- * and app navigation buttons </p>
+ * view similar to the Student Discussion board. This gui implements a search bar, thread filter 
+ * buttons, post card list, post body display and app navigation buttons </p>
  *
  * <p> Copyright: Pete Echavarria  © 2026 </p>
  *
@@ -44,13 +42,8 @@ public class ViewStaffDiscussionBoard{
 	// Window dimensions consistent with the team's UI style standards
 	private static double width = 1000;
 	private static double height = 900;
-
-	// A list of post objects that will be populated from the database
 	
 	// These are the widget attributes for the GUI. There are 3 areas for this GUI.
-	
-	
-	
 	// GUI Area 1
 
     //  Labels for page title and user name 
@@ -71,14 +64,14 @@ public class ViewStaffDiscussionBoard{
 	
 	// GUI Area 2: 
 
-	//  Search bar and its submit button
-	// Search bar and submit button , supports Story 7 (Search All Posts by Keyword)
+	// Search bar and its submit button
+	// Search bar and submit button
 	protected static TextField textfield_Search = new TextField();
 	protected static Button button_Search = new Button("Search");
 	
-	// Tracks the currently selected thread filter; an empty string means all threads are shown (Story 7)
+	// Tracks the currently selected thread filter; an empty string means all threads are shown
 	protected static String selectedThread = "";
-	// Buttons for thread filtering (Story 7)
+	// Buttons for thread filtering
 	protected static Button button_General = new Button ("General");
 	protected static Button button_Homework = new Button ("Homework");
 	protected static Button button_Quizzes = new Button("Quizzes");
@@ -90,20 +83,16 @@ public class ViewStaffDiscussionBoard{
 	
 	// GUI Area 3: 
 	
-	// VBox containing post cards populated by displayPostCards() (Used for Story 7 and 4)
+	// VBox containing post cards populated by displayPostCards()
 	protected static VBox postCardList = new VBox(10);
 	// Scroll pane that wraps postCardList to allow scrolling through post cards
 	protected static ScrollPane scrollPane_PostCards = new ScrollPane(postCardList);
-	// Tracks the currently selected post for use in displayPost() and newReplyForm()
-	//protected static Post currentPost = new Post();
 	
 	
 	// GUI Area 4: 
 	
 	// Scroll pane that shows the full post of the current post and its replies
 	protected static ScrollPane scrollPane_PostBody = new ScrollPane();
-	// Tracks whether the reply form is currently shown, and changes the post body display
-	//protected static boolean onReplyForm = false;
 	// Line separator to partition the post area from the button of the page
 	protected static Line line_Separator4 = new Line(20, height-60, width-20, height-60);
 
@@ -136,7 +125,7 @@ public class ViewStaffDiscussionBoard{
 	 * initializes all the static aspects of the GUI widgets (e.g., location on the page, font,
 	 * size, and any methods to be performed).
 	 * 
-	 * It then sets the Scene onto the stage, and makes it visible to the user.
+	 * It then sets the Scene onto the stage, and makes it visible to the user. </p>
 	 * 
 	 * @param ps specifies the JavaFX Stage to be used for this GUI and it's methods
 	 * 
@@ -154,7 +143,6 @@ public class ViewStaffDiscussionBoard{
 		// Populate the dynamic aspects of the GUI with the data from the user and the current
 		// state of the system.
 		ControllerStaffDiscussionBoard.repaintTheWindow();
-		
 	}
 
 	/**********
@@ -162,7 +150,7 @@ public class ViewStaffDiscussionBoard{
 	 * 
 	 * <p> Description: This method initializes all the elements of the graphical user interface.
 	 * This method determines the location, size, font, color, and change and event handlers for
-	 * each GUI object. </p>
+	 * each GUI object.
 	 * 
 	 * This is a singleton, so this is performed just once. Subsequent uses fill in the changeable
 	 * fields using the displayDiscussionBoard method.</p>
@@ -354,6 +342,7 @@ public class ViewStaffDiscussionBoard{
 	protected static void setupScrollPane(ScrollPane s, double p, double w, double h, double x, double y) {
 		s.setPadding(new Insets(p));
 		s.setMinWidth(w);
+		s.setMaxWidth(w);
 		s.setMinHeight(h);
 		s.setMaxHeight(h);
 		s.setLayoutX(x);

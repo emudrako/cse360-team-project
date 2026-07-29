@@ -30,7 +30,7 @@ import guiDiscussionBoard.ControllerDiscussionBoard;
  * the controller actions for the Staff Discussion Board page including loading posts and replies
  * from the database, creating post cards, handling reply creation, and navigation. It also
  * enables the ability to perform the Staff functions of giving feedback to students' posts and
- * flagging inappropriate posts. </p>
+ * flagging inappropriate posts.
  * 
  * The class has been written assuming that the View or the Model are the only class methods that
  * can invoke these methods.  This is why each has been declared at "protected".  Do not change any
@@ -128,7 +128,6 @@ public class ControllerStaffDiscussionBoard {
 					replyList.addReply(reply);
 				}
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -149,7 +148,8 @@ public class ControllerStaffDiscussionBoard {
 	 *
 	 */
 	protected static void performSearch() {
-	    String keyword = ViewStaffDiscussionBoard.textfield_Search.getText().trim().toLowerCase();
+	    // This allows the user to search for a keyword without regard to capitalization or spaces
+		String keyword = ViewStaffDiscussionBoard.textfield_Search.getText().trim().toLowerCase();
 	    if (keyword.isEmpty()) {
 	        repaintTheWindow();
 	        return;
@@ -158,6 +158,8 @@ public class ControllerStaffDiscussionBoard {
 	    ViewStaffDiscussionBoard.scrollPane_PostBody.setContent(null);
 	    try {
 	        List<Post> allPosts = theDatabase.getPostObjects();
+	        // Defaults to false but will turn true as soon as at least one post matching the
+	        // keyword is found
 	        boolean found = false;
 	        for (Post post : allPosts) {
 	            if (!post.getIsDeleted() &&
@@ -167,6 +169,7 @@ public class ControllerStaffDiscussionBoard {
 	                found = true;
 	            }
 	        }
+	        // If no post matching the keyword is found, display an error message
 	        if (!found) {
 	        	ViewStaffDiscussionBoard.postCardList.getChildren().add(
 	                new Label("No posts matching: " + keyword));
@@ -224,12 +227,12 @@ public class ControllerStaffDiscussionBoard {
 	    Label thread = new Label(post.getThread());
 	    thread.setStyle("-fx-font-size: 11px; -fx-text-fill: gray; -fx-font-style: italic;");
 	    
-	    javafx.scene.layout.HBox topRow = new javafx.scene.layout.HBox();
+	    javafx.scene.layout.HBox bottomRow = new javafx.scene.layout.HBox();
 	    javafx.scene.layout.Region spacer = new javafx.scene.layout.Region();
 	    javafx.scene.layout.HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
-	    topRow.getChildren().addAll(title, spacer, thread);
+	    bottomRow.getChildren().addAll(authorAndTime, spacer, thread);
 	    
-	    postCard.getChildren().addAll(topRow, authorAndTime);
+	    postCard.getChildren().addAll(title, bottomRow);
 	    postCard.setCursor(Cursor.HAND);
 	    postCard.setOnMouseClicked((_) -> {
 	    	currentPost = post;
@@ -243,11 +246,10 @@ public class ControllerStaffDiscussionBoard {
 	/**********
 	 * <p> Method: displayPostCards() </p>
 	 * 
-	 * <p> Description: This method populates the post cards Scroll Pane with which shows
-	 * a list of posts by subject line. The post cards visible is based on which thread has
+	 * <p> Description: This method populates the post cards Scroll Pane, which shows
+	 * a list of posts by subject line. The post cards visible are based on which thread has
 	 * been selected. If no thread has been selected, all post cards are visible. </p>
 	 * 
-	 * @param postObjects the list of Post objects to display as post cards
 	 *  
 	 */
 	protected static void displayPostCards() {
@@ -347,14 +349,19 @@ public class ControllerStaffDiscussionBoard {
 				);
 	    }
 		
-		if (onReplyForm == true) {
+		// Checks if the Reply button has been clicked so the newReplyForm can
+	    // be displayed
+	    if (onReplyForm == true) {
 			VBox replyForm = newReplyForm();
 			fullPost.getChildren().add(replyForm);
+			// Sets onReplyFrom back to false so subsequent loading of the post
+			// details will not include the newReplyForm
 			onReplyForm = false;
 		}
 		
-		List<Reply> replies = ControllerDiscussionBoard.replyList.getAllReplies();
+		List<Reply> replies = ControllerStaffDiscussionBoard.replyList.getAllReplies();
 		for (Reply reply : replies) {
+			// Checks if the Reply object in replies has a post ID matching the current post
 			if (reply.getPostID() == currentPost.getPostID() && reply.getParentReplyID() == 0) {
 				fullPost.getChildren().add(displayReply(reply));
 			}
@@ -395,9 +402,10 @@ public class ControllerStaffDiscussionBoard {
 				hBox_Buttons);
 				
 		button_Submit.setOnAction((_) ->
-			{ControllerStaffDiscussionBoard.newReply(currentPost.getPostID(),
+			{newReply(currentPost.getPostID(),
 				textArea_ReplyContent.getText(), ViewStaffDiscussionBoard.theUser.getUserName(), 0, false, 0);
-				displayPost(currentPost);
+			repaintTheWindow();	
+			displayPost(currentPost);
 			});
 		button_Cancel.setOnAction((_) ->
 			{displayPost(currentPost);
@@ -438,7 +446,7 @@ public class ControllerStaffDiscussionBoard {
 				hBox_Buttons);
 				
 		button_Submit.setOnAction((_) -> {
-			if (ControllerStaffDiscussionBoard.newReply(currentPost.getPostID(),
+			if (newReply(currentPost.getPostID(),
 				textArea_ReplyContent.getText(), ViewStaffDiscussionBoard.theUser.getUserName(),
 				reply.getReplyID(), false, 0)) {
 				theDatabase.updateHasReplies(reply.getReplyID(), true);
@@ -459,13 +467,13 @@ public class ControllerStaffDiscussionBoard {
 	/**********
 	 * <p> Method: newReply() </p>
 	 * 
-	 * <p> Description: This creates a Reply object and then passes that Rely object
+	 * <p> Description: This creates a Reply object and then passes that Reply object
 	 * to the createReply method in the database. </p>
 	 * 
 	 * @param postID the ID of the post being replied to
 	 * @param body the text content of the reply
 	 * @param authorUsername the username of the reply author
-	 * @param parentReplyID the ID of the parent reply if replying to a reply, 0 if top-level (Story 23)
+	 * @param parentReplyID the ID of the parent reply if replying to a reply, 0 if top-level
 	 * @param hasReplies whether this reply has child replies
 	 * @param numReplies the number of child replies
 	 * 
@@ -506,8 +514,8 @@ public class ControllerStaffDiscussionBoard {
 	    Alert alertSuccess = new Alert(Alert.AlertType.CONFIRMATION);
 	    alertSuccess.setContentText("Reply successfully created!");
 	    alertSuccess.showAndWait();
-	    ViewStaffDiscussionBoard.scrollPane_PostBody.setContent(null);
 	    repaintTheWindow();
+	    displayPost(currentPost);
 	    return true;
 	}
 	
@@ -519,7 +527,8 @@ public class ControllerStaffDiscussionBoard {
 	 * replies from the currently selected post. </p>
 	 * 
 	 * @param reply the Reply object to display
-	 * @return a VBOX containing the reply author, body, and reply button
+	 * 
+	 * @return a VBox containing the reply author, body, and reply button
 	 * 
 	 */
 	protected static VBox displayReply(Reply reply) {
@@ -540,6 +549,9 @@ public class ControllerStaffDiscussionBoard {
 			viewReply.getChildren().add(replyToReply);
 		});
 		
+		// If the reply has child replies, nest those child replies under the
+		// parent reply. Only replies to the post are allowed to have child
+		// replies. No child replies shall have child replies.
 		if (!reply.getHasReplies()) {
 			viewReply.getChildren().addAll(
 				author,
@@ -578,6 +590,7 @@ public class ControllerStaffDiscussionBoard {
 	 * replies to replies from the currently selected post. </p>
 	 * 
 	 * @param reply the Reply object to display
+	 * 
 	 * @return a VBox containing the reply author and body
 	 * 
 	 */
