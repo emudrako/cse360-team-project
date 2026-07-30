@@ -43,6 +43,8 @@ public class Request {
 	 *  the request
 	 *
 	 * @param description specifies the description of the request; must be non-empty
+	 * 
+	 * @see RequestManagementTests.java for JUnit tests
 	 *
 	 * @throws IllegalArgumentException if description is null or blank
 	 *

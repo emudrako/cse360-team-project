@@ -321,6 +321,8 @@ public class ControllerStaffRequests {
 	* full request details when the user clicks on a request card. </p>
 	*
 	* @param request the Request object to display in the request details Scroll Pane
+	* 
+	* @see RequestManagementTests.java for JUnit tests
 	*
 	*/
 	protected static void displayRequest(Request request) {
