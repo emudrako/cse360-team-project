@@ -36,7 +36,7 @@ public class RequestComment {
 	 *
 	 * @param requestID specifies the request that the comment belongs to
 	 * 
-	 * @param requestorUsername specifies the username of the staff member submitting
+	 * @param commenterUsername specifies the username of the staff member submitting
 	 * the request
 	 *
 	 * @param description specifies the description of the request; must be non-empty

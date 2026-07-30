@@ -48,7 +48,7 @@ public class EvaluationParameterList {
 
 
 	/*****
-	 * <p> Method: List<EvaluationParameter> getAllParameters() </p>
+	 * <p> Method: List EvaluationParameter getAllParameters() </p>
 	 *
 	 * <p> Description: This getter returns the complete list of EvaluationParameter
 	 *  objects. </p>

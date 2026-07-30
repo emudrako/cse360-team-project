@@ -91,7 +91,7 @@ public class ControllerStaffHome {
 	/**********
 	 * <p> Method: performFeedback() </p>
 	 *
-	 * <p> Description: Directs the staff user to the Review & Feedback page. </p>
+	 * <p> Description: Directs the staff user to the Review and Feedback page. </p>
 	 *
 	 */
 	protected static void performReview() {

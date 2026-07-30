@@ -47,7 +47,7 @@ public class ThreadList {
 
 
 	/*****
-	 * <p> Method: List<Thread> getAllThreads() </p>
+	 * <p> Method: List Thread getAllThreads() </p>
 	 *
 	 * <p> Description: This getter returns the complete list of Thread objects. </p>
 	 *

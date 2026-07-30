@@ -322,7 +322,11 @@ public class ControllerStaffRequests {
 	*
 	* @param request the Request object to display in the request details Scroll Pane
 	* 
-	* @see RequestManagementTests.java for JUnit tests
+	* @see RequestManagementTests#testCreateRequest()
+	* 
+	* @see RequestManagementTests#testCloseRequest()
+	* 
+	* @see RequestManagementTests#testReopenRequest()
 	*
 	*/
 	protected static void displayRequest(Request request) {
@@ -661,6 +665,12 @@ public class ControllerStaffRequests {
 	 * clears the form fields, and navigates back to the Staff Requests page. An error message is
 	 * displayed if validation fails or a database exception occurs. </p>
 	 * 
+	 * @param requestID specifies the request that the comment is linked to
+	 * 
+	 * @param commenterUsername specifies the user that created the comment
+	 * 
+	 * @param description specifies the description of the comment
+	 * 
 	 */
 	protected static void performCreateComment(int requestID, String commenterUsername, String description) {
 	    String errMsg;
@@ -737,8 +747,7 @@ public class ControllerStaffRequests {
 	 * @param ff	The font to be used
 	 * @param f		The size of the font to be used
 	 * @param w		The width of the ComboBox
-	 * @param x		The location from the left edge (x axis)
-	 * @param y		The location from the top (y axis)
+	 * 
 	 */
 	protected static void setupComboBoxUI(ComboBox <String> c, String ff, double f, double w) {
 		c.setStyle("-fx-font: " + f + " " + ff + ";");
