@@ -44,7 +44,7 @@ public class Request {
 	 *
 	 * @param description specifies the description of the request; must be non-empty
 	 * 
-	 * @see RequestManagementTests.java for JUnit tests
+	 * @see RequestManagementTests#testCreateRequest()
 	 *
 	 * @throws IllegalArgumentException if description is null or blank
 	 *
@@ -181,7 +181,7 @@ public class Request {
 	 *
 	 * <p> Description: This setter defines the assignedTo attribute. </p>
 	 *
-	 * @param status specifies the new assignedTo value for this request
+	 * @param assignedTo specifies the new assignedTo value for this request
 	 *
 	 */
 	public void setAssignedTo(String assignedTo) { this.assignedTo = assignedTo; }

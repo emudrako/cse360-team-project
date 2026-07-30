@@ -295,7 +295,7 @@ public class ViewStaffParameters{
 	}
 	
 	/**********
-	 * <p> Method: displayParamCards(List<EvaluationParameter> paramObjects) </p>
+	 * <p> Method: displayParamCards(List EvaluationParameter paramObjects) </p>
 	 *
 	 * <p> Description: Populates the parameter cards horizontal list with one card
 	 *  per EvaluationParameter, satisfying the Read/display portion of STORY 2. </p>

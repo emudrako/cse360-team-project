@@ -395,7 +395,7 @@ public class Database {
  *  <p> Method: List getUserList() </p>
  *  
  *  <P> Description: Generate an List of Strings, one for each user in the database,
- *  starting with "<Select User>" at the start of the list. </p>
+ *  starting with Select User at the start of the list. </p>
  *  
  *  @return a list of userNames found in the database.
  */
@@ -644,7 +644,7 @@ public class Database {
 	}
 	
 	/*******
-	 * <p> Method: List<String[]> getAllInvitations() </p>
+	 * <p> Method: List String getAllInvitations() </p>
 	 * 
 	 * <p> Description: Return the InvitationCodes table.</p>
 	 *  
@@ -1134,14 +1134,14 @@ public class Database {
 	
 	
 	/*******
-	 * <p> Method: void updateOneTimePassword(String username) </p>
+	 * <p> Method: void updateOneTimePassword(String username, String value) </p>
 	 * 
 	 * <p> Description: Update the password of a user given that user's username and the new
 	 *		password.</p>
 	 * 
 	 * @param username is the username of the user
 	 * 
-	 * @param password is the new password for the user
+	 * @param value is true or false depending on if the password is a one-time password
 	 *  
 	 */
 	// update the password
@@ -1614,7 +1614,7 @@ public class Database {
 	 * 
 	 * <p> Description: This creates a list of post objects from the database </p>
 	 * 
-	 * @returns a list of Post objects created from the database
+	 * @return a list of Post objects created from the database
 	 * 
 	 */
 		public List<Post> getPostObjects() throws SQLException {
@@ -1808,7 +1808,7 @@ public class Database {
 	 * 
 	 * <p> Description: This creates a list of reply objects from the database </p>
 	 * 
-	 * @returns a list of Reply objects created from the database
+	 * @return a list of Reply objects created from the database
 	 * 
 	 */
 		public List<Reply> getReplyObjects() throws SQLException {
@@ -2119,7 +2119,7 @@ public class Database {
 	 *
 	 * @throws SQLException when there is an issue creating the SQL command or executing it.
 	 *
-	 * @returns a String containing the name of the thread the post is assigned to.
+	 * @return a String containing the name of the thread the post is assigned to.
 	 *
 	 */
 	public String getThread(int postID) throws SQLException {
@@ -2384,7 +2384,9 @@ public class Database {
 	 *
 	 * @param param specifies the EvaluationParameter object to be added to the database.
 	 *
-	 * @see EvaluationParameterCrudTest testCreateValidParameter , testUniqueIDs
+	 * @see EvaluationParameterCrudTest#testCreateValidParameter()
+	 * 
+	 * @see EvaluationParameterCrudTest#testUniqueIDs()
 	 * 
 	 */
 	
@@ -2424,7 +2426,9 @@ public class Database {
 	 * @return an EvaluationParameter object matching the specified paramID, or null if
 	 *  not found.
 	 *
-	 * @see EvaluationParameterCrudTest testReadParameter, testRaedNonexistentID
+	 * @see EvaluationParameterCrudTest#testReadParameter()
+	 * 
+	 * @see EvaluationParameterCrudTest#testRaedNonexistentID()
 	 * 
 	 */
 	public EvaluationParameter readEvaluationParameter(int paramID) {
@@ -2506,12 +2510,15 @@ public class Database {
 	 *
 	 * @param newDescription specifies the new description for the parameter.
 	 *
-	 * @param maxScore specifies the new maximum score for the parameter.
+	 * @param newMaxScore specifies the new maximum score for the parameter.
 	 *
-	 * @param weight specifies the new weight for the parameter (1-10).
+	 * @param newWeight specifies the new weight for the parameter (1-10).
 	 * 
-	 * @see EvaluationParameterCrudTest testUpdateParameter, testUpdateNonexistentID, 
-	 * testUpdateRejectsInvalidData
+	 * @see EvaluationParameterCrudTest#testUpdateParameter()
+	 * 
+	 * @see EvaluationParameterCrudTest#testUpdateNonexistentID()
+	 * 
+	 * @see EvaluationParameterCrudTest#testUpdateRejectsInvalidData()
 	 *
 	 */
 	public boolean updateEvaluationParameter(int paramID, String newName, String newDescription,
@@ -2542,8 +2549,11 @@ public class Database {
 	 *
 	 * @param paramID specifies the ID of the parameter to delete.
 	 *
-	 * @see EvaluationParameterCrudTest testDeleteParameter, testDeleteNonexistentID, 
-	 * testDeleteDoesNotAffectOtherRows
+	 * @see EvaluationParameterCrudTest#testDeleteParameter()
+	 * 
+	 * @see EvaluationParameterCrudTest#testDeleteNonexistentID()
+	 * 
+	 * @see EvaluationParameterCrudTest#testDeleteDoesNotAffectOtherRows()
 	 *
 	 */
 	public boolean deleteEvaluationParameter(int paramID) {
@@ -2922,7 +2932,7 @@ public class Database {
 	 *
 	 * <p> Description: Updates the isClosed value of an existing request in RequestsDB. </p>
 	 *
-	 * @param request specifies the request to update.
+	 * @param requestID specifies the request to update.
 	 *
 	 * @param value specifies the new isClosed value for the request.
 	 *
@@ -2967,7 +2977,7 @@ public class Database {
 	 * <p> Description: Updates the status of an existing open request in RequestsDB.
 	 *  Only open requests may be updated. </p>
 	 *
-	 * @param request specifies the request to update.
+	 * @param requestID specifies the request to update.
 	 *
 	 * @param newStatus specifies the new status for the request.
 	 *
@@ -2990,7 +3000,7 @@ public class Database {
 	 * <p> Description: Updates the assignedTo value of an existing open request in RequestsDB.
 	 *  Only open requests may be updated. </p>
 	 *
-	 * @param request specifies the request to update.
+	 * @param requestID specifies the request to update.
 	 *
 	 * @param newAssigned specifies the new assignedTo value for the request.
 	 *
@@ -3012,7 +3022,7 @@ public class Database {
 	 *
 	 * <p> Description: Updates the adminNotes value of an existing request in RequestsDB. </p>
 	 *
-	 * @param request specifies the request to update.
+	 * @param requestID specifies the request to update.
 	 *
 	 * @param newAdminNotes specifies the new adminNotes value for the request.
 	 *
@@ -3034,7 +3044,7 @@ public class Database {
 	 *
 	 * <p> Description: Updates the closedAt value of an existing request in RequestsDB. </p>
 	 *
-	 * @param request specifies the request to update.
+	 * @param requestID specifies the request to update.
 	 *
 	 * @param closedAt specifies the new closedAt value for the request.
 	 *
@@ -3064,14 +3074,14 @@ public class Database {
 
 	
 	/*******
-	 * <p> Method: createRequestComment(Request request) </p>
+	 * <p> Method: createRequestComment(RequestComment comment) </p>
 	 *
 	 * <p> Description: Creates a new row in RequestsDB using the request parameter and
 	 *  sets the database-generated requestID back onto the Request object. </p>
 	 *
 	 * @throws SQLException when there is an issue creating the SQL command or executing it.
 	 *
-	 * @param request specifies the Request object to be added to the database.
+	 * @param comment specifies the comment to be added to the database
 	 *
 	 */
 	public void createRequestComment(RequestComment comment) throws SQLException {

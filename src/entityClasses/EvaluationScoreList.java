@@ -57,7 +57,7 @@ public class EvaluationScoreList {
 
 
 	/*****
-	 * <p> Method: List<EvaluationScore> getAllScores() </p>
+	 * <p> Method: List EvaluationScore getAllScores() </p>
 	 *
 	 * <p> Description: This getter returns the complete list of EvaluationScore
 	 *  objects. </p>
@@ -71,7 +71,7 @@ public class EvaluationScoreList {
 
 
 	/*****
-	 * <p> Method: List<EvaluationScore> getScoresForStudent(String studentUsername) </p>
+	 * <p> Method: List EvaluationScore getScoresForStudent(String studentUsername) </p>
 	 *
 	 * <p> Description: This method returns every EvaluationScore currently saved for
 	 *  the specified student, one per scored parameter. Supports Story 3 criterion 3,

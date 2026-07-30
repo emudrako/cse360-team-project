@@ -51,7 +51,7 @@ public class RequestList {
 
 
 	/*****
-	 * <p> Method: List<Request> getAllRequests() </p>
+	 * <p> Method: List Request getAllRequests() </p>
 	 *
 	 * <p> Description: This method returns all Request objects. </p>
 	 *
@@ -65,7 +65,7 @@ public class RequestList {
 	
 	
 	/*****
-	 * <p> Method: List<Request> getAllOpenRequests() </p>
+	 * <p> Method: List Request getAllOpenRequests() </p>
 	 *
 	 * <p> Description: This method returns all open (not closed) Request objects. </p>
 	 *
@@ -84,7 +84,7 @@ public class RequestList {
 
 
 	/*****
-	 * <p> Method: List<Request> getAllClosedRequests() </p>
+	 * <p> Method: List Request getAllClosedRequests() </p>
 	 *
 	 * <p> Description: This method returns all closed Request objects. </p>
 	 *
@@ -160,7 +160,7 @@ public class RequestList {
 	 *
 	 * @param adminNotes specifies the admin's notes; must be non-empty
 	 * 
-	 * @see RequestManagementTests.java for JUnit tests
+	 * @see RequestManagementTests#testCloseRequest()
 	 *
 	 * @throws IllegalArgumentException if adminNotes is empty or request is not found
 	 *
@@ -192,7 +192,7 @@ public class RequestList {
 	 * 
 	 * @param newDescription specifies the description for the re-opened request
 	 * 
-	 * @see RequestManagementTests.java for JUnit tests
+	 * @see RequestManagementTests#testReopenRequest()
 	 *
 	 * @return a new open Request with closedRequestId set to the original request's ID,
 	 *  or null if the original request is not found
