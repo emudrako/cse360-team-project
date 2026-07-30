@@ -10,6 +10,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
@@ -337,6 +338,12 @@ public class ControllerStaffRequests {
 	    Label subject = new Label(request.getSubject());
 	    subject.setStyle("-fx-font-weight: bold;" + "-fx-font-size: 18px;");
 		
+	    String formattedTime1 = "";
+	    if (request.getCreatedAt() != null) {
+	        formattedTime1 = request.getCreatedAt().format(
+	            java.time.format.DateTimeFormatter.ofPattern("MMM d, yyyy h:mm a"));
+	    }
+	    Label createdAt = new Label("Created At: " + formattedTime1);
 	    Label requestID = new Label("Request ID: " + request.getRequestID());
 	    Label requestor = new Label("Requestor: " + request.getRequestorUsername());
 	    Label status = new Label("Status: " + request.getStatus());
@@ -354,30 +361,16 @@ public class ControllerStaffRequests {
     		reopenRequest.setContentText("Description: ");
 			Optional<String> result = reopenRequest.showAndWait();
 			if (result.isPresent()) {
-				String requestorUsername = currentRequest.getRequestorUsername();
-				String requestSubject = currentRequest.getSubject();
-				// If the request to be re-opened was itself a re-opened request, this
-				// removes the request reference in the subject line
-				int index = requestSubject.indexOf('[');
-				if (index != -1) {
-					requestSubject = requestSubject.substring(0, index-1);
-				}
-				// Adds a reference to the closed parent request in the subject line
-				requestSubject += " [Re-Opened from "
-						+ "ID: " + currentRequest.getRequestID() + "]";
 				String newDescription = result.get();
-				Request newRequest = new Request(requestorUsername, requestSubject, newDescription);
-				// Opens the new request with an Assigned status
-				newRequest.setStatus("Assigned");
-				// The new request will be automatically assigned to the Admin that closed it
-				newRequest.setAssignedTo(currentRequest.getAssignedTo());
-				newRequest.setClosedRequestId(currentRequest.getRequestID());
-				allRequests.addRequest(newRequest);
+				Request newRequest = allRequests.reopenRequest(currentRequest.getRequestID(),
+						newDescription);
+				allRequests.addRequest(newRequest);;
 				try {
 					theDatabase.createRequest(newRequest);
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
+				theDatabase.updateClosedRequestID(newRequest.getRequestID(), currentRequest.getRequestID());
 				currentRequest = newRequest;
 				repaintTheWindow();
 	    		displayRequest(currentRequest);
@@ -422,8 +415,8 @@ public class ControllerStaffRequests {
 					// Unassigning a request will set its status to Open
 					request.setStatus("Open");
 					request.setAssignedTo(comboBox_adminSelect.getValue());
-					theDatabase.updateRequestStatus(request, "Open");
-					theDatabase.updateRequestAssigned(request, comboBox_adminSelect.getValue());
+					theDatabase.updateRequestStatus(request.getRequestID(), "Open");
+					theDatabase.updateRequestAssigned(request.getRequestID(), comboBox_adminSelect.getValue());
 					Alert assignConfirmation = new Alert(Alert.AlertType.INFORMATION);
 					assignConfirmation.setTitle("Success!");
 					assignConfirmation.setHeaderText("Request has been successfully unassigned.");
@@ -432,8 +425,8 @@ public class ControllerStaffRequests {
 				else {
 					request.setStatus("Assigned");
 					request.setAssignedTo(comboBox_adminSelect.getValue());
-					theDatabase.updateRequestStatus(request, "Assigned");
-					theDatabase.updateRequestAssigned(request, comboBox_adminSelect.getValue());
+					theDatabase.updateRequestStatus(request.getRequestID(), "Assigned");
+					theDatabase.updateRequestAssigned(request.getRequestID(), comboBox_adminSelect.getValue());
 					Alert assignConfirmation = new Alert(Alert.AlertType.INFORMATION);
 					assignConfirmation.setTitle("Success!");
 					assignConfirmation.setHeaderText("Request has been successfully assigned to: "
@@ -457,21 +450,18 @@ public class ControllerStaffRequests {
 				Optional<String> result = adminNotes.showAndWait();
 				if (result.isPresent()) {
 					String notes = result.get();
-					LocalDateTime closedAt = LocalDateTime.now();
-					request.setAssignedTo(ViewStaffRequests.theUser.getUserName());
-					request.setAdminNotes(notes);
-					request.setStatus("Closed");
-					request.setClosedAt(closedAt);
-					theDatabase.updateRequestAssigned(request, ViewStaffRequests.theUser.getUserName());
-					theDatabase.updateAdminNotes(request, notes);
-					theDatabase.updateRequestStatus(request, "Closed");
-					theDatabase.updateRequestIsClosed(request, true);
-					theDatabase.updateRequestClosedAt(request, Timestamp.valueOf(closedAt));
-					request.setIsClosed(true);
+					allRequests.closeRequest(currentRequest.getRequestID(),
+						ViewStaffRequests.theUser.getUserName(), notes);
+					theDatabase.updateRequestAssigned(request.getRequestID(), ViewStaffRequests.theUser.getUserName());
+					theDatabase.updateAdminNotes(request.getRequestID(), notes);
+					theDatabase.updateRequestStatus(request.getRequestID(), "Closed");
+					theDatabase.updateRequestIsClosed(request.getRequestID(), true);
+					theDatabase.updateRequestClosedAt(request.getRequestID(), Timestamp.valueOf(LocalDateTime.now()));
 					repaintTheWindow();
 		    		displayRequest(currentRequest);
 				}
 				else {
+					repaintTheWindow();
 					displayRequest(currentRequest);
 				}
 				});
@@ -505,6 +495,7 @@ public class ControllerStaffRequests {
 		fullRequest.getChildren().addAll(
 				subject,
 				requestID,
+				createdAt,
 				requestor,
 				status,
 				assignedTo
@@ -533,14 +524,31 @@ public class ControllerStaffRequests {
 		if (currentRequest.getAdminNotes() != null) {
 			VBox displayAdminNotes = new VBox(5);
 			displayAdminNotes.setPadding(new Insets(15));
-			Label admin = new Label("*Admin Notes*");
+			
+			HBox topRow = new javafx.scene.layout.HBox();
+		    Region topSpacer = new javafx.scene.layout.Region();
+		    HBox.setHgrow(topSpacer, javafx.scene.layout.Priority.ALWAYS);
+		    
+			String formattedTime2 = "";
+		    if (request.getClosedAt() != null) {
+		        formattedTime2 = request.getClosedAt().format(
+		            java.time.format.DateTimeFormatter.ofPattern("MMM d, yyyy h:mm a"));
+		    }
+		    
+		    Label closedAt = new Label(formattedTime2);
+			
+		    Label admin = new Label("*Admin Notes*");
 			admin.setStyle("-fx-font-weight: bold;" + "-fx-font-size: 14px;");
+			
+			topRow.getChildren().addAll(admin, topSpacer, closedAt);
+			
 			TextArea adminNotes = new TextArea(currentRequest.getAdminNotes());
 			adminNotes.setPrefHeight(100);
 			adminNotes.setWrapText(true);
 			adminNotes.setEditable(false);
+			
 			displayAdminNotes.getChildren().addAll(
-					admin,
+					topRow,
 					adminNotes);
 			fullRequest.getChildren().add(displayAdminNotes);
 		}
@@ -572,8 +580,21 @@ public class ControllerStaffRequests {
 	    VBox requestComment = new VBox(5);
 	    requestComment.setPadding(new Insets(15));
 
+	    HBox topRow = new javafx.scene.layout.HBox();
+	    Region topSpacer = new javafx.scene.layout.Region();
+	    HBox.setHgrow(topSpacer, javafx.scene.layout.Priority.ALWAYS);
+	   
 	    Label commenter = new Label("Commenter: " + comment.getCommenterUsername());
 	    commenter.setStyle("-fx-font-weight: bold;" + "-fx-font-size: 14px;");
+	    
+	    String formattedTime = "";
+	    if (comment.getCreatedAt() != null) {
+	        formattedTime = comment.getCreatedAt().format(
+	            java.time.format.DateTimeFormatter.ofPattern("MMM d, yyyy h:mm a"));
+	    }
+	    Label createdAt = new Label(formattedTime);
+	    
+	    topRow.getChildren().addAll(commenter, topSpacer, createdAt);
 		
 	    TextArea description = new TextArea(comment.getDescription());
 	    description.setPrefHeight(100);
@@ -581,7 +602,7 @@ public class ControllerStaffRequests {
 	    description.setEditable(false);
 	    
 	    requestComment.getChildren().addAll(
-				commenter,
+				topRow,
 				description
 				);
 	    return requestComment;

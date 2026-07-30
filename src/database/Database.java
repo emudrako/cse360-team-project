@@ -2764,8 +2764,49 @@ public class Database {
 	 * @return a Request object matching the specified requestID, or null if not found.
 	 *
 	 */
-	public Request readRequest(int requestID) {
-		return null;
+	public Request readRequest(int requestID) throws SQLException {	
+		Request requestObject = null;
+		
+		String query = "SELECT * FROM RequestsDB";
+		
+		PreparedStatement stmt = connection.prepareStatement(query);
+		ResultSet rs = stmt.executeQuery();
+			
+		if (rs.wasNull()) {
+			return null;
+		}
+		else {
+			while (rs.next()) {
+				int requestId = rs.getInt("requestID");
+				String requestorUsername = rs.getString("requestorUsername");
+				String subject = rs.getString("subject");
+				String description = rs.getString("description");
+				String status = rs.getString("status");
+				String assignedTo = rs.getString("assignedTo");
+				boolean isClosed = rs.getBoolean("isClosed");
+				String adminNotes = rs.getString("adminNotes");
+				int closedRequestId = rs.getInt("closedRequestId");
+				Timestamp createdAt = rs.getTimestamp("createdAt");
+				Timestamp closedAt = rs.getTimestamp("closedAt");
+				requestObject = new Request(
+					requestorUsername,
+					subject,
+					description
+					);
+				requestObject.setRequestID(requestId);
+				requestObject.setStatus(status);
+				requestObject.setAssignedTo(assignedTo);
+				requestObject.setIsClosed(isClosed);
+				requestObject.setAdminNotes(adminNotes);
+				requestObject.setClosedRequestId(closedRequestId);
+				requestObject.setCreatedAt(createdAt.toLocalDateTime());
+				if (closedAt != null) {
+					requestObject.setClosedAt(closedAt.toLocalDateTime());
+				}
+			}
+		}
+		
+		return requestObject;
 	}
 
 	/*******
@@ -2837,6 +2878,26 @@ public class Database {
 	}
 	
 	/*******
+	 * <p> Method: closeRequest(int requestID, String assignedTo, String adminNotes) </p>
+	 *
+	 * <p> Description: Closes a requests and updates its status in RequestsDB. </p>
+	 *
+	 * @param requestID specifies the ID of the request to be closed.
+	 *
+	 *@param assignedTo specifies the user that the request was closed by.
+	 *
+	 * @param adminNotes specifies the adminNotes for the request.
+	 *
+	 */
+	public void closeRequest(int requestID, String assignedTo, String adminNotes) {
+		updateRequestIsClosed(requestID, true);
+		updateRequestStatus(requestID, "Closed");
+		updateRequestAssigned(requestID, assignedTo);
+		updateAdminNotes(requestID, adminNotes);
+		
+	}
+	
+	/*******
 	 * <p> Method: updateRequestIsClosed(Request request, boolean value) </p>
 	 *
 	 * <p> Description: Updates the isClosed value of an existing request in RequestsDB. </p>
@@ -2846,11 +2907,32 @@ public class Database {
 	 * @param value specifies the new isClosed value for the request.
 	 *
 	 */
-	public void updateRequestIsClosed(Request request, boolean value) {
-		int requestID = request.getRequestID();
+	public void updateRequestIsClosed(int requestID, boolean value) {
 		String query = "UPDATE RequestsDB SET isClosed = ? WHERE requestID = ?";
 		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
 			pstmt.setBoolean(1, value);
+			pstmt.setInt(2, requestID);
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	/*******
+	 * <p> Method: updateClosedRequestID(int requestID, int closedRequestID) </p>
+	 *
+	 * <p> Description: Updates the closedRequest ID of a re-opened request. </p>
+	 *
+	 * @param requestID specifies the request to update.
+	 *
+	 * @param closedRequestID specifies the request ID of the re-opened request
+	 *
+	 */
+	public void updateClosedRequestID(int requestID, int closedRequestID) {
+		String query = "UPDATE RequestsDB SET closedRequestId = ? WHERE requestID = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setInt(1, closedRequestID);
 			pstmt.setInt(2, requestID);
 			pstmt.executeUpdate();
 		} catch (SQLException e) {
@@ -2870,11 +2952,7 @@ public class Database {
 	 * @param newStatus specifies the new status for the request.
 	 *
 	 */
-	public void updateRequestStatus(Request request, String newStatus) {
-		if (request.getIsClosed()) {
-			return;
-		}
-		int requestID = request.getRequestID();
+	public void updateRequestStatus(int requestID, String newStatus) {
 		String query = "UPDATE RequestsDB SET status = ? WHERE requestID = ?";
 		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
 			pstmt.setString(1, newStatus);
@@ -2897,11 +2975,7 @@ public class Database {
 	 * @param newAssigned specifies the new assignedTo value for the request.
 	 *
 	 */
-	public void updateRequestAssigned(Request request, String newAssigned) {
-		if (request.getIsClosed()) {
-			return;
-		}
-		int requestID = request.getRequestID();
+	public void updateRequestAssigned(int requestID, String newAssigned) {
 		String query = "UPDATE RequestsDB SET assignedTo = ? WHERE requestID = ?";
 		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
 			pstmt.setString(1, newAssigned);
@@ -2923,8 +2997,7 @@ public class Database {
 	 * @param newAdminNotes specifies the new adminNotes value for the request.
 	 *
 	 */
-	public void updateAdminNotes(Request request, String newAdminNotes) {
-		int requestID = request.getRequestID();
+	public void updateAdminNotes(int requestID, String newAdminNotes) {
 		String query = "UPDATE RequestsDB SET adminNotes = ? WHERE requestID = ?";
 		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
 			pstmt.setString(1, newAdminNotes);
@@ -2946,8 +3019,7 @@ public class Database {
 	 * @param closedAt specifies the new closedAt value for the request.
 	 *
 	 */
-	public void updateRequestClosedAt(Request request, Timestamp closedAt) {
-		int requestID = request.getRequestID();
+	public void updateRequestClosedAt(int requestID, Timestamp closedAt) {
 		String query = "UPDATE RequestsDB SET closedAt = ? WHERE requestID = ?";
 		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
 			pstmt.setTimestamp(1, closedAt);

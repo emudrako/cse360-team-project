@@ -170,7 +170,14 @@ public class ViewCreateRequest {
 
 	    // submit button
 	    setupButtonUI(button_Submit, "Dialog", 16, 100, Pos.CENTER, 660, 650);
-	    button_Submit.setOnAction((_) -> { ControllerCreateRequest.performCreateRequest(); 
+	    button_Submit.setOnAction((_) -> { 
+	    		String requestorUsername = theUser.getUserName();
+	    		String subject = textfield_Subject.getText();
+	    		String description = textarea_Description.getText();
+	    		ControllerCreateRequest.performCreateRequest(requestorUsername, subject, description);
+	    		ViewCreateRequest.textfield_Subject.clear();
+		        ViewCreateRequest.textarea_Description.clear();
+		        ViewCreateRequest.label_ErrorMessage.setText("");
 	    		ControllerCreateRequest.performReturn(); });
 	    button_Submit.setStyle("-fx-background-color: #0062A3; -fx-text-fill: white; -fx-background-radius: 10; -fx-font-weight: bold; -fx-font-size: 15px;");
 

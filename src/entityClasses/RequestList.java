@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+
 /*******
  * <p> Title: RequestList Class </p>
  *
@@ -148,52 +149,73 @@ public class RequestList {
 
 
 	/*****
-	 * <p> Method: void closeRequest(int requestID, String adminNotes) </p>
+	 * <p> Method: void closeRequest(int requestID, String assignedTo, String adminNotes) </p>
 	 *
 	 * <p> Description: This method closes an open request with admin notes documenting
 	 *  the action taken. Validates that adminNotes is non-empty. </p>
 	 *
 	 * @param requestID specifies the ID of the request to close
+	 * 
+	 * @param assignedTo specifies who closed the request
 	 *
 	 * @param adminNotes specifies the admin's notes; must be non-empty
 	 *
 	 * @throws IllegalArgumentException if adminNotes is empty or request is not found
 	 *
 	 */
-	public void closeRequest(int requestID, String adminNotes) {
+	public void closeRequest(int requestID, String assignedTo, String adminNotes) {
 		if (adminNotes == null || adminNotes.trim().isEmpty()) {
 			throw new IllegalArgumentException("Admin notes must not be empty when closing a request.");
 		}
-		Request r = getRequestByID(requestID);
-		if (r == null) {
+		Request request = getRequestByID(requestID);
+		if (request == null) {
 			throw new IllegalArgumentException("Request not found.");
 		}
-		r.setAdminNotes(adminNotes);
-		r.setIsClosed(true);
-		r.setClosedAt(LocalDateTime.now());
+		LocalDateTime closedAt = LocalDateTime.now();
+		request.setAssignedTo(assignedTo);
+		request.setAdminNotes(adminNotes);
+		request.setStatus("Closed");
+		request.setClosedAt(closedAt);
+		request.setIsClosed(true);
 	}
 
 
 	/*****
-	 * <p> Method: Request reopenRequest(int closedRequestId) </p>
+	 * <p> Method: Request reopenRequest(int closedRequestId, String newDescription) </p>
 	 *
 	 * <p> Description: This method creates a new open Request linked to the original closed
 	 *  request via closedRequestId. The original request remains unchanged. </p>
 	 *
 	 * @param closedRequestId specifies the ID of the original closed request to reopen
+	 * 
+	 * @param newDescription specifies the description for the re-opened request
 	 *
 	 * @return a new open Request with closedRequestId set to the original request's ID,
 	 *  or null if the original request is not found
 	 *
 	 */
-	public Request reopenRequest(int closedRequestId) {
+	public Request reopenRequest(int closedRequestId, String newDescription) {
 		Request original = getRequestByID(closedRequestId);
 		if (original == null) {
 			return null;
 		}
-		Request reopened = new Request(original.getRequestorUsername(), original.getSubject(), original.getDescription());
-		reopened.setClosedRequestId(closedRequestId);
-		requests.add(reopened);
-		return reopened;
+		// If the request to be re-opened was itself a re-opened request, this
+		// removes the request reference in the subject line
+		String requestSubject = original.getSubject();
+		int index = requestSubject.indexOf('[');
+		if (index != -1) {
+			requestSubject = requestSubject.substring(0, index-1);
+		}
+		// Adds a reference to the closed parent request in the subject line
+		requestSubject += " [Re-Opened from "
+				+ "ID: " + original.getRequestID() + "]";
+		Request newRequest = new Request(original.getRequestorUsername(), requestSubject, newDescription);
+		// Opens the new request with an Assigned status
+		newRequest.setStatus("Assigned");
+		// The new request will be automatically assigned to the Admin that closed it
+		newRequest.setAssignedTo(original.getAssignedTo());
+		newRequest.setClosedRequestId(original.getRequestID());
+		
+		return newRequest;
 	}
 }
