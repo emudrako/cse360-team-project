@@ -52,9 +52,7 @@ public class ControllerCreateRequest {
 	 * page. Displays an error message if validation fails or a database exception occurs. </p>
 	 * 
 	 */
-	protected static void performCreateRequest() {
-	    String subject = ViewCreateRequest.textfield_Subject.getText();
-	    String description = ViewCreateRequest.textarea_Description.getText();
+	protected static void performCreateRequest(String requestorUsername, String subject, String description) {
 	    String errMsg;
 	    
 	    // Validate input using PostReplyValidator
@@ -70,19 +68,15 @@ public class ControllerCreateRequest {
 	    }
 	    
 	   // Create the request and save to database
-	   Request request = new Request(ViewCreateRequest.theUser.getUserName(), subject, description);
+	   Request request = new Request(requestorUsername, subject, description);
 	    try {
 	        theDatabase.createRequest(request);
-	        // Clear fields and return to Staff home on success
-	        ViewCreateRequest.textfield_Subject.clear();
-	        ViewCreateRequest.textarea_Description.clear();
-	        ViewCreateRequest.label_ErrorMessage.setText("");
-	        ViewCreateRequest.displayCreateRequest(
-	        		ViewCreateRequest.theStage, ViewCreateRequest.theUser);
 	    } catch (Exception e) {
-	    	ViewCreateRequest.label_ErrorMessage.setText("Error creating post: " + e.getMessage());
+	    	ViewCreateRequest.label_ErrorMessage.setText("Error creating request: " + e.getMessage());
 	    }
 	    ControllerStaffRequests.allRequests.addRequest(request);
+	    ViewCreateRequest.displayCreateRequest(
+        		ViewCreateRequest.theStage, ViewCreateRequest.theUser);
 	}
 	
 	
