@@ -159,6 +159,8 @@ public class RequestList {
 	 * @param assignedTo specifies who closed the request
 	 *
 	 * @param adminNotes specifies the admin's notes; must be non-empty
+	 * 
+	 * @see RequestManagementTests.java for JUnit tests
 	 *
 	 * @throws IllegalArgumentException if adminNotes is empty or request is not found
 	 *
@@ -189,6 +191,8 @@ public class RequestList {
 	 * @param closedRequestId specifies the ID of the original closed request to reopen
 	 * 
 	 * @param newDescription specifies the description for the re-opened request
+	 * 
+	 * @see RequestManagementTests.java for JUnit tests
 	 *
 	 * @return a new open Request with closedRequestId set to the original request's ID,
 	 *  or null if the original request is not found
