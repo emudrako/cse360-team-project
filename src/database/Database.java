@@ -96,7 +96,7 @@ public class Database {
 			connection = DriverManager.getConnection(DB_URL, USER, PASS);
 			statement = connection.createStatement();
 			// You can use this command to clear the database and restart from fresh.
-//			statement.execute("DROP ALL OBJECTS");
+//		statement.execute("DROP ALL OBJECTS");
 			createTables();  // Create the necessary tables if they don't exist
 		} catch (ClassNotFoundException e) {
 			System.err.println("JDBC Driver not found: " + e.getMessage());
@@ -192,6 +192,26 @@ public class Database {
 	    // Add numReplies to existing tables if upgrading from an older schema
 	    statement.execute("ALTER TABLE RepliesDB ADD COLUMN IF NOT EXISTS "		
 	    		+ "numReplies INT");
+	    
+	    statement.execute("ALTER TABLE PostsDB ADD COLUMN IF NOT EXISTS isFlagged BOOL DEFAULT FALSE");
+	    statement.execute("ALTER TABLE PostsDB ADD COLUMN IF NOT EXISTS flaggedBy VARCHAR(255)");
+	    statement.execute("ALTER TABLE PostsDB ADD COLUMN IF NOT EXISTS flaggedAt TIMESTAMP");
+	    statement.execute("ALTER TABLE PostsDB ADD COLUMN IF NOT EXISTS staffNote VARCHAR(1000)");
+	    statement.execute("ALTER TABLE PostsDB ADD COLUMN IF NOT EXISTS isResolved BOOL DEFAULT FALSE");
+	    statement.execute("ALTER TABLE PostsDB ADD COLUMN IF NOT EXISTS resolvedBy VARCHAR(255)");
+	    statement.execute("ALTER TABLE PostsDB ADD COLUMN IF NOT EXISTS resolvedAt TIMESTAMP");
+
+	    statement.execute("ALTER TABLE PostsDB ADD COLUMN IF NOT EXISTS isReviewed BOOL DEFAULT FALSE");
+	    statement.execute("ALTER TABLE PostsDB ADD COLUMN IF NOT EXISTS reviewedBy VARCHAR(255)");
+	    statement.execute("ALTER TABLE PostsDB ADD COLUMN IF NOT EXISTS reviewedAt TIMESTAMP");
+ 
+	    statement.execute("ALTER TABLE RepliesDB ADD COLUMN IF NOT EXISTS isFlagged BOOL DEFAULT FALSE");
+	    statement.execute("ALTER TABLE RepliesDB ADD COLUMN IF NOT EXISTS flaggedBy VARCHAR(255)");
+	    statement.execute("ALTER TABLE RepliesDB ADD COLUMN IF NOT EXISTS flaggedAt TIMESTAMP");
+	    statement.execute("ALTER TABLE RepliesDB ADD COLUMN IF NOT EXISTS staffNote VARCHAR(1000)");
+	    statement.execute("ALTER TABLE RepliesDB ADD COLUMN IF NOT EXISTS isResolved BOOL DEFAULT FALSE");
+	    statement.execute("ALTER TABLE RepliesDB ADD COLUMN IF NOT EXISTS resolvedBy VARCHAR(255)");
+	    statement.execute("ALTER TABLE RepliesDB ADD COLUMN IF NOT EXISTS resolvedAt TIMESTAMP");
 
 	    // Tracks which replies each user has already read (for unreadCount)
 	    String replyReadStatusTable = "CREATE TABLE IF NOT EXISTS ReplyReadStatusDB ("
